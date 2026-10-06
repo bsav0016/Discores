@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const read = (name) =>
   readFileSync(fileURLToPath(new URL(`../../docs/legal/${name}`, import.meta.url)), 'utf8')
+    .replace(/\r\n?/g, '\n') // same output on Windows and Linux
     .replace(/<!--[\s\S]*?-->/g, '') // drafting notes are not for readers
     .trim();
 

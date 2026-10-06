@@ -20,7 +20,7 @@ export default function ForgotPassword() {
   }
 
   return (
-    <ScrollView style={s.screen} contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled">
+    <ScrollView automaticallyAdjustKeyboardInsets style={s.screen} contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled">
       <Text style={s.muted}>
         Enter the email you signed up with and we'll send a link to choose a new password. Open the link on this phone.
       </Text>

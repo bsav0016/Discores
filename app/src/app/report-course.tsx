@@ -33,7 +33,7 @@ export default function ReportCourse() {
   }
 
   return (
-    <ScrollView style={s.screen} contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled">
+    <ScrollView automaticallyAdjustKeyboardInsets style={s.screen} contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled">
       <Text style={s.h2}>{name}</Text>
       <SectionTitle>What's wrong?</SectionTitle>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>

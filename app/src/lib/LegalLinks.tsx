@@ -10,9 +10,9 @@ export function LegalLinks({ lead = 'By continuing you agree to the' }: { lead?:
   return (
     <Text style={[s.muted, { fontSize: 12, textAlign: 'center' }]}>
       {lead}{' '}
-      <Text style={link} onPress={() => open('terms')}>Terms of Service</Text>
+      <Text style={link} accessibilityRole="link" onPress={() => open('terms')}>Terms of Service</Text>
       {' and '}
-      <Text style={link} onPress={() => open('privacy')}>Privacy Policy</Text>.
+      <Text style={link} accessibilityRole="link" onPress={() => open('privacy')}>Privacy Policy</Text>.
     </Text>
   );
 }

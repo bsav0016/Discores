@@ -103,7 +103,7 @@ export default function NewRound() {
   const list = searching ? results : cached;
 
   return (
-    <ScrollView style={s.screen} contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled">
+    <ScrollView automaticallyAdjustKeyboardInsets style={s.screen} contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled">
       <SectionTitle>Course</SectionTitle>
       <View style={{
         flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.card, borderRadius: radius.md,
@@ -174,7 +174,8 @@ export default function NewRound() {
       {guests.map((g, i) => (
         <Card key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12 }}>
           <Text style={s.body}>{g}</Text>
-          <Pressable onPress={() => setGuests(guests.filter((_, j) => j !== i))}>
+          <Pressable onPress={() => setGuests(guests.filter((_, j) => j !== i))} accessibilityRole="button"
+            accessibilityLabel={`Remove ${g}`} hitSlop={10}>
             <Text style={{ color: colors.danger, fontWeight: '600' }}>Remove</Text>
           </Pressable>
         </Card>

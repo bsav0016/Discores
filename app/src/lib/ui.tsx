@@ -74,8 +74,20 @@ export function Card({ children, style, onPress, selected }: {
   const base = [s.card, selected && { borderColor: colors.brand, backgroundColor: colors.brandSoft }, style];
   if (!onPress) return <View style={base}>{children}</View>;
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [base, pressed && { opacity: 0.85 }]}>
+    <Pressable onPress={onPress} accessibilityRole="button" style={({ pressed }) => [base, pressed && { opacity: 0.85 }]}>
       {children}
+    </Pressable>
+  );
+}
+
+/** A tappable text action ("More", "Unblock"): a real button for screen readers, with a comfortable tap area. */
+export function LinkButton({ label, onPress, accessibilityLabel, color = colors.muted }: {
+  label: string; onPress: () => void; accessibilityLabel?: string; color?: string;
+}) {
+  return (
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? label}
+      hitSlop={8} style={{ minHeight: 40, paddingHorizontal: 6, justifyContent: 'center' }}>
+      <Text style={{ color, fontWeight: '600' }}>{label}</Text>
     </Pressable>
   );
 }

@@ -86,7 +86,7 @@ export default function RoundScreen() {
       {/* Progress dots: tap to jump */}
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, justifyContent: 'center', marginVertical: 4 }}>
         {Array.from({ length: round.hole_count }, (_, i) => i + 1).map((n) => (
-          <Pressable key={n} onPress={() => setHole(n)} hitSlop={4} accessibilityLabel={`Go to hole ${n}`}
+          <Pressable key={n} onPress={() => setHole(n)} hitSlop={9} accessibilityRole="button" accessibilityLabel={`Go to hole ${n}`}
             style={{
               width: 26, height: 26, borderRadius: 13, alignItems: 'center', justifyContent: 'center',
               backgroundColor: n === hole ? colors.ink : scoredHoles(n) ? colors.brandSoft : colors.card,

@@ -66,7 +66,7 @@ export default function Settings() {
 
   if (guest) {
     return (
-      <ScrollView style={s.screen} contentContainerStyle={s.pad}>
+      <ScrollView automaticallyAdjustKeyboardInsets style={s.screen} contentContainerStyle={s.pad}>
         <Card style={{ gap: 8 }}>
           <Text style={s.h2}>You're using Discores as a guest</Text>
           <Text style={s.muted}>
@@ -82,7 +82,7 @@ export default function Settings() {
   }
 
   return (
-    <ScrollView style={s.screen} contentContainerStyle={s.pad}>
+    <ScrollView automaticallyAdjustKeyboardInsets style={s.screen} contentContainerStyle={s.pad}>
       <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
         <View style={{
           width: 48, height: 48, borderRadius: 24, backgroundColor: colors.brandSoft, alignItems: 'center', justifyContent: 'center',

@@ -51,7 +51,7 @@ export default function SignUp() {
   }
 
   return (
-    <ScrollView style={s.screen} contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled">
+    <ScrollView automaticallyAdjustKeyboardInsets style={s.screen} contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled">
       <Text style={s.muted}>
         We only ask for your birth year (not full birthday). Gender, experience and location are optional and are used
         for leaderboard brackets.

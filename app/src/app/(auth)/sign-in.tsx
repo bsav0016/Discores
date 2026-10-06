@@ -26,7 +26,7 @@ export default function SignIn() {
   }
 
   return (
-    <ScrollView style={s.screen} contentContainerStyle={[s.pad, { paddingTop: 72 }]} keyboardShouldPersistTaps="handled">
+    <ScrollView automaticallyAdjustKeyboardInsets style={s.screen} contentContainerStyle={[s.pad, { paddingTop: 72 }]} keyboardShouldPersistTaps="handled">
       <View style={{ alignItems: 'center', gap: 8, marginBottom: 20 }}>
         <View style={{
           width: 76, height: 76, borderRadius: 38, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center',

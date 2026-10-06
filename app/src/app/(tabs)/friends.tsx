@@ -6,7 +6,7 @@ import { Alert, ScrollView, Share, Text, View } from 'react-native';
 import { listFriends, type FriendRow } from '@/db/local';
 import { useAuth } from '@/lib/auth';
 import { inviteLink } from '@/lib/invite';
-import { Badge, Button, Card, colors, Field, s, SectionTitle } from '@/lib/ui';
+import { Badge, Button, Card, colors, Field, LinkButton, s, SectionTitle } from '@/lib/ui';
 import {
   addFriend, listBlocked, myFriendCode, refreshFriends, removeFriend, respondToRequest, unblockUser, type BlockedPerson,
 } from '@/sync/social';
@@ -15,7 +15,7 @@ export default function Friends() {
   const { guest, endGuest } = useAuth();
   if (!guest) return <FriendsList />;
   return (
-    <ScrollView style={s.screen} contentContainerStyle={s.pad}>
+    <ScrollView automaticallyAdjustKeyboardInsets style={s.screen} contentContainerStyle={s.pad}>
       <Card style={{ alignItems: 'center', gap: 8 }}>
         <Ionicons name="people-outline" size={40} color={colors.line} />
         <Text style={s.h2}>Friends need an account</Text>
@@ -91,7 +91,7 @@ function FriendsList() {
   const outgoing = friends.filter((f) => f.kind === 'outgoing');
 
   return (
-    <ScrollView style={s.screen} contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled">
+    <ScrollView automaticallyAdjustKeyboardInsets style={s.screen} contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled">
       {offline && <Text style={s.error}>Offline. Showing your saved friends.</Text>}
 
       <Card style={{ alignItems: 'center', gap: 6 }}>
@@ -139,9 +139,8 @@ ${inviteLink(code!)}`,
                 <Text style={[s.h2, { flex: 1 }]} numberOfLines={1}>{f.display_name}</Text>
                 <Badge label="Wants to be friends" tone="warn" />
               </View>
-              <Text onPress={() => openPerson(f)} style={{ color: colors.muted, fontWeight: '600' }}>
-                Report or block
-              </Text>
+              <LinkButton label="Report or block" accessibilityLabel={`Report or block ${f.display_name}`}
+                onPress={() => openPerson(f)} />
               <View style={{ flexDirection: 'row', gap: 8 }}>
                 <Button title="Decline" variant="ghost" style={{ flex: 1, marginTop: 0 }}
                   onPress={() => act(() => respondToRequest(f.friendship_id, false))} />
@@ -174,9 +173,8 @@ ${inviteLink(code!)}`,
               </Text>
             </View>
             <Text style={[s.body, { flex: 1 }]} numberOfLines={1}>{f.display_name}</Text>
-            <Text onPress={() => openPerson(f)} style={{ color: colors.muted, fontWeight: '600', padding: 6 }}>
-              More
-            </Text>
+            <LinkButton label="More" accessibilityLabel={`More options for ${f.display_name}`}
+              onPress={() => openPerson(f)} />
           </Card>
         ))
       )}
@@ -187,10 +185,8 @@ ${inviteLink(code!)}`,
           {outgoing.map((f) => (
             <Card key={f.friendship_id} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 }}>
               <Text style={[s.body, { flex: 1 }]} numberOfLines={1}>{f.display_name}</Text>
-              <Text onPress={() => act(() => removeFriend(f.friendship_id))}
-                style={{ color: colors.muted, fontWeight: '600', padding: 6 }}>
-                Cancel
-              </Text>
+              <LinkButton label="Cancel" accessibilityLabel={`Cancel request to ${f.display_name}`}
+                onPress={() => act(() => removeFriend(f.friendship_id))} />
             </Card>
           ))}
         </>
@@ -202,9 +198,8 @@ ${inviteLink(code!)}`,
           {blocked.map((p) => (
             <Card key={p.user_id} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 }}>
               <Text style={[s.body, { flex: 1 }]} numberOfLines={1}>{p.display_name}</Text>
-              <Text onPress={() => unblock(p)} style={{ color: colors.brandDark, fontWeight: '600', padding: 6 }}>
-                Unblock
-              </Text>
+              <LinkButton label="Unblock" accessibilityLabel={`Unblock ${p.display_name}`} color={colors.brandDark}
+                onPress={() => unblock(p)} />
             </Card>
           ))}
         </>

@@ -49,7 +49,7 @@ export default function Person() {
   }
 
   return (
-    <ScrollView style={s.screen} contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled">
+    <ScrollView automaticallyAdjustKeyboardInsets style={s.screen} contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled">
       <Card>
         <Text style={s.h2}>{name}</Text>
         <Text style={s.muted}>

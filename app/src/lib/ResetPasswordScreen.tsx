@@ -23,7 +23,7 @@ export function ResetPasswordScreen() {
   }
 
   return (
-    <ScrollView style={s.screen} contentContainerStyle={[s.pad, { paddingTop: 72 }]} keyboardShouldPersistTaps="handled">
+    <ScrollView automaticallyAdjustKeyboardInsets style={s.screen} contentContainerStyle={[s.pad, { paddingTop: 72 }]} keyboardShouldPersistTaps="handled">
       <Text style={s.h1}>Choose a new password</Text>
       <Text style={s.muted}>
         Pick something you don't use anywhere else. You'll be signed out on other devices.

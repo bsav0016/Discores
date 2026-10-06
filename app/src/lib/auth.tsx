@@ -112,7 +112,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!userId) return;
     let stale = false;
     supabase.from('profiles').select('id').eq('id', userId).maybeSingle()
-      .then(({ data, error }) => !stale && setHasProfile(error ? true : !!data));
+      .then(async ({ data, error }) => {
+        if (stale) return;
+        if (error || data) return setHasProfile(true);
+        // No profile. Either a social sign-in that has not finished, or the account was deleted elsewhere and this
+        // phone still holds its session. Ask the server which, so a deleted account signs out instead of onboarding.
+        const { error: userError } = await supabase.auth.getUser();
+        if (stale) return;
+        if (isSessionGone(userError)) await supabase.auth.signOut({ scope: 'local' });
+        else setHasProfile(false);
+      });
     return () => {
       stale = true;
     };

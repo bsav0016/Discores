@@ -27,7 +27,7 @@ export default function ChangePassword() {
   }
 
   return (
-    <ScrollView style={s.screen} contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled">
+    <ScrollView automaticallyAdjustKeyboardInsets style={s.screen} contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled">
       <Field label="Current password" value={current} onChangeText={setCurrent} secureTextEntry
         autoComplete="current-password" />
       <Field label="New password (8+ characters)" value={next} onChangeText={setNext} secureTextEntry

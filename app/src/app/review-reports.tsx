@@ -64,7 +64,7 @@ function PeopleReports() {
   }
 
   return (
-    <ScrollView contentContainerStyle={s.pad}>
+    <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={s.pad}>
       {reports.length === 0 ? (
         <View style={{ alignItems: 'center', marginTop: 48, gap: 8 }}>
           <Ionicons name="checkmark-circle-outline" size={56} color={colors.line} />
@@ -155,7 +155,7 @@ function CourseReports() {
   }
 
   return (
-    <ScrollView style={s.screen} contentContainerStyle={s.pad}>
+    <ScrollView automaticallyAdjustKeyboardInsets style={s.screen} contentContainerStyle={s.pad}>
       {reports.length === 0 ? (
         <View style={{ alignItems: 'center', marginTop: 48, gap: 8 }}>
           <Ionicons name="checkmark-circle-outline" size={56} color={colors.line} />

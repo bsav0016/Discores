@@ -31,7 +31,7 @@ export default function AddCourse() {
   }
 
   return (
-    <ScrollView style={s.screen} contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled">
+    <ScrollView automaticallyAdjustKeyboardInsets style={s.screen} contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled">
       <Text style={s.muted}>
         Add a course that's missing. We only ask for a name and a city or area, not an exact address.
       </Text>
@@ -41,7 +41,8 @@ export default function AddCourse() {
       <SectionTitle>Number of holes</SectionTitle>
       <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
         {COUNTS.map((n) => (
-          <Pressable key={n} onPress={() => changeCount(n)}
+          <Pressable key={n} onPress={() => changeCount(n)} accessibilityRole="button" accessibilityLabel={`${n} holes`}
+            accessibilityState={{ selected: count === n }}
             style={[s.chip, count === n && { backgroundColor: colors.brand, borderColor: colors.brand }]}>
             <Text style={{ color: count === n ? '#fff' : colors.ink, fontWeight: '700' }}>{n}</Text>
           </Pressable>

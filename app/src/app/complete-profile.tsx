@@ -33,7 +33,7 @@ export default function CompleteProfile() {
   }
 
   return (
-    <ScrollView style={s.screen} contentContainerStyle={[s.pad, { paddingTop: 72 }]} keyboardShouldPersistTaps="handled">
+    <ScrollView automaticallyAdjustKeyboardInsets style={s.screen} contentContainerStyle={[s.pad, { paddingTop: 72 }]} keyboardShouldPersistTaps="handled">
       <Text style={s.h1}>One last step</Text>
       <Text style={s.muted}>
         Choose the name friends will see and confirm your age. We only ask for your birth year, not your full birthday.

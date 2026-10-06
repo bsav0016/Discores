@@ -39,6 +39,17 @@ type AuthState = {
   syncTick: number;
   signIn: (email: string, password: string) => Promise<string | null>;
   signUp: (input: SignUpInput) => Promise<string | null>;
+  /** Sends a reset email. Never says whether the address has an account; resolves to a message only on a real failure. */
+  requestPasswordReset: (email: string) => Promise<string | null>;
+  /** True while someone who opened a reset link is choosing a new password. */
+  recovering: boolean;
+  /** Signs in with the session from a reset link and starts choosing a new password. Returns an error message. */
+  startRecovery: (tokens: { accessToken: string; refreshToken: string }) => Promise<string | null>;
+  /** Saves the new password and signs out other devices. Returns an error message, or null on success. */
+  finishRecovery: (password: string) => Promise<string | null>;
+  cancelRecovery: () => Promise<void>;
+  /** For someone who is signed in with an email password. Checks the current one first. */
+  changePassword: (current: string, next: string) => Promise<string | null>;
   /** iPhone only. Resolves to null on success or when the person cancels. */
   signInWithApple: () => Promise<string | null>;
   /** Opens Google's sign-in in the system browser. Resolves to null on success or when the person closes it. */
@@ -68,6 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [syncTick, setSyncTick] = useState(0);
   const [guest, setGuest] = useState(false);
+  const [recovering, setRecovering] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
   // null = not checked yet; false = signed in but no profile (social sign-in before the age check).
   const [hasProfile, setHasProfile] = useState<boolean | null>(null);
@@ -273,6 +285,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         return error?.message ?? null;
       },
+      requestPasswordReset: async (email) => {
+        const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+          redirectTo: Linking.createURL('reset-password'),
+        });
+        if (!error) return null;
+        // An unknown address is not an error here, so anything left is a rate limit or a connection problem.
+        return /rate limit|too many|429/i.test(error.message)
+          ? 'Too many requests. Wait a few minutes and try again.'
+          : "Couldn't send the email. Check your connection and try again.";
+      },
+      recovering,
+      startRecovery: async ({ accessToken, refreshToken }) => {
+        const { error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+        if (error) return 'That link has expired or was already used. Request a new one.';
+        setRecovering(true);
+        return null;
+      },
+      finishRecovery: async (password) => {
+        const { error } = await supabase.auth.updateUser({ password });
+        if (error) return error.message;
+        await supabase.auth.signOut({ scope: 'others' }).catch(() => {}); // anyone else signed in must use the new one
+        setRecovering(false);
+        return null;
+      },
+      cancelRecovery: async () => {
+        setRecovering(false);
+        await supabase.auth.signOut();
+      },
+      changePassword: async (current, next) => {
+        const email = session?.user.email;
+        if (!email) return "This account doesn't use a password.";
+        const check = await supabase.auth.signInWithPassword({ email, password: current });
+        if (check.error) return 'Your current password is incorrect.';
+        const { error } = await supabase.auth.updateUser({ password: next });
+        if (error) return error.message;
+        await supabase.auth.signOut({ scope: 'others' }).catch(() => {});
+        return null;
+      },
       signUp: async (i) => {
         const { error } = await supabase.auth.signUp({
           email: i.email,
@@ -305,7 +355,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return null;
       },
     }),
-    [session, loading, guest, userId, hasProfile, syncTick, sync, pushSoon, pendingCount, refreshPending, syncUserId],
+    [session, loading, guest, userId, hasProfile, syncTick, sync, pushSoon, pendingCount, refreshPending, syncUserId, recovering],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

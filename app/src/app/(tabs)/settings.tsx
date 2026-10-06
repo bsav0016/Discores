@@ -133,6 +133,11 @@ export default function Settings() {
       )}
 
       <SectionTitle>Account</SectionTitle>
+      {session?.user.app_metadata?.providers?.includes('email') && (
+        // Apple and Google accounts have no password here to change.
+        <Button title="Change password" variant="soft" onPress={() => router.push('/change-password')}
+          style={{ marginTop: 0 }} />
+      )}
       <Button title="Sign out" variant="ghost" onPress={signOut} style={{ marginTop: 0 }} />
       <Button title="Delete account and data" variant="danger" onPress={confirmDelete} />
       <View style={{ marginTop: 12 }}><LegalLinks lead="Read our" /></View>

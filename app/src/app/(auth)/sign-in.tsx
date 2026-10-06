@@ -41,7 +41,10 @@ export default function SignIn() {
       <Field label="Password" value={password} onChangeText={setPassword} secureTextEntry autoComplete="current-password" />
       {error && <Text style={s.error}>{error}</Text>}
       <Button title={busy ? 'Signing in…' : 'Sign in'} onPress={submit} disabled={busy || !email || !password} style={{ marginTop: 14 }} />
-      <Text style={[s.muted, { textAlign: 'center', marginTop: 14 }]}>or</Text>
+      <Link href="/forgot-password" style={[s.body, { textAlign: 'center', marginTop: 12, color: colors.brandDark, fontWeight: '600' }]}>
+        Forgot password?
+      </Link>
+      <Text style={[s.muted, { textAlign: 'center', marginTop: 8 }]}>or</Text>
       <Button title="Continue with Google" variant="soft" onPress={async () => setError(await signInWithGoogle())}
         style={{ marginTop: 8 }} />
       {appleAvailable && (

@@ -98,6 +98,16 @@ with Apple, choosing the `com.discores.app` App ID.
 and a page explaining how to delete an account and data, which Google Play requires). Upload `site/` to any static
 host. Re-run it after editing the documents.
 
+## Forgot and change password
+Sign-in has "Forgot password?": it sends Supabase's reset email (always the same on-screen answer, so it cannot be
+used to find out who has an account). The link opens the app (`discores://reset-password`), which signs in with the
+session in the link and shows "Choose a new password" before anything else; saving also signs out other devices.
+Settings > Change password asks for the current password first (email accounts only). One-time Supabase setup:
+Authentication > URL Configuration > Redirect URLs must contain `discores://**` (add `exp://**` to try it in Expo
+Go, although Expo Go does not deliver the link's token to the app, so test with a development or preview build).
+The default Supabase email sender allows only a few emails an hour; set up your own SMTP (Authentication >
+Emails > SMTP Settings) before real users, and edit the "Reset Password" template if you want it branded.
+
 ## Stats
 The Stats tab is computed on the phone from finished rounds (your own seat only, shared rounds included), so it
 works offline and for guests: rounds and holes played, best round, a split of eagle/birdie/par/bogey/double, and

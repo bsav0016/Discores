@@ -1,16 +1,18 @@
 import * as Linking from 'expo-linking';
 import { Stack, useRouter } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { codeFromUrl } from '@/lib/invite';
 import { savePendingInvite, takePendingInvite } from '@/lib/pendingInvite';
+import { parseRecoveryUrl } from '@/lib/recovery';
+import { ResetPasswordScreen } from '@/lib/ResetPasswordScreen';
 import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Text, View } from 'react-native';
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { isSupabaseConfigured } from '@/lib/supabase';
 import { colors, s } from '@/lib/ui';
 
 function Routes() {
-  const { session, loading, guest, needsProfile } = useAuth();
+  const { session, loading, guest, needsProfile, recovering, startRecovery } = useAuth();
   const router = useRouter();
   const url = Linking.useLinkingURL();
   const signedIn = !!session && !needsProfile;
@@ -28,6 +30,17 @@ function Routes() {
     });
   }, [signedIn, router]);
 
+  // The link in a password-reset email signs the person in and asks for a new password before anything else.
+  const handledLink = useRef<string | null>(null);
+  useEffect(() => {
+    if (!url || loading || handledLink.current === url) return;
+    const link = parseRecoveryUrl(url);
+    if (!link) return;
+    handledLink.current = url;
+    if ('error' in link) Alert.alert('Link expired', link.error);
+    else void startRecovery(link).then((err) => err && Alert.alert('Link expired', err));
+  }, [url, loading, startRecovery]);
+
   if (loading) {
     return (
       <View style={[s.screen, { alignItems: 'center', justifyContent: 'center' }]}>
@@ -35,6 +48,7 @@ function Routes() {
       </View>
     );
   }
+  if (recovering) return <ResetPasswordScreen />;
   return (
     <Stack
       screenOptions={{
@@ -53,6 +67,7 @@ function Routes() {
         <Stack.Screen name="round/[id]" options={{ title: 'Round' }} />
         <Stack.Screen name="person/[id]" options={{ title: 'Person' }} />
         <Stack.Screen name="confirm-rounds" options={{ title: 'Confirm scores' }} />
+        <Stack.Screen name="change-password" options={{ title: 'Change password' }} />
         <Stack.Screen name="scan" options={{ title: 'Scan QR code', presentation: 'modal' }} />
         <Stack.Screen name="friend/[code]" options={{ title: 'Friend invite', presentation: 'modal' }} />
       </Stack.Protected>
@@ -63,6 +78,7 @@ function Routes() {
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       </Stack.Protected>
       <Stack.Screen name="auth-callback" options={{ headerShown: false }} />
+      <Stack.Screen name="reset-password" options={{ headerShown: false }} />
       <Stack.Screen name="legal/[doc]" options={{ title: 'Legal' }} />
     </Stack>
   );

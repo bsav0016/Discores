@@ -108,6 +108,13 @@ Go, although Expo Go does not deliver the link's token to the app, so test with 
 The default Supabase email sender allows only a few emails an hour; set up your own SMTP (Authentication >
 Emails > SMTP Settings) before real users, and edit the "Reset Password" template if you want it branded.
 
+## Icons, store listing and CI
+`node app/scripts/make-icons.mjs` draws every icon in `app/assets/` (a white disc with a ring on brand green; the store
+icon is written without an alpha channel as Apple requires). Replace them with a designed icon whenever you have one.
+`docs/store/listing.md` holds draft store text, privacy-label answers and review notes. GitHub Actions
+(`.github/workflows/ci.yml`) runs the type check and tests on every push and fails if `docs/legal` was edited without
+regenerating the in-app text and `site/`.
+
 ## Stats
 The Stats tab is computed on the phone from finished rounds (your own seat only, shared rounds included), so it
 works offline and for guests: rounds and holes played, best round, a split of eagle/birdie/par/bogey/double, and

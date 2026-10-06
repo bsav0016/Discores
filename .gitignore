@@ -1,0 +1,26 @@
+# secrets and local config (the app's .env holds the Supabase URL and key; set them in eas.json or locally)
+.env
+.env.*
+!.env.example
+.mcp.json
+*.p8
+*.p12
+*.jks
+*.key
+*.pem
+*.mobileprovision
+
+# dependencies and build output
+node_modules/
+.expo/
+dist/
+web-build/
+*.tsbuildinfo
+npm-debug.*
+yarn-error.*
+.DS_Store
+
+# generated native folders (Expo prebuild)
+app/ios/
+app/android/
+app/expo-env.d.ts

@@ -1,0 +1,89 @@
+import * as Linking from 'expo-linking';
+import { Stack, useRouter } from 'expo-router';
+import { useEffect } from 'react';
+import { codeFromUrl } from '@/lib/invite';
+import { savePendingInvite, takePendingInvite } from '@/lib/pendingInvite';
+import { StatusBar } from 'expo-status-bar';
+import { ActivityIndicator, Text, View } from 'react-native';
+import { AuthProvider, useAuth } from '@/lib/auth';
+import { isSupabaseConfigured } from '@/lib/supabase';
+import { colors, s } from '@/lib/ui';
+
+function Routes() {
+  const { session, loading, guest, needsProfile } = useAuth();
+  const router = useRouter();
+  const url = Linking.useLinkingURL();
+  const signedIn = !!session && !needsProfile;
+
+  // An invite opened while signed out is remembered, then shown once the person is in.
+  useEffect(() => {
+    const code = codeFromUrl(url);
+    if (code && !signedIn && !loading) void savePendingInvite(code);
+  }, [url, signedIn, loading]);
+
+  useEffect(() => {
+    if (!signedIn) return;
+    void takePendingInvite().then((code) => {
+      if (code) router.push({ pathname: '/friend/[code]', params: { code } });
+    });
+  }, [signedIn, router]);
+
+  if (loading) {
+    return (
+      <View style={[s.screen, { alignItems: 'center', justifyContent: 'center' }]}>
+        <ActivityIndicator color={colors.brand} />
+      </View>
+    );
+  }
+  return (
+    <Stack
+      screenOptions={{
+        headerTintColor: colors.brandDark,
+        headerStyle: { backgroundColor: colors.bg },
+        headerShadowVisible: false,
+        headerTitleStyle: { color: colors.ink, fontWeight: '800' },
+        contentStyle: { backgroundColor: colors.bg },
+      }}>
+      <Stack.Protected guard={signedIn || guest}>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="new-round" options={{ title: 'New round', presentation: 'modal' }} />
+        <Stack.Screen name="add-course" options={{ title: 'Add a course' }} />
+        <Stack.Screen name="report-course" options={{ title: 'Report a problem' }} />
+        <Stack.Screen name="review-reports" options={{ title: 'Reports' }} />
+        <Stack.Screen name="round/[id]" options={{ title: 'Round' }} />
+        <Stack.Screen name="person/[id]" options={{ title: 'Person' }} />
+        <Stack.Screen name="confirm-rounds" options={{ title: 'Confirm scores' }} />
+        <Stack.Screen name="scan" options={{ title: 'Scan QR code', presentation: 'modal' }} />
+        <Stack.Screen name="friend/[code]" options={{ title: 'Friend invite', presentation: 'modal' }} />
+      </Stack.Protected>
+      <Stack.Protected guard={needsProfile}>
+        <Stack.Screen name="complete-profile" options={{ headerShown: false }} />
+      </Stack.Protected>
+      <Stack.Protected guard={!session && !guest}>
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+      </Stack.Protected>
+      <Stack.Screen name="auth-callback" options={{ headerShown: false }} />
+      <Stack.Screen name="legal/[doc]" options={{ title: 'Legal' }} />
+    </Stack>
+  );
+}
+
+export default function RootLayout() {
+  if (!isSupabaseConfigured) {
+    return (
+      <View style={[s.screen, s.pad, { justifyContent: 'center' }]}>
+        <Text style={s.h2}>Supabase isn't configured</Text>
+        <Text style={s.body}>
+          Copy .env.example to .env, fill in EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY, then
+          restart with `npx expo start --clear`.
+        </Text>
+      </View>
+    );
+  }
+  return (
+    <AuthProvider>
+      <StatusBar style="dark" />
+      <Routes />
+    </AuthProvider>
+  );
+}

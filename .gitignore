@@ -24,3 +24,4 @@ yarn-error.*
 app/ios/
 app/android/
 app/expo-env.d.ts
+supabase/.temp/

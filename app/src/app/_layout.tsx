@@ -3,7 +3,7 @@ import { Stack, useRouter } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { codeFromUrl } from '@/lib/invite';
 import { savePendingInvite, takePendingInvite } from '@/lib/pendingInvite';
-import { parseRecoveryUrl } from '@/lib/recovery';
+import { parseConfirmUrl, parseRecoveryUrl } from '@/lib/recovery';
 import { ResetPasswordScreen } from '@/lib/ResetPasswordScreen';
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, Alert, Text, View } from 'react-native';
@@ -12,7 +12,7 @@ import { isSupabaseConfigured } from '@/lib/supabase';
 import { colors, s } from '@/lib/ui';
 
 function Routes() {
-  const { session, loading, guest, needsProfile, recovering, startRecovery } = useAuth();
+  const { session, loading, guest, needsProfile, recovering, startRecovery, confirmEmail } = useAuth();
   const router = useRouter();
   const url = Linking.useLinkingURL();
   const signedIn = !!session && !needsProfile;
@@ -40,6 +40,16 @@ function Routes() {
     if ('error' in link) Alert.alert('Link expired', link.error);
     else void startRecovery(link).then((err) => err && Alert.alert('Link expired', err));
   }, [url, loading, startRecovery]);
+
+  // The link in the sign-up confirmation email signs the person in.
+  useEffect(() => {
+    if (!url || loading || handledLink.current === url) return;
+    const link = parseConfirmUrl(url);
+    if (!link) return;
+    handledLink.current = url;
+    if ('error' in link) Alert.alert('Link expired', link.error);
+    else void confirmEmail(link).then((err) => err && Alert.alert('Link expired', err));
+  }, [url, loading, confirmEmail]);
 
   if (loading) {
     return (
@@ -79,6 +89,7 @@ function Routes() {
       </Stack.Protected>
       <Stack.Screen name="auth-callback" options={{ headerShown: false }} />
       <Stack.Screen name="reset-password" options={{ headerShown: false }} />
+      <Stack.Screen name="confirm-email" options={{ headerShown: false }} />
       <Stack.Screen name="legal/[doc]" options={{ title: 'Legal' }} />
     </Stack>
   );

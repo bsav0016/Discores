@@ -1,4 +1,4 @@
-import { parseRecoveryUrl, passwordProblem } from './recovery';
+import { parseConfirmUrl, parseRecoveryUrl, passwordProblem } from './recovery';
 
 describe('parseRecoveryUrl', () => {
   it('reads the session from the fragment', () => {
@@ -16,6 +16,23 @@ describe('parseRecoveryUrl', () => {
     expect(parseRecoveryUrl('discores://reset-password')).toBeNull();
     expect(parseRecoveryUrl('discores://reset-password#access_token=A&type=recovery')).toBeNull();
     expect(parseRecoveryUrl(null)).toBeNull();
+  });
+});
+
+describe('parseConfirmUrl', () => {
+  it('reads the session from a confirmation link', () => {
+    expect(parseConfirmUrl('discores://confirm-email#access_token=AAA&refresh_token=BBB&type=signup&expires_in=3600'))
+      .toEqual({ accessToken: 'AAA', refreshToken: 'BBB' });
+  });
+  it('reports an expired or used link', () => {
+    const r = parseConfirmUrl('discores://confirm-email#error=access_denied&error_code=otp_expired');
+    expect(r && 'error' in r).toBe(true);
+  });
+  it('ignores other links, a reset link, or a link missing its tokens', () => {
+    expect(parseConfirmUrl('discores://reset-password#access_token=A&refresh_token=B&type=recovery')).toBeNull();
+    expect(parseConfirmUrl('discores://confirm-email#access_token=A&refresh_token=B&type=recovery')).toBeNull();
+    expect(parseConfirmUrl('discores://confirm-email')).toBeNull();
+    expect(parseConfirmUrl(undefined)).toBeNull();
   });
 });
 

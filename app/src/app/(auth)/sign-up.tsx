@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { isOldEnough } from '@/domain/scoring';
@@ -14,7 +15,9 @@ const GENDERS = [
 ];
 
 export default function SignUp() {
-  const { signUp } = useAuth();
+  const { signUp, resendConfirmation } = useAuth();
+  const router = useRouter();
+  const [sentTo, setSentTo] = useState<string | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -46,8 +49,45 @@ export default function SignUp() {
       experienceYears: experience ? Number(experience) : null,
     });
     setBusy(false);
+    // With email confirmation on there is no session yet, so this screen stays and asks them to check their inbox.
+    // (If confirmation is off the app signs them in and leaves this screen on its own.)
     if (err) setError(err);
-    else setNotice('Check your email to confirm your account, then sign in.'); // shown only if email confirmation is on
+    else setSentTo(email.trim());
+  }
+
+  async function resend() {
+    setBusy(true);
+    const err = await resendConfirmation(email);
+    setBusy(false);
+    setNotice(err ?? 'Sent again. It can take a few minutes, so check your spam folder too.');
+  }
+
+  if (sentTo) {
+    return (
+      <ScrollView style={s.screen} contentContainerStyle={[s.pad, { alignItems: 'center', paddingTop: 48 }]}>
+        <View style={{
+          width: 76, height: 76, borderRadius: 38, backgroundColor: colors.brandSoft, alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          <Ionicons name="mail-outline" size={40} color={colors.brandDark} />
+        </View>
+        <Text style={[s.h1, { textAlign: 'center' }]} accessibilityRole="header">Check your email</Text>
+        <Text style={[s.body, { textAlign: 'center' }]}>We sent a confirmation link to</Text>
+        <Text style={[s.body, { textAlign: 'center', fontWeight: '800' }]}>{sentTo}</Text>
+        <Text style={[s.muted, { textAlign: 'center' }]}>
+          Open the link on this phone to finish creating your account. Until you do, you can't sign in. It can take a few
+          minutes, so check your spam folder too.
+        </Text>
+        {notice && <Text style={[s.body, { textAlign: 'center' }]}>{notice}</Text>}
+        <Button title={busy ? 'Sending…' : 'Send it again'} variant="soft" onPress={resend} disabled={busy}
+          style={{ alignSelf: 'stretch' }} />
+        <Button title="Back to sign in" variant="ghost" onPress={() => router.replace('/sign-in')}
+          style={{ alignSelf: 'stretch', marginTop: 0 }} />
+        <Text style={[s.muted, { textAlign: 'center', fontSize: 12 }]}>
+          Typed the wrong email? Go back and create the account again with the right one.
+        </Text>
+      </ScrollView>
+    );
   }
 
   return (
@@ -84,7 +124,6 @@ export default function SignUp() {
       </Pressable>
 
       {error && <Text style={s.error}>{error}</Text>}
-      {notice && <Text style={s.body}>{notice}</Text>}
       <Button title={busy ? 'Creating…' : 'Create account'} onPress={submit} disabled={!canSubmit} />
       <LegalLinks lead="By creating an account you agree to the" />
     </ScrollView>

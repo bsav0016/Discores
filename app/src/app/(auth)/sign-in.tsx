@@ -3,12 +3,13 @@ import * as AppleAuthentication from 'expo-apple-authentication';
 import { Link } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
-import { useAuth } from '@/lib/auth';
+import { EMAIL_NOT_CONFIRMED, useAuth } from '@/lib/auth';
 import { LegalLinks } from '@/lib/LegalLinks';
 import { Button, colors, Field, s } from '@/lib/ui';
 
 export default function SignIn() {
-  const { signIn, signInWithApple, signInWithGoogle, startGuest } = useAuth();
+  const { signIn, signInWithApple, signInWithGoogle, startGuest, resendConfirmation } = useAuth();
+  const [resent, setResent] = useState<string | null>(null);
   const [appleAvailable, setAppleAvailable] = useState(false);
   useEffect(() => {
     // Only iPhones can show Sign in with Apple; elsewhere this resolves false and the button stays hidden.
@@ -21,8 +22,16 @@ export default function SignIn() {
 
   async function submit() {
     setBusy(true);
+    setResent(null);
     setError(await signIn(email.trim(), password));
     setBusy(false);
+  }
+
+  async function resend() {
+    setBusy(true);
+    const err = await resendConfirmation(email);
+    setBusy(false);
+    setResent(err ?? 'Sent. It can take a few minutes, so check your spam folder too.');
   }
 
   return (
@@ -40,6 +49,12 @@ export default function SignIn() {
         autoComplete="email" />
       <Field label="Password" value={password} onChangeText={setPassword} secureTextEntry autoComplete="current-password" />
       {error && <Text style={s.error}>{error}</Text>}
+      {error === EMAIL_NOT_CONFIRMED && (
+        <>
+          <Button title="Send the confirmation email again" variant="soft" onPress={resend} disabled={busy} />
+          {resent && <Text style={s.body}>{resent}</Text>}
+        </>
+      )}
       <Button title={busy ? 'Signing in…' : 'Sign in'} onPress={submit} disabled={busy || !email || !password} style={{ marginTop: 14 }} />
       <Link href="/forgot-password" style={[s.body, { textAlign: 'center', marginTop: 12, color: colors.brandDark, fontWeight: '600' }]}>
         Forgot password?

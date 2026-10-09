@@ -39,6 +39,10 @@ type AuthState = {
   syncTick: number;
   signIn: (email: string, password: string) => Promise<string | null>;
   signUp: (input: SignUpInput) => Promise<string | null>;
+  /** Sends the sign-up confirmation email again. Returns a message only on a real failure. */
+  resendConfirmation: (email: string) => Promise<string | null>;
+  /** Signs in with the session from a confirmation link. Returns an error message. */
+  confirmEmail: (tokens: { accessToken: string; refreshToken: string }) => Promise<string | null>;
   /** Sends a reset email. Never says whether the address has an account; resolves to a message only on a real failure. */
   requestPasswordReset: (email: string) => Promise<string | null>;
   /** True while someone who opened a reset link is choosing a new password. */
@@ -67,6 +71,9 @@ type AuthState = {
 const Ctx = createContext<AuthState | null>(null);
 
 const GUEST_KEY = 'discores.guest';
+
+/** What sign-in says when the password is right but the email was never confirmed; the sign-in screen offers a resend. */
+export const EMAIL_NOT_CONFIRMED = "You haven't confirmed your email yet. Open the link we sent you (check spam too).";
 
 export function useAuth() {
   const v = useContext(Ctx);
@@ -292,7 +299,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       pushSoon,
       signIn: async (email, password) => {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error && /not confirmed/i.test(error.message)) return EMAIL_NOT_CONFIRMED;
         return error?.message ?? null;
+      },
+      resendConfirmation: async (email) => {
+        const { error } = await supabase.auth.resend({
+          type: 'signup', email: email.trim(), options: { emailRedirectTo: Linking.createURL('confirm-email') },
+        });
+        if (!error) return null;
+        return /rate limit|too many|429|seconds/i.test(error.message)
+          ? 'Too many requests. Wait a minute and try again.'
+          : "Couldn't send the email. Check your connection and try again.";
+      },
+      confirmEmail: async ({ accessToken, refreshToken }) => {
+        const { error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+        return error ? 'That link has expired or was already used. Sign in and we can send a new one.' : null;
       },
       requestPasswordReset: async (email) => {
         const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
@@ -337,6 +358,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email: i.email,
           password: i.password,
           options: {
+            emailRedirectTo: Linking.createURL('confirm-email'),
             data: {
               display_name: i.displayName,
               birth_year: i.birthYear,
@@ -346,7 +368,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             },
           },
         });
-        return error?.message ?? null;
+        if (!error) return null;
+        // Supabase's built-in email sender is limited, and until custom SMTP is set up it only delivers to a few addresses.
+        if (/rate limit|too many|429/i.test(error.message)) return 'Too many sign-ups right now. Wait a few minutes and try again.';
+        if (/not authorized|can't send|could not send|sending.*email/i.test(error.message)) {
+          return "We couldn't send a confirmation email to that address. Check it for typos, or try again later.";
+        }
+        return error.message;
       },
       signOut: async () => {
         await supabase.auth.signOut();

@@ -1,25 +1,45 @@
 name: CI
 
+# Runs on every pull request and on pushes to main. Nothing here uses secrets and nothing deploys: real builds and
+# store submissions run through EAS, by hand.
 on:
   push:
     branches: [main]
   pull_request:
 
+# Read-only token for every job unless a job asks for more.
+permissions:
+  contents: read
+
+# A newer push to the same branch or PR replaces the run that is still going.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  EXPO_NO_TELEMETRY: '1'
+
 jobs:
   check:
+    name: check
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      # Actions are pinned to a full commit SHA; Dependabot keeps them current (see .github/dependabot.yml).
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: app/package-lock.json
 
+      # Exactly what package-lock.json says, and no install scripts from third-party packages.
       - name: Install
         working-directory: app
-        run: npm ci
+        run: npm ci --ignore-scripts --no-audit --no-fund
 
       - name: Type check
         working-directory: app
@@ -31,8 +51,40 @@ jobs:
 
       # The legal text bundled into the app and the public web pages are generated from docs/legal.
       # If this fails, run `node app/scripts/build-legal.mjs` and `node app/scripts/build-site.mjs` and commit.
+      # `git status` (not `git diff`) so a newly generated file that was never committed fails too.
       - name: Legal documents and web pages are up to date
         run: |
           node app/scripts/build-legal.mjs
           node app/scripts/build-site.mjs
-          git diff --exit-code -- app/src/lib/legal.generated.ts site
+          changes="$(git status --porcelain -- app/src/lib/legal.generated.ts site)"
+          if [ -n "$changes" ]; then
+            echo "Generated legal files are out of date:"
+            echo "$changes"
+            git diff -- app/src/lib/legal.generated.ts site | head -60
+            exit 1
+          fi
+
+  # The app itself is built by EAS (needs an Expo account token, so never on pull requests). This is the check that
+  # needs no secrets: Metro has to be able to bundle the JavaScript for both phone platforms. Web is not shipped.
+  bundle:
+    name: bundle
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install
+        working-directory: app
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Bundle for Android and iOS
+        working-directory: app
+        run: npx expo export --platform android --platform ios --output-dir "$RUNNER_TEMP/export"

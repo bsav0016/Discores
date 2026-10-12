@@ -1,0 +1,55 @@
+name: Dependency audit
+
+# Checks the lockfile against the npm advisory database. It needs no install and no secrets.
+#
+# Only a CRITICAL vulnerability in a dependency that ships in the app fails the run. The full list is posted to the run
+# summary for information: today it is dominated by Expo's own build tooling (@expo/config-plugins and friends), which
+# can only be fixed by moving to a newer Expo SDK, so failing on it would just make the check permanently red.
+on:
+  pull_request:
+    paths:
+      - app/package.json
+      - app/package-lock.json
+      - .github/workflows/dependency-audit.yml
+  push:
+    branches: [main]
+    paths:
+      - app/package.json
+      - app/package-lock.json
+      - .github/workflows/dependency-audit.yml
+  schedule:
+    - cron: '17 6 * * 1' # Mondays; new advisories appear without any change to this repo
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    name: audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Fail on critical vulnerabilities in shipped dependencies
+        run: npm audit --omit=dev --audit-level=critical --package-lock-only
+
+      - name: Full report (informational)
+        if: always()
+        run: |
+          {
+            echo '### npm audit, all severities (informational)'
+            echo '```'
+            npm audit --package-lock-only || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

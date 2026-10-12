@@ -2,21 +2,21 @@
 
 Free disc golf score tracking: frictionless round sharing, local leagues, generous history.
 
-- `app/` â€“ Expo (React Native, TypeScript, Expo Router) mobile app
-- `supabase/` â€“ Postgres migrations and dev seed data
+- `app/` – Expo (React Native, TypeScript, Expo Router) mobile app
+- `supabase/` – Postgres migrations and dev seed data
 
 ## Milestone 1 setup
 
 ### 1. Supabase project
 1. Create a project at https://supabase.com.
 2. SQL editor: run `supabase/migrations/0001_init.sql`, `0002_lock_down_functions.sql`, `0003_courses.sql` and `0004_review_corrections.sql`, `0005_overture_import.sql`, `0006_friends_and_sharing.sql`, `0007_friend_attempts_fix.sql`, `0008_orphaned_rounds.sql`, `0009_find_by_email.sql`, `0010_usernames.sql`, `0011_block_and_report.sql` and `0012_guest_course_search.sql` and `0013_social_sign_in.sql` and `0014_apple_tokens.sql` and `0015_confirm_shared_rounds.sql` and `0016_performance.sql` in order, then `supabase/seed.sql` (dev-only sample courses).
-   Optional, to load real courses from OpenStreetMap: `node supabase/osm/import-osm.mjs --region US-KY out.sql` (any ISO 3166-2 code; a `<south> <west> <north> <east>` box also works), then run `out.sql` in the SQL editor. It is safe to re-run. Data is Â© OpenStreetMap contributors (ODbL); the app shows the attribution.
+   Optional, to load real courses from OpenStreetMap: `node supabase/osm/import-osm.mjs --region US-KY out.sql` (any ISO 3166-2 code; a `<south> <west> <north> <east>` box also works), then run `out.sql` in the SQL editor. It is safe to re-run. Data is © OpenStreetMap contributors (ODbL); the app shows the attribution.
    OSM is thin outside big cities, so also load Overture Maps (more courses, with towns): `pip install duckdb`, then `python supabase/overture/import-overture.py --state KY --bbox -89.6 36.45 -81.9 39.2 out.sql` and run `out.sql` in the SQL editor. Courses within 400 m of an existing one are skipped, so it mixes safely with OSM and user-added courses. Overture data is CDLA Permissive 2.0 (Foursquare rows also need their copyright notice); `supabase/overture/kentucky.sql` is the Kentucky load.
    Whole US: `supabase/overture/us/` holds one file per state (49 states plus the separate Kentucky file, about 1,960 courses). The current Supabase project already has all of them loaded. Open each file in the SQL editor and run it (any order; each returns how many courses it added), or with psql: `for f in supabase/overture/us/*.sql; do psql "$DATABASE_URL" -f "$f"; done`. Then run `supabase/overture/after-load.sql` to review the results. Regenerate with `python supabase/overture/import-overture.py --state US --per-state --skip KY supabase/overture/us`.
    To review course reports in the app, make yourself an admin after you sign up: `insert into public.admins (user_id) select id from auth.users where email = 'you@example.com';`. Settings then shows **Review course reports**.
-3. Authentication â†’ Providers â†’ Email. For quick local testing, turn **Confirm email** off
+3. Authentication → Providers → Email. For quick local testing, turn **Confirm email** off
    (turn it back on before launch).
-4. Project Settings â†’ API: copy the **Project URL** and the **anon/publishable key**.
+4. Project Settings → API: copy the **Project URL** and the **anon/publishable key**.
    Never put the service-role key in the app.
 
 ### 2. App

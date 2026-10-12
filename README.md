@@ -22,9 +22,9 @@ More screenshots are in [docs/screenshots](docs/screenshots).
 ## Stack
 
 - **App:** Expo SDK 57, React Native 0.86, TypeScript, Expo Router, `expo-sqlite`
-- **Backend:** [Supabase](https://supabase.com) â€“ Postgres (16 SQL migrations in `supabase/migrations`), Auth, and two Edge Functions (`apple-link`, `delete-account`)
+- **Backend:** [Supabase](https://supabase.com) – Postgres (16 SQL migrations in `supabase/migrations`), Auth, and two Edge Functions (`apple-link`, `delete-account`)
 - **Tests:** Jest (`jest-expo`)
-- **CI:** GitHub Actions â€“ type check, tests, and a check that the generated legal text and web pages are up to date
+- **CI:** GitHub Actions – type check, tests, and a check that the generated legal text and web pages are up to date
 
 ## Repository layout
 

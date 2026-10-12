@@ -8,7 +8,7 @@ More screenshots are in [docs/screenshots](docs/screenshots).
 
 ## Why it exists
 
-<!-- TODO: in your own words, why you built it (a free alternative to existing apps? playing with a local group?) -->
+Disc golf is played outdoors, often with weak or no signal, and a round usually has several people to keep score for. Discores records every hole on the device first and syncs when a connection returns, so a round is never lost on the course. Shared rounds only appear in a player's history after that player confirms their own scores, so each person's stats stay accurate.
 
 ## Features
 

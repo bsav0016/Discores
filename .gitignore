@@ -25,3 +25,9 @@ app/ios/
 app/android/
 app/expo-env.d.ts
 supabase/.temp/
+
+# store-listing screenshots (large; portfolio screenshots live in docs/screenshots)
+docs/store/screenshots/
+
+# local Claude Code config
+.claude/

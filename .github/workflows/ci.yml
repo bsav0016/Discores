@@ -22,7 +22,7 @@ env:
 jobs:
   check:
     name: check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # pinned: ubuntu-latest moves to Ubuntu 26 on 2026-10-19
     timeout-minutes: 15
     steps:
       # Actions are pinned to a full commit SHA; Dependabot keeps them current (see .github/dependabot.yml).
@@ -68,7 +68,7 @@ jobs:
   # needs no secrets: Metro has to be able to bundle the JavaScript for both phone platforms. Web is not shipped.
   bundle:
     name: bundle
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # pinned: ubuntu-latest moves to Ubuntu 26 on 2026-10-19
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

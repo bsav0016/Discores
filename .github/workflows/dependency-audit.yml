@@ -31,7 +31,7 @@ concurrency:
 jobs:
   audit:
     name: audit
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # pinned: ubuntu-latest moves to Ubuntu 26 on 2026-10-19
     timeout-minutes: 10
     defaults:
       run:

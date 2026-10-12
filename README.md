@@ -64,8 +64,7 @@ npm run typecheck
 ## Limitations
 
 - US course coverage only, and thinner outside big cities.
-- The privacy policy and terms in `docs/legal` are drafts and still contain placeholders. <!-- TODO: update this line if they have since been finalised and reviewed -->
-- <!-- TODO: release status (is it live on the App Store / Google Play?) and any known issues you want to list -->
+- The privacy policy and terms in `docs/legal` are drafts and still contain placeholders.
 
 ## License
 

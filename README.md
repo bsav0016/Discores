@@ -22,9 +22,9 @@ More screenshots are in [docs/screenshots](docs/screenshots).
 ## Stack
 
 - **App:** Expo SDK 57, React Native 0.86, TypeScript, Expo Router, `expo-sqlite`
-- **Backend:** [Supabase](https://supabase.com) – Postgres (16 SQL migrations in `supabase/migrations`), Auth, and two Edge Functions (`apple-link`, `delete-account`)
+- **Backend:** [Supabase](https://supabase.com) â€“ Postgres (16 SQL migrations in `supabase/migrations`), Auth, and two Edge Functions (`apple-link`, `delete-account`)
 - **Tests:** Jest (`jest-expo`)
-- **CI:** GitHub Actions – type check, tests, and a check that the generated legal text and web pages are up to date
+- **CI:** GitHub Actions â€“ type check, tests, and a check that the generated legal text and web pages are up to date
 
 ## Repository layout
 
@@ -66,3 +66,7 @@ npm run typecheck
 - US course coverage only, and thinner outside big cities.
 - The privacy policy and terms in `docs/legal` are drafts and still contain placeholders. <!-- TODO: update this line if they have since been finalised and reviewed -->
 - <!-- TODO: release status (is it live on the App Store / Google Play?) and any known issues you want to list -->
+
+## License
+
+MIT. See [LICENSE](LICENSE). The legal documents in `docs/legal` are separate drafts for the app's users and are not covered by it.

@@ -38,7 +38,7 @@ jobs:
 
       - name: No placeholder text left in the pages
         run: |
-          if grep -nE '\[[A-Z][A-Z ,/'"'"'-]{4,}\]' site/*.html; then
+          if grep -nE '\[[A-Z]{3,}[^]]*\]' site/*.html; then
             echo "::error::site/ still contains [PLACEHOLDER] text. Fill in docs/legal, run the two build scripts in app/scripts, and commit."
             exit 1
           fi

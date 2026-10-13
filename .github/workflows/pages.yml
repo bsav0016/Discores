@@ -1,0 +1,53 @@
+name: Publish site
+
+# Publishes site/ (privacy policy, terms and the account-deletion page the stores ask for) to GitHub Pages.
+# site/ is generated from docs/legal by app/scripts/build-site.mjs; CI already checks it is up to date.
+#
+# Runs when site/ changes on main, or by hand. It refuses to publish while any [PLACEHOLDER] text is left in the pages.
+on:
+  push:
+    branches: [main]
+    paths:
+      - site/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Never cut a deploy off half way.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: deploy
+    runs-on: ubuntu-24.04 # pinned: ubuntu-latest moves to Ubuntu 26 on 2026-10-19
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    # Only this job may publish.
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: No placeholder text left in the pages
+        run: |
+          if grep -nE '\[[A-Z]{3,}[^]]*\]' site/*.html; then
+            echo "::error::site/ still contains [PLACEHOLDER] text. Fill in docs/legal, run the two build scripts in app/scripts, and commit."
+            exit 1
+          fi
+
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: site
+
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

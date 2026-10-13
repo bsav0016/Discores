@@ -4,7 +4,7 @@ also helps with App Store review. Replace every [PLACEHOLDER] and keep it in ste
 -->
 # Delete your Discores account
 
-App: Discores (disc golf score tracker) by [YOUR NAME OR COMPANY].
+App: Discores (disc golf score tracker) by Savidge Apps.
 
 ## Delete it in the app
 
@@ -17,7 +17,7 @@ If you signed in with Apple, we also tell Apple to stop sharing your Apple ID wi
 
 ## If you cannot use the app
 
-Email [CONTACT EMAIL] from the address on your account with the subject "Delete my Discores account". If you signed in with Apple or Google, tell us which one and the email it uses. We will confirm it is you and delete the account within [DELETION TIMEFRAME, e.g. 30 days].
+Email savidgeapps@gmail.com from the address on your account with the subject "Delete my Discores account". If you signed in with Apple or Google, tell us which one and the email it uses. We will confirm it is you and delete the account within 30 days.
 
 ## What is deleted
 
@@ -32,10 +32,10 @@ Email [CONTACT EMAIL] from the address on your account with the subject "Delete 
 - Rounds you scored with other registered players stay in their history. Your name on them is replaced with "Deleted player" and nothing links them to you.
 - Courses you added stay, with no link to you.
 - Reports you sent about another person stay with your name removed. Reports about you may be kept so that we can keep other people safe.
-- Backups made by our hosting provider may keep deleted data for [BACKUP PERIOD] before they are overwritten.
+- Nothing else stays: we do not keep backups of your data.
 
 Rounds you scored as a guest without an account are only on your phone. Delete the app or clear its data to remove them.
 
 ## Questions
 
-Email [CONTACT EMAIL]. See also our [Privacy Policy](privacy.html) and [Terms of Service](terms.html).
+Email savidgeapps@gmail.com. See also our [Privacy Policy](privacy.html) and [Terms of Service](terms.html).

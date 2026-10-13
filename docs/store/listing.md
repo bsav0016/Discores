@@ -53,11 +53,11 @@ Discores is free. Course data comes from OpenStreetMap contributors, Overture Ma
 
 | Field | Value |
 | --- | --- |
-| Privacy policy URL | [URL where site/privacy.html is hosted] |
-| Terms URL (Apple, optional) | [URL where site/terms.html is hosted] |
-| Account deletion URL (Google) | [URL where site/delete-account.html is hosted] |
-| Support URL / email | [CONTACT EMAIL or a support page] |
-| Marketing URL (optional) | [URL where site/index.html is hosted] |
+| Privacy policy URL | https://bsav0016.github.io/Discores/privacy.html |
+| Terms URL (Apple, optional) | https://bsav0016.github.io/Discores/terms.html |
+| Account deletion URL (Google) | https://bsav0016.github.io/Discores/delete-account.html |
+| Support URL / email | savidgeapps@gmail.com |
+| Marketing URL (optional) | https://bsav0016.github.io/Discores/index.html |
 
 ## Apple: age rating and review
 

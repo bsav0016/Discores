@@ -4,9 +4,9 @@ DRAFT. Have a lawyer review it before launch, then replace every [PLACEHOLDER] b
 -->
 # Terms of Service
 
-Effective [EFFECTIVE DATE]
+Effective October 13, 2026
 
-These terms are an agreement between you and [YOUR NAME OR COMPANY] ("we", "us") about your use of Discores, a free disc golf score tracker. By creating an account or using the app you agree to them and to our Privacy Policy. If you do not agree, please do not use Discores.
+These terms are an agreement between you and Savidge Apps ("we", "us") about your use of Discores, a free disc golf score tracker. By creating an account or using the app you agree to them and to our Privacy Policy. If you do not agree, please do not use Discores.
 
 ## Who can use Discores
 
@@ -50,7 +50,7 @@ Discores is free and provided "as is" and "as available". We do not promise that
 
 ## Limits on our responsibility
 
-To the extent the law allows, we are not responsible for indirect or consequential losses, lost data, or injuries or damage that happen while playing disc golf. Our total responsibility to you for any claim about Discores is limited to [AMOUNT, e.g. 100 US dollars]. Some places do not allow these limits, so they may not apply to you. Nothing in these terms limits responsibility that cannot be limited by law.
+To the extent the law allows, we are not responsible for indirect or consequential losses, lost data, or injuries or damage that happen while playing disc golf. Our total responsibility to you for any claim about Discores is limited to 100 US dollars. Some places do not allow these limits, so they may not apply to you. Nothing in these terms limits responsibility that cannot be limited by law.
 
 ## Changes
 
@@ -58,8 +58,8 @@ We may update these terms. If a change matters, we will tell you in the app befo
 
 ## Governing law
 
-These terms are governed by the laws of [STATE/COUNTRY], without regard to its conflict of laws rules, and disputes will be handled in the courts of [COUNTY/STATE], unless the law where you live says otherwise.
+These terms are governed by the laws of the Commonwealth of Kentucky, United States, without regard to its conflict of laws rules, and disputes will be handled in the courts of Hardin County, Kentucky, unless the law where you live says otherwise.
 
 ## Contact
 
-[YOUR NAME OR COMPANY], [CONTACT EMAIL]
+Savidge Apps, savidgeapps@gmail.com

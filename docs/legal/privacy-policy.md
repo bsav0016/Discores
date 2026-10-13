@@ -5,9 +5,9 @@ so the in-app copy matches. HTML comments like this one are not shown in the app
 -->
 # Privacy Policy
 
-Effective [EFFECTIVE DATE]
+Effective October 13, 2026
 
-Discores is a free disc golf score tracker run by [YOUR NAME OR COMPANY] ("we", "us"). This policy explains what we collect, why, who can see it, and how to delete it. You can reach us at [CONTACT EMAIL].
+Discores is a free disc golf score tracker run by Savidge Apps ("we", "us"). This policy explains what we collect, why, who can see it, and how to delete it. You can reach us at savidgeapps@gmail.com.
 
 ## The short version
 
@@ -53,7 +53,7 @@ We do not share your personal information with anyone for their own purposes.
 
 We use these providers to run Discores. They handle data only for us:
 
-- **Supabase** hosts our database, sign-in and server code [REGION, e.g. "in the United States"].
+- **Supabase** hosts our database, sign-in and server code in the United States.
 - **Apple and Google** if you choose to sign in with them, and the app stores that distribute the app.
 - **Expo** builds the app. The app does not send your usage data to Expo.
 
@@ -69,11 +69,11 @@ We keep your data while your account exists. You can delete your account in the 
 - Reports you sent stay with your name removed. Reports about you may be kept so that we can keep people safe.
 - A username you used is not reserved for you afterward.
 
-Backups made by our hosting provider may keep deleted data for a short time [BACKUP PERIOD] before they are overwritten. If you cannot use the app, email [CONTACT EMAIL] from the address on the account and we will delete it.
+We do not keep backups of your data, so deleted data does not linger in one. If you cannot use the app, email savidgeapps@gmail.com from the address on the account and we will delete it.
 
 ## Your choices and rights
 
-You can change your name, username and email-lookup setting in the app. You can ask us for a copy of your data, or to correct it, by emailing [CONTACT EMAIL]. Depending on where you live (for example California, or the EU and UK) you may have additional rights, and we will honor them. You can also complain to your local data protection authority.
+You can change your name, username and email-lookup setting in the app. You can ask us for a copy of your data, or to correct it, by emailing savidgeapps@gmail.com. Depending on where you live (for example California, or the EU and UK) you may have additional rights, and we will honor them. You can also complain to your local data protection authority.
 
 ## Children
 
@@ -89,4 +89,4 @@ If we change this policy in a way that matters, we will tell you in the app befo
 
 ## Contact
 
-[YOUR NAME OR COMPANY], [MAILING ADDRESS IF REQUIRED], [CONTACT EMAIL]
+Savidge Apps, savidgeapps@gmail.com

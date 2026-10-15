@@ -30,7 +30,7 @@ export default function Friends() {
 }
 
 function FriendsList() {
-  const { syncTick } = useAuth();
+  const { syncTick, refreshRequests } = useAuth();
   const router = useRouter();
   const [blocked, setBlocked] = useState<BlockedPerson[]>([]);
   const [friends, setFriends] = useState<FriendRow[]>([]);
@@ -40,7 +40,11 @@ function FriendsList() {
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const reloadLocal = useCallback(() => listFriends().then(setFriends), []);
+  // Accepting or declining a request changes the badge on the tab too.
+  const reloadLocal = useCallback(async () => {
+    setFriends(await listFriends());
+    void refreshRequests();
+  }, [refreshRequests]);
 
   // Show the cached list at once, then refresh from the server.
   useFocusEffect(
@@ -94,6 +98,29 @@ function FriendsList() {
     <ScrollView automaticallyAdjustKeyboardInsets style={s.screen} contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled">
       {offline && <Text style={s.error}>Offline. Showing your saved friends.</Text>}
 
+      {/* Requests come first so a new one is the first thing seen when the badge on this tab is tapped. */}
+      {incoming.length > 0 && (
+        <>
+          <SectionTitle>Friend requests</SectionTitle>
+          {incoming.map((f) => (
+            <Card key={f.friendship_id} style={{ gap: 10 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <Text style={[s.h2, { flex: 1 }]} numberOfLines={1}>{f.display_name}</Text>
+                <Badge label="Wants to be friends" tone="warn" />
+              </View>
+              <LinkButton label="Report or block" accessibilityLabel={`Report or block ${f.display_name}`}
+                onPress={() => openPerson(f)} />
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                <Button title="Decline" variant="ghost" style={{ flex: 1, marginTop: 0 }}
+                  onPress={() => act(() => respondToRequest(f.friendship_id, false))} />
+                <Button title="Accept" style={{ flex: 1, marginTop: 0 }}
+                  onPress={() => act(() => respondToRequest(f.friendship_id, true))} />
+              </View>
+            </Card>
+          ))}
+        </>
+      )}
+
       <Card style={{ alignItems: 'center', gap: 6 }}>
         <Text style={s.label}>YOUR FRIEND CODE</Text>
         <Text style={{ fontSize: 34, fontWeight: '800', letterSpacing: 4, color: colors.ink }} selectable>
@@ -129,28 +156,6 @@ ${inviteLink(code!)}`,
         <Text style={result.ok ? [s.body, { color: colors.brandDark }] : s.error}>{result.message}</Text>
       )}
       <Button title={busy ? 'Sending…' : 'Add friend'} onPress={add} disabled={busy || input.trim().length < (input.trim().startsWith('@') || input.includes('@') ? 4 : 8)} />
-
-      {incoming.length > 0 && (
-        <>
-          <SectionTitle>Requests</SectionTitle>
-          {incoming.map((f) => (
-            <Card key={f.friendship_id} style={{ gap: 10 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Text style={[s.h2, { flex: 1 }]} numberOfLines={1}>{f.display_name}</Text>
-                <Badge label="Wants to be friends" tone="warn" />
-              </View>
-              <LinkButton label="Report or block" accessibilityLabel={`Report or block ${f.display_name}`}
-                onPress={() => openPerson(f)} />
-              <View style={{ flexDirection: 'row', gap: 8 }}>
-                <Button title="Decline" variant="ghost" style={{ flex: 1, marginTop: 0 }}
-                  onPress={() => act(() => respondToRequest(f.friendship_id, false))} />
-                <Button title="Accept" style={{ flex: 1, marginTop: 0 }}
-                  onPress={() => act(() => respondToRequest(f.friendship_id, true))} />
-              </View>
-            </Card>
-          ))}
-        </>
-      )}
 
       <SectionTitle>Friends</SectionTitle>
       {accepted.length === 0 ? (

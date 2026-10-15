@@ -80,6 +80,17 @@ export async function getFindability(userId: string): Promise<Findability | null
   return error || !data ? null : (data as Findability);
 }
 
+export async function getDisplayName(userId: string): Promise<string | null> {
+  const { data, error } = await supabase.from('profiles').select('display_name').eq('id', userId).maybeSingle();
+  return error || !data ? null : (data.display_name as string);
+}
+
+/** Returns an error message, or null on success. */
+export async function saveDisplayName(userId: string, name: string): Promise<string | null> {
+  const { error } = await supabase.from('profiles').update({ display_name: name }).eq('id', userId);
+  return error?.message ?? null;
+}
+
 /** Returns an error message, or null on success. */
 export async function setDiscoverable(userId: string, value: boolean): Promise<string | null> {
   const { error } = await supabase.from('profiles').update({ discoverable: value }).eq('id', userId);

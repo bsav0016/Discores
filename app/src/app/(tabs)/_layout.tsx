@@ -4,7 +4,7 @@ import { useAuth } from '@/lib/auth';
 import { colors } from '@/lib/ui';
 
 export default function TabsLayout() {
-  const { pendingCount } = useAuth();
+  const { pendingCount, requestCount } = useAuth();
   return (
     <Tabs
       screenOptions={{
@@ -38,6 +38,9 @@ export default function TabsLayout() {
         name="friends"
         options={{
           title: 'Friends',
+          // Friend requests waiting for you, so a new one is visible without opening the tab.
+          tabBarBadge: requestCount > 0 ? requestCount : undefined,
+          tabBarBadgeStyle: { backgroundColor: colors.accent, color: colors.ink },
           tabBarIcon: ({ color, size }) => <Ionicons name="people-outline" color={color} size={size} />,
         }}
       />

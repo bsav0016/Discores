@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { isOldEnough } from '@/domain/scoring';
 import { useAuth } from '@/lib/auth';
+import { checkDisplayName, defaultDisplayName } from '@/lib/displayName';
 import { LegalLinks } from '@/lib/LegalLinks';
 import { Button, Chip, colors, Field, s } from '@/lib/ui';
 
@@ -31,11 +32,16 @@ export default function SignUp() {
 
   const by = Number(birthYear);
   const yearValid = /^\d{4}$/.test(birthYear) && by >= 1900 && by <= new Date().getFullYear();
-  const canSubmit = !!email && password.length >= 8 && !!name.trim() && yearValid && ageOk && !busy;
+  const canSubmit = !!email && password.length >= 8 && yearValid && ageOk && !busy;
 
   async function submit() {
     if (!isOldEnough(by)) {
       setError('You must be at least 13 to use Discores.');
+      return;
+    }
+    const typed = checkDisplayName(name);
+    if (name.trim() && 'error' in typed) {
+      setError(typed.error);
       return;
     }
     setBusy(true);
@@ -43,7 +49,8 @@ export default function SignUp() {
     const err = await signUp({
       email: email.trim(),
       password,
-      displayName: name.trim(),
+      // Left blank, they are called the start of their email address; they can change it in Settings.
+      displayName: 'name' in typed ? typed.name : defaultDisplayName(email.trim()),
       birthYear: by,
       gender,
       experienceYears: experience ? Number(experience) : null,
@@ -93,10 +100,12 @@ export default function SignUp() {
   return (
     <ScrollView automaticallyAdjustKeyboardInsets style={s.screen} contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled">
       <Text style={s.muted}>
-        We only ask for your birth year (not full birthday). Gender, experience and location are optional and are used
-        for leaderboard brackets.
+        We only ask for your birth year, not your full birthday. Gender and years playing are optional. Other players
+        never see your birth year or gender.
       </Text>
-      <Field label="Display name" value={name} onChangeText={setName} maxLength={40} />
+      <Field label="Display name (optional)" value={name} onChangeText={setName} maxLength={40}
+        placeholder="Friends see this. Defaults to your email name."
+        autoComplete="off" importantForAutofill="no" textContentType="none" autoCorrect={false} />
       <Field label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />
       <Field label="Password (8+ characters)" value={password} onChangeText={setPassword} secureTextEntry />
       <Field label="Birth year" value={birthYear} onChangeText={setBirthYear} keyboardType="number-pad" maxLength={4}

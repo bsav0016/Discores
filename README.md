@@ -4,7 +4,9 @@ Free disc golf scorecard for iOS and Android. Keep score hole by hole on the cou
 
 ![Discores overview](docs/screenshots/overview.png)
 
-More screenshots are in [docs/screenshots](docs/screenshots).
+<p><img src="docs/screenshots/07-scoring-hole-5.png" alt="Scoring hole 5 of a nine-hole round with three players" width="24%"> <img src="docs/screenshots/32-confirm-scores.png" alt="Confirm scores: a friend entered these hole scores, and the player confirms them or marks them as not theirs" width="24%"> <img src="docs/screenshots/30-stats.png" alt="Stats: scoring breakdown, and a course's average strokes per hole against par" width="24%"></p>
+
+Scoring a round, confirming a round a friend scored for you, and stats. More screenshots are in [docs/screenshots](docs/screenshots).
 
 ## Why it exists
 

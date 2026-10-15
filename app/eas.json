@@ -21,5 +21,12 @@
         "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_hNEPsTUi35seVWuazSnWCw_eERzQ32b"
       }
     }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "ascAppId": "6820334635"
+      }
+    }
   }
 }

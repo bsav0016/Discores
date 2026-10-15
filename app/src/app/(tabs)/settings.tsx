@@ -7,7 +7,8 @@ import { useAuth } from '@/lib/auth';
 import { LegalLinks } from '@/lib/LegalLinks';
 import { Button, Card, colors, Field, s, SectionTitle } from '@/lib/ui';
 import { isAdmin } from '@/sync/admin';
-import { getFindability, saveUsername, setDiscoverable } from '@/sync/social';
+import { checkDisplayName } from '@/lib/displayName';
+import { getDisplayName, getFindability, saveDisplayName, saveUsername, setDiscoverable } from '@/sync/social';
 
 export default function Settings() {
   const { session, guest, endGuest, signOut, deleteAccount, sync } = useAuth();
@@ -17,6 +18,9 @@ export default function Settings() {
   const [username, setUsername] = useState('');
   const [savedUsername, setSavedUsername] = useState<string | null>(null);
   const [usernameMsg, setUsernameMsg] = useState<{ ok: boolean; message: string } | null>(null);
+  const [nameInput, setNameInput] = useState('');
+  const [savedName, setSavedName] = useState<string | null>(null);
+  const [nameMsg, setNameMsg] = useState<{ ok: boolean; message: string } | null>(null);
   const router = useRouter();
 
   // Checked on every focus so a newly granted admin sees the entry without restarting.
@@ -24,6 +28,11 @@ export default function Settings() {
   useFocusEffect(useCallback(() => {
     void isAdmin().then(setAdmin);
     if (userId) {
+      void getDisplayName(userId).then((n) => {
+        if (n === null) return;
+        setSavedName(n);
+        setNameInput(n);
+      });
       void getFindability(userId).then((f) => {
         if (!f) return;
         setDiscoverableState(f.discoverable);
@@ -32,6 +41,17 @@ export default function Settings() {
       });
     }
   }, [userId]));
+
+  async function saveDisplay() {
+    if (!userId) return;
+    const checked = checkDisplayName(nameInput);
+    if ('error' in checked) return setNameMsg({ ok: false, message: checked.error });
+    const err = await saveDisplayName(userId, checked.name);
+    if (err) return setNameMsg({ ok: false, message: "Couldn't save that. Check your connection and try again." });
+    setSavedName(checked.name);
+    setNameInput(checked.name);
+    setNameMsg({ ok: true, message: 'Name saved. Your friends will see it.' });
+  }
 
   async function saveName() {
     const r = await saveUsername(username);
@@ -93,6 +113,19 @@ export default function Settings() {
           <Text style={s.muted}>Signed in as</Text>
           <Text style={s.body} numberOfLines={1}>{session?.user.email}</Text>
         </View>
+      </Card>
+
+      <SectionTitle>Your name</SectionTitle>
+      <Card style={{ gap: 8 }}>
+        <Field label="Display name" value={nameInput} onChangeText={setNameInput} maxLength={40} autoCorrect={false}
+          autoComplete="off" importantForAutofill="no" textContentType="none" />
+        <Text style={[s.muted, { fontSize: 13 }]}>
+          This is what your friends see on friend requests and shared rounds. Nobody sees your email unless you let
+          people find you by it.
+        </Text>
+        {nameMsg && <Text style={nameMsg.ok ? [s.body, { color: colors.brandDark }] : s.error}>{nameMsg.message}</Text>}
+        <Button title="Save name" variant="soft" onPress={saveDisplay}
+          disabled={savedName === null || nameInput.trim() === savedName} style={{ marginTop: 0 }} />
       </Card>
 
       <SectionTitle>Be findable</SectionTitle>

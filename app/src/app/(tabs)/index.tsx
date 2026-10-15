@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
-import { FlatList, Text, View } from 'react-native';
+import { useFocusEffect, useNavigation, useRouter } from 'expo-router';
+import { useCallback, useLayoutEffect, useState } from 'react';
+import { ActivityIndicator, FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
 import { listRounds } from '@/db/local';
 import { formatRelative } from '@/domain/scoring';
 import { useAuth } from '@/lib/auth';
@@ -10,10 +10,34 @@ import { Badge, Button, Card, colors, s } from '@/lib/ui';
 type Row = Awaited<ReturnType<typeof listRounds>>[number];
 
 export default function History() {
-  const { ownerId, guest, syncTick, pendingCount } = useAuth();
+  const { ownerId, guest, syncTick, pendingCount, sync } = useAuth();
   const router = useRouter();
+  const navigation = useNavigation();
   const [rounds, setRounds] = useState<Row[]>([]);
+  const [refreshing, setRefreshing] = useState(false); // the header button
+  const [pulling, setPulling] = useState(false); // pull down on the list
   const uid = ownerId;
+
+  const refresh = useCallback(async (setBusy: (v: boolean) => void) => {
+    setBusy(true);
+    await sync().catch(() => {});
+    setBusy(false);
+  }, [sync]);
+
+  // A refresh button in the header, for people who don't think to pull the list down. Guests have nothing to sync.
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: guest ? undefined : () => (
+        <Pressable onPress={() => void refresh(setRefreshing)} disabled={refreshing} hitSlop={12}
+          accessibilityRole="button" accessibilityLabel="Refresh" accessibilityState={{ busy: refreshing }}
+          style={{ marginRight: 16, padding: 4, minWidth: 32, alignItems: 'center' }}>
+          {refreshing
+            ? <ActivityIndicator color={colors.brand} />
+            : <Ionicons name="refresh" size={24} color={colors.brandDark} />}
+        </Pressable>
+      ),
+    });
+  }, [navigation, guest, refresh, refreshing]);
 
   useFocusEffect(
     useCallback(() => {
@@ -27,6 +51,10 @@ export default function History() {
         data={rounds}
         keyExtractor={(r) => r.id}
         contentContainerStyle={[s.pad, { gap: 12 }]}
+        refreshControl={guest ? undefined : (
+          <RefreshControl refreshing={pulling} onRefresh={() => void refresh(setPulling)}
+            tintColor={colors.brand} colors={[colors.brand]} />
+        )}
         ListHeaderComponent={
           <View style={{ gap: 12 }}>
             {pendingCount > 0 && (

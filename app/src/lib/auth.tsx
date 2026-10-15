@@ -7,7 +7,7 @@ import type { Session } from '@supabase/supabase-js';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Alert, AppState } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
-import { adoptGuestRounds, countGuestRounds, GUEST_ID, wipeLocalData } from '@/db/local';
+import { adoptGuestRounds, countGuestRounds, GUEST_ID, listFriends, wipeLocalData } from '@/db/local';
 import { refreshLayouts, syncNow } from '@/sync';
 import { listPendingRounds, pullSharedRounds, refreshFriends } from '@/sync/social';
 import { isSessionGone } from './session';
@@ -35,6 +35,10 @@ type AuthState = {
   /** Rounds a friend scored for you that are waiting for you to confirm. */
   pendingCount: number;
   refreshPending: () => Promise<void>;
+  /** Friend requests other people sent you that are waiting for an answer. */
+  requestCount: number;
+  /** Recounts them from the saved friend list (the Friends tab calls this after it changes the list). */
+  refreshRequests: () => Promise<void>;
   /** Bumps whenever a sync finishes, so screens can re-read local data. */
   syncTick: number;
   signIn: (email: string, password: string) => Promise<string | null>;
@@ -88,6 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [guest, setGuest] = useState(false);
   const [recovering, setRecovering] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
+  const [requestCount, setRequestCount] = useState(0);
   // null = not checked yet; false = signed in but no profile (social sign-in before the age check).
   const [hasProfile, setHasProfile] = useState<boolean | null>(null);
   // Set once the app has been seen signed out, so the guest-rounds question is asked at sign-in, not every launch.
@@ -152,6 +157,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return false;
   }, []);
 
+  const refreshRequests = useCallback(async () => {
+    const rows = await listFriends().catch(() => null);
+    if (rows) setRequestCount(rows.filter((f) => f.kind === 'incoming').length);
+  }, []);
+
   const sync = useCallback(async () => {
     if (!syncUserId) return;
     if (!(await sessionStillValid())) return;
@@ -160,11 +170,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Friends and rounds shared with us come down after our own rounds went up. Offline just leaves the cache.
     // One after the other: both write in a SQLite transaction, and overlapping transactions are rejected.
     await refreshFriends().catch(() => false);
+    await refreshRequests();
     await pullSharedRounds(syncUserId).catch(() => false);
     const pending = await listPendingRounds().catch(() => null);
     if (pending) setPendingCount(pending.length);
     setSyncTick((t) => t + 1);
-  }, [syncUserId, sessionStillValid]);
+  }, [syncUserId, sessionStillValid, refreshRequests]);
 
   const refreshPending = useCallback(async () => {
     const pending = await listPendingRounds().catch(() => null);
@@ -220,6 +231,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       session,
       pendingCount: syncUserId ? pendingCount : 0,
+      requestCount: syncUserId ? requestCount : 0,
+      refreshRequests,
       refreshPending,
       // Also covers the moment between signing in and learning whether a profile exists.
       loading: loading || (!!userId && hasProfile === null),
@@ -392,7 +405,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return null;
       },
     }),
-    [session, loading, guest, userId, hasProfile, syncTick, sync, pushSoon, pendingCount, refreshPending, syncUserId, recovering],
+    [session, loading, guest, userId, hasProfile, syncTick, sync, pushSoon, pendingCount, refreshPending, requestCount, refreshRequests, syncUserId, recovering],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

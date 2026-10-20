@@ -36,6 +36,11 @@ export type SyncDeps = {
   getSource: (roundId: string) => Promise<SyncSource>;
   push: (payload: ReturnType<typeof buildSyncPayload>) => Promise<{ error: unknown | null }>;
   markSynced: (roundId: string, rev: number) => Promise<void>;
+  /** Rounds the user deleted that the server has not been told about yet. */
+  listPendingDeleteIds: () => Promise<string[]>;
+  /** Calls delete_round(): resolves with its answer ('ok', 'not_found', 'not_signed_in'). */
+  deleteRemote: (roundId: string) => Promise<{ result: string | null; error: unknown | null }>;
+  finishDelete: (roundId: string) => Promise<void>;
 };
 
 export type SyncResult = { pushed: number; failed: number };
@@ -74,8 +79,30 @@ export function syncDirtyRounds(deps: SyncDeps): Promise<SyncResult> {
   return running;
 }
 
+/**
+ * Tells the server about deleted rounds, then forgets them locally. 'not_found' counts as done: the round was never
+ * synced, or is already gone. Anything else (offline, signed out) leaves it queued for the next pass.
+ */
+async function runDeletes(deps: SyncDeps): Promise<number> {
+  let failed = 0;
+  for (const id of await deps.listPendingDeleteIds()) {
+    try {
+      const { result, error } = await deps.deleteRemote(id);
+      if (error || (result !== 'ok' && result !== 'not_found')) {
+        failed++;
+        continue;
+      }
+      await deps.finishDelete(id);
+    } catch {
+      failed++; // offline or transient; stays queued
+    }
+  }
+  return failed;
+}
+
 async function run(deps: SyncDeps): Promise<SyncResult> {
-  const result: SyncResult = { pushed: 0, failed: 0 };
+  // Deletes go first, so a round the user just deleted is never pushed again by the loop below.
+  const result: SyncResult = { pushed: 0, failed: await runDeletes(deps) };
   for (const id of await deps.listDirtyRoundIds()) {
     try {
       const src = await deps.getSource(id);

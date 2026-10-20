@@ -57,9 +57,19 @@ export default function RoundScreen() {
   }
 
   function confirmDelete() {
-    Alert.alert('Delete this round?', 'It will be removed from this device.', [
+    const message = guest
+      ? 'It will be removed from this phone.'
+      : "It will be deleted from your account and removed from your friends' history. A friend who confirmed their own scores keeps those scores.";
+    Alert.alert('Delete this round?', message, [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: async () => { await deleteRound(round!.id); router.back(); } },
+      {
+        text: 'Delete', style: 'destructive',
+        onPress: async () => {
+          await deleteRound(round!.id);
+          sync(); // tell the server now if we are online; otherwise it is sent on the next sync
+          router.back();
+        },
+      },
     ]);
   }
 
@@ -157,7 +167,7 @@ export default function RoundScreen() {
           </Text>
         </Card>
       )}
-      {round.owner_id === ownerId && !finished && (
+      {round.owner_id === ownerId && !round.shared && (
         <Button title="Delete round" variant="ghost" onPress={confirmDelete} />
       )}
     </ScrollView>

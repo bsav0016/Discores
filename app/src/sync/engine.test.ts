@@ -10,6 +10,9 @@ function deps(over: Partial<SyncDeps> = {}): SyncDeps & { synced: [string, numbe
   const synced: [string, number][] = [];
   return {
     synced,
+    listPendingDeleteIds: async () => [],
+    deleteRemote: async () => ({ result: 'ok', error: null }),
+    finishDelete: async () => {},
     listDirtyRoundIds: async () => ['a', 'b'],
     getSource: async (id) => src(id, id === 'a' ? 2 : 5),
     push: async () => ({ error: null }),
@@ -110,5 +113,60 @@ describe('syncDirtyRounds', () => {
     release();
     await Promise.all([run, late]);
     expect(dirty.size).toBe(0);
+  });
+});
+
+describe('syncDirtyRounds deletes', () => {
+  it('tells the server about a deleted round, then forgets it locally', async () => {
+    const calls: string[] = [];
+    const d = deps({
+      listDirtyRoundIds: async () => [],
+      listPendingDeleteIds: async () => ['gone'],
+      deleteRemote: async (id) => (calls.push(`remote ${id}`), { result: 'ok', error: null }),
+      finishDelete: async (id) => void calls.push(`local ${id}`),
+    });
+    expect(await syncDirtyRounds(d)).toEqual({ pushed: 0, failed: 0 });
+    expect(calls).toEqual(['remote gone', 'local gone']);
+  });
+
+  it('treats not_found as done: the round never reached the server', async () => {
+    const finished: string[] = [];
+    const d = deps({
+      listDirtyRoundIds: async () => [],
+      listPendingDeleteIds: async () => ['never-synced'],
+      deleteRemote: async () => ({ result: 'not_found', error: null }),
+      finishDelete: async (id) => void finished.push(id),
+    });
+    expect(await syncDirtyRounds(d)).toEqual({ pushed: 0, failed: 0 });
+    expect(finished).toEqual(['never-synced']);
+  });
+
+  it('keeps the delete queued when offline, signed out or erroring, and keeps going', async () => {
+    const finished: string[] = [];
+    const d = deps({
+      listDirtyRoundIds: async () => [],
+      listPendingDeleteIds: async () => ['offline', 'signed-out', 'error', 'fine'],
+      deleteRemote: async (id) => {
+        if (id === 'offline') throw new Error('Network request failed');
+        if (id === 'signed-out') return { result: 'not_signed_in', error: null };
+        if (id === 'error') return { result: null, error: new Error('500') };
+        return { result: 'ok', error: null };
+      },
+      finishDelete: async (id) => void finished.push(id),
+    });
+    expect(await syncDirtyRounds(d)).toEqual({ pushed: 0, failed: 3 });
+    expect(finished).toEqual(['fine']);
+  });
+
+  it('processes deletes before pushing, so a deleted round is not pushed again', async () => {
+    const order: string[] = [];
+    const d = deps({
+      listDirtyRoundIds: async () => ['a'],
+      listPendingDeleteIds: async () => ['gone'],
+      deleteRemote: async () => (order.push('delete'), { result: 'ok', error: null }),
+      push: async () => (order.push('push'), { error: null }),
+    });
+    await syncDirtyRounds(d);
+    expect(order).toEqual(['delete', 'push']);
   });
 });

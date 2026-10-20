@@ -1,5 +1,6 @@
 import {
-  getRound, getSyncSource, listDirtyRoundIds, listLayouts, markSynced, removeLayouts, upsertLayout,
+  finishPendingDelete, getRound, getSyncSource, listDirtyRoundIds, listLayouts, listPendingDeleteIds, markSynced,
+  removeLayouts, upsertLayout,
 } from '@/db/local';
 import { supabase } from '@/lib/supabase';
 import { syncDirtyRounds, type SyncResult } from './engine';
@@ -13,6 +14,12 @@ export function syncNow(ownerId: string): Promise<SyncResult> {
       return { error };
     },
     markSynced,
+    listPendingDeleteIds: () => listPendingDeleteIds(ownerId),
+    deleteRemote: async (roundId) => {
+      const { data, error } = await supabase.rpc('delete_round', { p_round: roundId });
+      return { result: typeof data === 'string' ? data : null, error };
+    },
+    finishDelete: finishPendingDelete,
   });
 }
 

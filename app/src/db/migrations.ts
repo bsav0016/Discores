@@ -66,6 +66,12 @@ export const MIGRATIONS: Migration[] = [
       await addColumnIfMissing(db, 'round_players', 'name', 'TEXT');
     },
   },
+  {
+    version: 3,
+    name: 'queued round deletes',
+    // A deleted round waits here (hidden everywhere) until the server has acknowledged the delete.
+    up: (db) => addColumnIfMissing(db, 'rounds', 'pending_delete', 'INTEGER NOT NULL DEFAULT 0'),
+  },
 ];
 
 export const LATEST_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;

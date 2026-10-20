@@ -24,7 +24,7 @@ Disc golf is played outdoors, often with weak or no signal, and a round usually 
 ## Stack
 
 - **App:** Expo SDK 57, React Native 0.86, TypeScript, Expo Router, `expo-sqlite`
-- **Backend:** [Supabase](https://supabase.com) – Postgres (16 SQL migrations in `supabase/migrations`), Auth, and two Edge Functions (`apple-link`, `delete-account`)
+- **Backend:** [Supabase](https://supabase.com) – Postgres (17 SQL migrations in `supabase/migrations`), Auth, and two Edge Functions (`apple-link`, `delete-account`)
 - **Tests:** Jest (`jest-expo`)
 - **CI:** GitHub Actions – type check, tests, and a check that the generated legal text and web pages are up to date
 
@@ -55,12 +55,13 @@ npm test
 npm run typecheck
 ```
 
-The Jest suite covers scoring, stats, the sync engine, sign-in recovery and invites, display names, and the on-device migrations (fresh install, upgrading a first-release database with its data, a failed step rolling back, repeat runs). The migration tests run on Node's built-in SQLite, so they need Node 22.13 or newer.
+The Jest suite covers scoring, stats, the sync engine, sign-in recovery and invites, display names, and the on-device migrations (fresh install, upgrading a first-release database with its data, a failed step rolling back, repeat runs), the on-device delete queue, and the sync engine's delete handling. The SQL is tested for real: `supabase/tests/run.sh` applies every migration to a scratch PostgreSQL database (with stand-ins for Supabase's `auth` schema) and runs the assertions in `supabase/tests/*.test.sql`; CI does the same in a `sql` job. Run it yourself against any throwaway Postgres with `PGHOST`, `PGUSER` and `PGPASSWORD` set, never a real project. The migration tests run on Node's built-in SQLite, so they need Node 22.13 or newer.
 
 ## Design decisions
 
 - **Offline-first with idempotent sync.** Ids are generated on the device (UUIDs), every change marks a round dirty, and the server's `sync_round()` upserts it, so a retried push is harmless. Scores are last-write-wins per player and hole.
 - **The on-device database is versioned.** `app/src/db/migrations.ts` holds numbered schema steps, run in order inside a transaction and recorded in `PRAGMA user_version`. A step that fails is rolled back and reported instead of ignored, and a step that has shipped is never edited; changes are made by adding the next one. Phones that installed before versioning are recognised (their tables already exist), so they upgrade in place without losing rounds.
+- **Deleting a round deletes it on the server, and the owner's scores go with it.** `delete_round()` removes the owner's seat and scores, so they disappear from everyone's view. A friend whose seat the owner recorded and who confirmed it keeps their own scores: the round stays for them without the owner's seat (the same way a round survives its owner deleting their account). Seats nobody has answered are removed, and if nobody is left to keep the round it is deleted. A tombstone (`round_tombstones`) remembers the delete for 90 days so a second device or a late sync cannot bring the round back; older tombstones are cleared by the next delete. On the phone a deleted round is hidden and queued (`pending_delete`) until the server confirms, so deleting works offline.
 - **Confirm before sharing.** A round only shows up in another player's history after they confirm their own scores; declining unlinks them and leaves their name as plain text.
 - **Exact-match lookups only.** Friends can be found by code, email or username, but never browsed or searched by name; the three lookups share one rate limit, and a miss does not reveal whether an account exists.
 - **Course data from open sources**, with attribution shown in the app; new courses within 400 m of an existing one are skipped on import.

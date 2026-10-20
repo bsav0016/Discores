@@ -1,28 +1,6 @@
 import { LATEST_VERSION, MIGRATIONS, migrate, type Migration, type MigrationDb } from './migrations';
 
-// Runs the migrations on a real SQLite (Node's built-in one) behind the small slice of expo-sqlite's API that they
-// use. Loaded with getBuiltinModule because Jest cannot resolve the prefix-only `node:sqlite` module by name.
-const { DatabaseSync } = (process as any).getBuiltinModule('node:sqlite');
-
-function testDb(): MigrationDb & { raw: any } {
-  const raw = new DatabaseSync(':memory:');
-  return {
-    raw,
-    execAsync: async (sql) => void raw.exec(sql),
-    getFirstAsync: async (sql, ...params) => raw.prepare(sql).get(...params) ?? null,
-    getAllAsync: async (sql, ...params) => raw.prepare(sql).all(...params),
-    withTransactionAsync: async (task) => {
-      raw.exec('BEGIN');
-      try {
-        await task();
-        raw.exec('COMMIT');
-      } catch (error) {
-        raw.exec('ROLLBACK');
-        throw error;
-      }
-    },
-  };
-}
+import { createTestDb as testDb } from './testDb';
 
 const version = (db: { raw: any }) => db.raw.prepare('PRAGMA user_version').get().user_version as number;
 const columns = (db: { raw: any }, table: string) =>
@@ -45,6 +23,7 @@ describe('migrate', () => {
     expect(tables(db)).toEqual(['friends', 'layouts', 'round_players', 'rounds', 'scores']);
     expect(columns(db, 'rounds')).toContain('shared');
     expect(columns(db, 'round_players')).toContain('name');
+    expect(columns(db, 'rounds')).toContain('pending_delete');
   });
 
   it('upgrades a first-release database and keeps its data', async () => {

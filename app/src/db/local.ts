@@ -190,9 +190,35 @@ export async function finishRound(roundId: string, now: string) {
   await db.runAsync('UPDATE rounds SET finished_at = ?, dirty = 1, rev = rev + 1 WHERE id = ?', now, roundId);
 }
 
-export async function deleteRound(roundId: string) {
+/**
+ * Deletes a round. A round that exists only on this phone (played as a guest, or shared with us and read-only here)
+ * is removed at once. One of our own rounds may be on the server, so it is hidden and queued ('queued') until the
+ * server has deleted it too; the sync engine finishes the job, so the delete also works offline.
+ */
+export async function deleteRound(roundId: string): Promise<'removed' | 'queued'> {
   const db = await getDb();
-  await db.runAsync('DELETE FROM rounds WHERE id = ?', roundId);
+  const round = await db.getFirstAsync<{ owner_id: string; shared: number }>(
+    'SELECT owner_id, shared FROM rounds WHERE id = ?', roundId);
+  if (!round) return 'removed';
+  if (round.shared || round.owner_id === GUEST_ID) {
+    await db.runAsync('DELETE FROM rounds WHERE id = ?', roundId);
+    return 'removed';
+  }
+  await db.runAsync('UPDATE rounds SET pending_delete = 1 WHERE id = ?', roundId);
+  return 'queued';
+}
+
+export async function listPendingDeleteIds(ownerId: string): Promise<string[]> {
+  const db = await getDb();
+  const rows = await db.getAllAsync<{ id: string }>(
+    'SELECT id FROM rounds WHERE owner_id = ? AND pending_delete = 1', ownerId);
+  return rows.map((r) => r.id);
+}
+
+/** Removes a queued delete from this phone once the server has confirmed it. */
+export async function finishPendingDelete(roundId: string) {
+  const db = await getDb();
+  await db.runAsync('DELETE FROM rounds WHERE id = ? AND pending_delete = 1', roundId);
 }
 
 function toRound(r: any): RoundRow {
@@ -205,12 +231,12 @@ export async function listRounds(
 ): Promise<(RoundRow & { total: number; scored: number; relative: number })[]> {
   const db = await getDb();
   const rows = await db.getAllAsync<any>(
-    'SELECT * FROM rounds WHERE owner_id = ? ORDER BY started_at DESC', ownerId);
+    'SELECT * FROM rounds WHERE owner_id = ? AND pending_delete = 0 ORDER BY started_at DESC', ownerId);
   const scoreRows = await db.getAllAsync<{ round_id: string; hole_number: number; strokes: number }>(
     `SELECT p.round_id, s.hole_number, s.strokes FROM scores s
        JOIN round_players p ON p.id = s.round_player_id
        JOIN rounds r ON r.id = p.round_id
-      WHERE r.owner_id = ? AND p.user_id = r.owner_id`, ownerId);
+      WHERE r.owner_id = ? AND r.pending_delete = 0 AND p.user_id = r.owner_id`, ownerId);
   const byRound = new Map<string, ScoreMap>();
   for (const s of scoreRows) {
     const m = byRound.get(s.round_id) ?? {};
@@ -233,12 +259,12 @@ export async function listRounds(
 export async function listStatRounds(ownerId: string): Promise<StatRound[]> {
   const db = await getDb();
   const rows = await db.getAllAsync<any>(
-    'SELECT * FROM rounds WHERE owner_id = ? AND finished_at IS NOT NULL', ownerId);
+    'SELECT * FROM rounds WHERE owner_id = ? AND finished_at IS NOT NULL AND pending_delete = 0', ownerId);
   const scoreRows = await db.getAllAsync<{ round_id: string; hole_number: number; strokes: number }>(
     `SELECT p.round_id, s.hole_number, s.strokes FROM scores s
        JOIN round_players p ON p.id = s.round_player_id
        JOIN rounds r ON r.id = p.round_id
-      WHERE r.owner_id = ? AND r.finished_at IS NOT NULL AND p.user_id = r.owner_id`, ownerId);
+      WHERE r.owner_id = ? AND r.pending_delete = 0 AND r.finished_at IS NOT NULL AND p.user_id = r.owner_id`, ownerId);
   const byRound = new Map<string, ScoreMap>();
   for (const s of scoreRows) {
     const m = byRound.get(s.round_id) ?? {};
@@ -275,7 +301,7 @@ export async function getRound(roundId: string): Promise<RoundDetail | null> {
 export async function listDirtyRoundIds(ownerId: string): Promise<string[]> {
   const db = await getDb();
   const rows = await db.getAllAsync<{ id: string }>(
-    'SELECT id FROM rounds WHERE owner_id = ? AND dirty = 1', ownerId);
+    'SELECT id FROM rounds WHERE owner_id = ? AND dirty = 1 AND pending_delete = 0', ownerId);
   return rows.map((r) => r.id);
 }
 

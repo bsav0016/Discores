@@ -1,6 +1,7 @@
 import * as SQLite from 'expo-sqlite';
 import { holesScored, relativeToPar, totalStrokes, type ScoreMap } from '@/domain/scoring';
 import type { StatRound } from '@/domain/stats';
+import { migrate } from './migrations';
 
 // Local-first store. Everything the scorekeeper needs works with no network;
 // rows flagged dirty are pushed by the sync engine.
@@ -71,49 +72,18 @@ export type RoundDetail = RoundRow & {
 let dbPromise: Promise<SQLite.SQLiteDatabase> | null = null;
 
 export function getDb() {
-  dbPromise ??= open();
+  dbPromise ??= open().catch((error) => {
+    // Do not cache a failed open: the next call tries again instead of failing forever.
+    dbPromise = null;
+    throw error;
+  });
   return dbPromise;
 }
 
 async function open() {
   const db = await SQLite.openDatabaseAsync('discores.db');
-  await db.execAsync(`
-    PRAGMA journal_mode = WAL;
-    PRAGMA foreign_keys = ON;
-    CREATE TABLE IF NOT EXISTS layouts (
-      layout_id TEXT PRIMARY KEY, course_id TEXT NOT NULL, course_name TEXT NOT NULL,
-      area TEXT, hole_count INTEGER NOT NULL, pars TEXT NOT NULL
-    );
-    CREATE TABLE IF NOT EXISTS rounds (
-      id TEXT PRIMARY KEY, owner_id TEXT NOT NULL, layout_id TEXT NOT NULL,
-      course_name TEXT NOT NULL, hole_count INTEGER NOT NULL, pars TEXT NOT NULL,
-      started_at TEXT NOT NULL, finished_at TEXT, dirty INTEGER NOT NULL DEFAULT 1,
-      rev INTEGER NOT NULL DEFAULT 0
-    );
-    CREATE TABLE IF NOT EXISTS round_players (
-      id TEXT PRIMARY KEY, round_id TEXT NOT NULL REFERENCES rounds(id) ON DELETE CASCADE,
-      user_id TEXT, guest_name TEXT, position INTEGER NOT NULL DEFAULT 0
-    );
-    CREATE TABLE IF NOT EXISTS friends (
-      friendship_id TEXT PRIMARY KEY, user_id TEXT NOT NULL, display_name TEXT NOT NULL, kind TEXT NOT NULL
-    );
-    CREATE TABLE IF NOT EXISTS scores (
-      round_player_id TEXT NOT NULL REFERENCES round_players(id) ON DELETE CASCADE,
-      hole_number INTEGER NOT NULL, strokes INTEGER NOT NULL, updated_at TEXT NOT NULL,
-      PRIMARY KEY (round_player_id, hole_number)
-    );
-  `);
-  // Columns added after the first release; ALTER fails harmlessly when they already exist.
-  for (const stmt of [
-    'ALTER TABLE rounds ADD COLUMN shared INTEGER NOT NULL DEFAULT 0',
-    'ALTER TABLE round_players ADD COLUMN name TEXT',
-  ]) {
-    try {
-      await db.execAsync(stmt);
-    } catch {
-      /* already there */
-    }
-  }
+  await db.execAsync('PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;');
+  await migrate(db);
   return db;
 }
 

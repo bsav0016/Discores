@@ -1,7 +1,8 @@
 import {
   GUEST_ID, createRound, deleteRound, finishPendingDelete, listDirtyRoundIds, listPendingDeleteIds, listRounds,
-  listStatRounds, replaceSharedRounds, setScore, wipeLocalData, finishRound, getRound,
+  listStatRounds, replaceSharedRounds, applyRestore, listRestoreState, setScore, wipeLocalData, finishRound, getRound,
 } from './local';
+import { planRestore } from '@/sync/restore';
 
 // The real database code, run on Node's SQLite instead of expo-sqlite.
 jest.mock('expo-sqlite', () => ({
@@ -73,5 +74,64 @@ describe('deleteRound', () => {
     await deleteRound('r1');
     await finishPendingDelete('r1');
     expect((await getRound('r2'))?.players[0].scores).toEqual({ 1: 3 });
+  });
+});
+
+describe('restoring your own rounds', () => {
+  const pulled = {
+    rounds: [{
+      id: 'r1', layout_id: 'L1', course_name: 'Maple Hill', hole_count: 2, pars: [3, 3],
+      started_at: '2026-10-04T10:00:00+00:00', finished_at: '2026-10-04T11:00:00+00:00',
+      players: [
+        { id: 'r1-p0', position: 0, user_id: 'me', guest_name: null, name: 'Me',
+          scores: [{ hole_number: 1, strokes: 3, updated_at: '2026-10-04T10:05:00+00:00' }] },
+        { id: 'r1-p1', position: 1, user_id: null, guest_name: 'Janet', name: null,
+          scores: [{ hole_number: 1, strokes: 4, updated_at: '2026-10-04T10:05:00+00:00' }] },
+      ],
+    }],
+    deleted: [] as string[],
+  };
+
+  it('puts a round on an empty phone as your own, in sync, and shows it in history and stats', async () => {
+    await applyRestore('me', planRestore(await listRestoreState('me'), pulled));
+
+    const round = await getRound('r1');
+    expect(round).toMatchObject({ owner_id: 'me', dirty: false, shared: false, finished_at: '2026-10-04T11:00:00+00:00' });
+    expect(round!.players.map((p) => [p.display_name, p.scores[1]])).toEqual([['You', 3], ['Janet', 4]]);
+    expect((await listRounds('me')).map((r) => r.id)).toEqual(['r1']);
+    expect((await listStatRounds('me')).map((r) => r.id)).toEqual(['r1']);
+    expect(await listDirtyRoundIds('me')).toEqual([]); // nothing to push back
+  });
+
+  it('is repeatable: a second pull of the same data changes nothing', async () => {
+    await applyRestore('me', planRestore(await listRestoreState('me'), pulled));
+    expect(planRestore(await listRestoreState('me'), pulled)).toEqual([]);
+  });
+
+  it('merges a later score from another device without marking the round dirty', async () => {
+    await applyRestore('me', planRestore(await listRestoreState('me'), pulled));
+    const later = structuredClone(pulled);
+    later.rounds[0].players[0].scores.push({ hole_number: 2, strokes: 5, updated_at: '2026-10-04T10:30:00+00:00' });
+
+    await applyRestore('me', planRestore(await listRestoreState('me'), later));
+
+    expect((await getRound('r1'))!.players[0].scores).toEqual({ 1: 3, 2: 5 });
+    expect(await listDirtyRoundIds('me')).toEqual([]);
+  });
+
+  it('drops a round deleted on another device', async () => {
+    await applyRestore('me', planRestore(await listRestoreState('me'), pulled));
+    await applyRestore('me', planRestore(await listRestoreState('me'), { rounds: [], deleted: ['r1'] }));
+    expect(await getRound('r1')).toBeNull();
+  });
+
+  it('replaces a stale read-only copy of the same round id', async () => {
+    await replaceSharedRounds('me', [{
+      id: 'r1', layout_id: 'L1', course_name: 'Maple Hill', hole_count: 2, pars: [3, 3],
+      started_at: '2026-10-04T10:00:00Z', finished_at: '2026-10-04T11:00:00Z',
+      players: [{ id: 'old-p', position: 0, is_me: true, name: 'Me', scores: [] }],
+    }]);
+    await applyRestore('me', [{ type: 'insert', round: pulled.rounds[0] }]);
+    expect(await getRound('r1')).toMatchObject({ shared: false });
   });
 });

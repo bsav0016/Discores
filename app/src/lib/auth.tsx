@@ -9,7 +9,7 @@ import { Alert, AppState } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { adoptGuestRounds, countGuestRounds, GUEST_ID, listFriends, wipeLocalData } from '@/db/local';
 import { refreshLayouts, syncNow } from '@/sync';
-import { listPendingRounds, pullSharedRounds, refreshFriends } from '@/sync/social';
+import { listPendingRounds, pullMyRounds, pullSharedRounds, refreshFriends } from '@/sync/social';
 import { isSessionGone } from './session';
 import { supabase } from './supabase';
 
@@ -171,6 +171,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // One after the other: both write in a SQLite transaction, and overlapping transactions are rejected.
     await refreshFriends().catch(() => false);
     await refreshRequests();
+    await pullMyRounds(syncUserId).catch(() => false);
     await pullSharedRounds(syncUserId).catch(() => false);
     const pending = await listPendingRounds().catch(() => null);
     if (pending) setPendingCount(pending.length);

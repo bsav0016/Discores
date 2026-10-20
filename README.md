@@ -55,9 +55,12 @@ npm test
 npm run typecheck
 ```
 
+The Jest suite covers scoring, stats, the sync engine, sign-in recovery and invites, display names, and the on-device migrations (fresh install, upgrading a first-release database with its data, a failed step rolling back, repeat runs). The migration tests run on Node's built-in SQLite, so they need Node 22.13 or newer.
+
 ## Design decisions
 
 - **Offline-first with idempotent sync.** Ids are generated on the device (UUIDs), every change marks a round dirty, and the server's `sync_round()` upserts it, so a retried push is harmless. Scores are last-write-wins per player and hole.
+- **The on-device database is versioned.** `app/src/db/migrations.ts` holds numbered schema steps, run in order inside a transaction and recorded in `PRAGMA user_version`. A step that fails is rolled back and reported instead of ignored, and a step that has shipped is never edited; changes are made by adding the next one. Phones that installed before versioning are recognised (their tables already exist), so they upgrade in place without losing rounds.
 - **Confirm before sharing.** A round only shows up in another player's history after they confirm their own scores; declining unlinks them and leaves their name as plain text.
 - **Exact-match lookups only.** Friends can be found by code, email or username, but never browsed or searched by name; the three lookups share one rate limit, and a miss does not reveal whether an account exists.
 - **Course data from open sources**, with attribution shown in the app; new courses within 400 m of an existing one are skipped on import.

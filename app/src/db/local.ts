@@ -188,7 +188,8 @@ export async function setScore(playerId: string, roundId: string, hole: number, 
 
 export async function finishRound(roundId: string, now: string) {
   const db = await getDb();
-  await db.runAsync('UPDATE rounds SET finished_at = ?, dirty = 1, rev = rev + 1 WHERE id = ?', now, roundId);
+  // Finishing twice (or on a second device) keeps the first time, the same rule the server applies.
+  await db.runAsync('UPDATE rounds SET finished_at = COALESCE(finished_at, ?), dirty = 1, rev = rev + 1 WHERE id = ?', now, roundId);
 }
 
 /**

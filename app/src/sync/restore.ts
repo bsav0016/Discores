@@ -54,7 +54,8 @@ const isNewer = (a: string, b: string) => Date.parse(a) > Date.parse(b);
  *  - Deleted on the server (tombstone): drop it here, even with unsynced edits; the server refuses to take it back.
  *  - Not on the phone: restore it (new phone, reinstall).
  *  - On the phone and in sync: take whatever the server has that is newer (another device scored more holes or
- *    finished the round). Scores are last-write-wins per hole by updated_at, the same rule the server uses.
+ *    finished the round). Scores are last-write-wins per hole by updated_at, and the finish time is the earliest
+ *    one, the same rules the server uses.
  *  - On the phone with unsynced edits, or queued for delete: leave it. The next push sends our edits (the server
  *    merges them), and the pull after that picks up the result.
  */
@@ -85,7 +86,11 @@ export function planRestore(local: LocalRoundState[], pulled: PullMyRounds): Res
           return local === undefined || isNewer(s.updated_at, local);
         })
         .map((s) => ({ playerId: p.id, hole: s.hole_number, strokes: s.strokes, updatedAt: s.updated_at })));
-    const finishedAt = mine.finishedAt === null && remote.finished_at !== null ? remote.finished_at : null;
+    // A finished round stays finished and the earliest finish time wins, the same rule the server applies.
+    const finishedAt =
+      remote.finished_at !== null && (mine.finishedAt === null || isNewer(mine.finishedAt, remote.finished_at))
+        ? remote.finished_at
+        : null;
 
     if (players.length || scores.length || finishedAt) {
       actions.push({ type: 'merge', id: remote.id, finishedAt, players, scores });

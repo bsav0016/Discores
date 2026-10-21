@@ -15,6 +15,7 @@ Disc golf is played outdoors, often with weak or no signal, and a round usually 
 ## Features
 
 - **Scoring that works offline.** Rounds, players and scores are written to on-device SQLite first and synced when a connection returns.
+- **Your account keeps your rounds.** Signed in, a reinstall or a new phone restores your full history from the server (`pull_my_rounds`), and deleting a round deletes it on every device.
 - **Course search** across about 1,960 US courses imported from OpenStreetMap and Overture Maps data; users can add a course or report a problem with one.
 - **Friends and shared rounds.** Add friends by code, QR code, invite link, exact email (opt-in) or `@username`. When a round with registered players finishes, each player confirms their own scores before it appears in their history.
 - **History and stats** per player.
@@ -24,7 +25,7 @@ Disc golf is played outdoors, often with weak or no signal, and a round usually 
 ## Stack
 
 - **App:** Expo SDK 57, React Native 0.86, TypeScript, Expo Router, `expo-sqlite`
-- **Backend:** [Supabase](https://supabase.com) – Postgres (17 SQL migrations in `supabase/migrations`), Auth, and two Edge Functions (`apple-link`, `delete-account`)
+- **Backend:** [Supabase](https://supabase.com) – Postgres (19 SQL migrations in `supabase/migrations`), Auth, and two Edge Functions (`apple-link`, `delete-account`)
 - **Tests:** Jest (`jest-expo`)
 - **CI:** GitHub Actions – type check, tests, and a check that the generated legal text and web pages are up to date
 
@@ -62,6 +63,8 @@ The Jest suite covers scoring, stats, the sync engine, sign-in recovery and invi
 - **Offline-first with idempotent sync.** Ids are generated on the device (UUIDs), every change marks a round dirty, and the server's `sync_round()` upserts it, so a retried push is harmless. Scores are last-write-wins per player and hole.
 - **The on-device database is versioned.** `app/src/db/migrations.ts` holds numbered schema steps, run in order inside a transaction and recorded in `PRAGMA user_version`. A step that fails is rolled back and reported instead of ignored, and a step that has shipped is never edited; changes are made by adding the next one. Phones that installed before versioning are recognised (their tables already exist), so they upgrade in place without losing rounds.
 - **Deleting a round deletes it on the server, and the owner's scores go with it.** `delete_round()` removes the owner's seat and scores, so they disappear from everyone's view. A friend whose seat the owner recorded and who confirmed it keeps their own scores: the round stays for them without the owner's seat (the same way a round survives its owner deleting their account). Seats nobody has answered are removed, and if nobody is left to keep the round it is deleted. A tombstone (`round_tombstones`) remembers the delete for 90 days so a second device or a late sync cannot bring the round back; older tombstones are cleared by the next delete. On the phone a deleted round is hidden and queued (`pending_delete`) until the server confirms, so deleting works offline.
+- **Restoring is a merge, not a copy.** After each push the app calls `pull_my_rounds()` and a pure function (`app/src/sync/restore.ts`, unit tested) decides what to change: restore rounds the phone lacks, drop rounds the server says were deleted, and take newer scores or seats from the server. A round with unsynced edits or a queued delete is left alone until its push goes through. Restoring is read-only on the server, so friends are never asked to confirm a seat again; guest rounds stay on the phone.
+- **Round-level conflict rules.** Scores are last-write-wins per hole by `updated_at`. A finished round stays finished and the earliest `finished_at` wins (`least()` in `sync_round`, migration 0019, and the same rule on the phone), so a stale device can neither un-finish a round nor push its finish time later.
 - **Confirm before sharing.** A round only shows up in another player's history after they confirm their own scores; declining unlinks them and leaves their name as plain text.
 - **Exact-match lookups only.** Friends can be found by code, email or username, but never browsed or searched by name; the three lookups share one rate limit, and a miss does not reveal whether an account exists.
 - **Course data from open sources**, with attribution shown in the app; new courses within 400 m of an existing one are skipped on import.

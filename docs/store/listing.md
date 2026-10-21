@@ -33,6 +33,10 @@ PLAY WITH FRIENDS
 - Score a round for your whole group. Each friend gets to check their own scores and confirm them before the round
   is added to their history, so nobody ends up with a score they didn't play.
 
+YOUR ROUNDS FOLLOW YOU
+- Signed in, your rounds are saved to your account. Get a new phone or reinstall and they come back.
+- Delete a round and it is gone on all your devices.
+
 KNOW YOUR GAME
 - See your rounds, your best score at each course, and how you do on every hole.
 - A simple breakdown of birdies, pars, bogeys and worse.
@@ -85,7 +89,7 @@ Data collected, all linked to the user, none used for tracking, none shared with
 | Email address | Account, sign-in |
 | Name (display name) | Shown to friends |
 | User ID | Account |
-| Other user content (scores, rounds, usernames, report notes) | App functionality |
+| Other user content (scores, rounds, usernames, report notes) | App functionality (rounds are saved to the account and restored on a new device) |
 | Gender (optional), birth year | Profile (birth year for the age check) |
 
 Not collected: location, contacts, photos, browsing history, device identifiers, advertising data, diagnostics.

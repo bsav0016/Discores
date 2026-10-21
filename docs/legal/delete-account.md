@@ -32,7 +32,7 @@ Email savidgeapps@gmail.com from the address on your account with the subject "D
 - Rounds you scored with other registered players stay in their history. Your name on them is replaced with "Deleted player" and nothing links them to you.
 - Courses you added stay, with no link to you.
 - Reports you sent about another person stay with your name removed. Reports about you may be kept so that we can keep other people safe.
-- Nothing else stays: we do not keep backups of your data.
+- Nothing else stays. The identifiers we hold for 90 days for rounds you deleted earlier (so another device cannot restore them) are deleted with your account. We keep no other backup copies.
 
 Rounds you scored as a guest without an account are only on your phone. Delete the app or clear its data to remove them.
 

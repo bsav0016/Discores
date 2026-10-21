@@ -5,7 +5,7 @@ so the in-app copy matches. HTML comments like this one are not shown in the app
 -->
 # Privacy Policy
 
-Effective October 13, 2026
+Effective October 20, 2026
 
 Discores is a free disc golf score tracker run by Savidge Apps ("we", "us"). This policy explains what we collect, why, who can see it, and how to delete it. You can reach us at savidgeapps@gmail.com.
 
@@ -15,7 +15,8 @@ Discores is a free disc golf score tracker run by Savidge Apps ("we", "us"). Thi
 - We do not show ads, sell your data, or track you across other apps or websites.
 - We do not use your location. Courses are found by searching their name.
 - Other players never see your email, birth year or gender. Friends see your display name.
-- You can delete your account and data inside the app at any time (Settings > Delete account and data).
+- When you are signed in, your rounds are saved to your account, so they come back if you reinstall the app or get a new phone.
+- You can delete a round, or your whole account and data, inside the app at any time.
 
 ## What we collect
 
@@ -23,7 +24,7 @@ Discores is a free disc golf score tracker run by Savidge Apps ("we", "us"). Thi
 
 **Profile.** Your display name, your birth year (not your full birthday), and a confirmation that you are 13 or older. Optional: gender, years playing disc golf, a username, and a setting that lets people find you by exact email address (off unless you turn it on). We also create a friend code for you.
 
-**Rounds and scores.** The courses you play, the date, your scores, and the names of the other players in the round. Names of people without the app are typed in by whoever scores the round.
+**Rounds and scores.** The courses you play, the date, your scores, and the names of the other players in the round. Names of people without the app are typed in by whoever scores the round. While you are signed in, the app saves each round to your account and restores your rounds from it when you sign in on a new phone or after reinstalling. If you delete a round, we keep only its identifier, with the date you deleted it, for 90 days so that another device of yours cannot bring it back.
 
 **Friends and safety.** Friend requests and friendships, people you have blocked, and reports you send about another person or a course, including any note you write.
 
@@ -37,7 +38,7 @@ Discores is a free disc golf score tracker run by Savidge Apps ("we", "us"). Thi
 
 ## How we use it
 
-To run the app: sign you in, keep your rounds in sync, let you play with friends, show history and stats, keep people safe (limit abuse, review reports), and fix problems. We do not use your data to train models or for advertising.
+To run the app: sign you in, keep your rounds saved to your account and in sync across your devices, let you play with friends, show history and stats, keep people safe (limit abuse, review reports), and fix problems. We do not use your data to train models or for advertising.
 
 ## Who can see what
 
@@ -61,15 +62,16 @@ Course data comes from OpenStreetMap contributors (ODbL), Overture Maps Foundati
 
 ## Keeping and deleting data
 
-We keep your data while your account exists. You can delete your account in the app: Settings > Delete account and data. When you do:
+We keep your data while your account exists. A round you delete in the app is removed from your account and from your friends' view of your scores, but a friend who confirmed their own scores in it keeps those scores (without your name on the round). We keep the deleted round's identifier for 90 days, then it is cleared. You can delete your account in the app: Settings > Delete account and data. When you do:
 
 - Your profile, email or Apple/Google sign-in (and Apple's token, which we revoke), friends, blocks, friend requests and course suggestions are deleted.
 - Rounds you scored that include other registered players stay in their history, and your name on them is replaced with "Deleted player". Your other rounds are deleted.
 - Courses you added stay, without any link to you.
 - Reports you sent stay with your name removed. Reports about you may be kept so that we can keep people safe.
+- The identifiers we kept for rounds you deleted are removed.
 - A username you used is not reserved for you afterward.
 
-We do not keep backups of your data, so deleted data does not linger in one. If you cannot use the app, email savidgeapps@gmail.com from the address on the account and we will delete it.
+Your rounds are saved to your account so you can restore them, which means they are held on our servers until you delete them or your account. We do not keep separate backup copies beyond the 90 days for deleted rounds described above. If you cannot use the app, email savidgeapps@gmail.com from the address on the account and we will delete it.
 
 ## Your choices and rights
 

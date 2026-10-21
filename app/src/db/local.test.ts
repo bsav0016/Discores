@@ -22,6 +22,14 @@ async function ownRound(id: string, ownerId = 'me') {
 
 beforeEach(() => wipeLocalData());
 
+describe('finishRound', () => {
+  it('keeps the first finish time when a round is finished again', async () => {
+    await ownRound('r1');
+    await finishRound('r1', '2026-10-04T12:00:00Z');
+    expect((await getRound('r1'))?.finished_at).toBe('2026-10-04T11:00:00Z');
+  });
+});
+
 describe('deleteRound', () => {
   it('hides one of your own rounds everywhere and queues the delete for the server', async () => {
     await ownRound('r1');

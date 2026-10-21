@@ -1,6 +1,7 @@
 import * as SQLite from 'expo-sqlite';
 import { holesScored, relativeToPar, totalStrokes, type ScoreMap } from '@/domain/scoring';
 import type { StatRound } from '@/domain/stats';
+import type { LocalRoundState, RestoreAction } from '@/sync/restore';
 import { migrate } from './migrations';
 
 // Local-first store. Everything the scorekeeper needs works with no network;
@@ -318,6 +319,87 @@ export async function getSyncSource(roundId: string) {
 export async function markSynced(roundId: string, pushedRev: number) {
   const db = await getDb();
   await db.runAsync('UPDATE rounds SET dirty = 0 WHERE id = ? AND rev = ?', roundId, pushedRev);
+}
+
+// ------------------------------------------------------------ restore (own rounds)
+/** What this phone holds for the user's own rounds, for planRestore(). Shared (read-only) rounds are not included. */
+export async function listRestoreState(ownerId: string): Promise<LocalRoundState[]> {
+  const db = await getDb();
+  const rounds = await db.getAllAsync<any>(
+    'SELECT id, dirty, pending_delete, finished_at FROM rounds WHERE owner_id = ? AND shared = 0', ownerId);
+  const players = await db.getAllAsync<{ id: string; round_id: string }>(
+    'SELECT p.id, p.round_id FROM round_players p JOIN rounds r ON r.id = p.round_id WHERE r.owner_id = ? AND r.shared = 0',
+    ownerId);
+  const scores = await db.getAllAsync<{ round_player_id: string; hole_number: number; updated_at: string }>(
+    `SELECT s.round_player_id, s.hole_number, s.updated_at FROM scores s
+     JOIN round_players p ON p.id = s.round_player_id JOIN rounds r ON r.id = p.round_id
+     WHERE r.owner_id = ? AND r.shared = 0`, ownerId);
+  const byRound = new Map<string, LocalRoundState>(rounds.map((r) => [r.id, {
+    id: r.id, dirty: !!r.dirty, pendingDelete: !!r.pending_delete, finishedAt: r.finished_at, playerIds: [], scores: {},
+  }]));
+  const roundOfPlayer = new Map<string, string>();
+  for (const p of players) {
+    roundOfPlayer.set(p.id, p.round_id);
+    byRound.get(p.round_id)?.playerIds.push(p.id);
+  }
+  for (const s of scores) {
+    const roundId = roundOfPlayer.get(s.round_player_id);
+    if (roundId) byRound.get(roundId)!.scores[`${s.round_player_id}:${s.hole_number}`] = s.updated_at;
+  }
+  return [...byRound.values()];
+}
+
+/**
+ * Applies a plan from planRestore(). Restored rows are clean (dirty = 0): they came from the server, so there is
+ * nothing to push, and sync_round is never called for them, which also means no friend is asked to confirm again.
+ */
+export async function applyRestore(ownerId: string, actions: RestoreAction[]) {
+  if (actions.length === 0) return;
+  const db = await getDb();
+  await db.withTransactionAsync(async () => {
+    for (const a of actions) {
+      if (a.type === 'drop') {
+        await db.runAsync('DELETE FROM rounds WHERE id = ? AND owner_id = ? AND shared = 0', a.id, ownerId);
+      } else if (a.type === 'insert') {
+        const r = a.round;
+        // A stale shared copy of this id (or another account's) must not block the restore.
+        await db.runAsync('DELETE FROM rounds WHERE id = ? AND (shared = 1 OR owner_id <> ?)', r.id, ownerId);
+        await db.runAsync(
+          `INSERT OR IGNORE INTO rounds (id, owner_id, layout_id, course_name, hole_count, pars, started_at, finished_at,
+                                         dirty, rev, shared) VALUES (?,?,?,?,?,?,?,?,0,0,0)`,
+          r.id, ownerId, r.layout_id, r.course_name, r.hole_count, JSON.stringify(r.pars), r.started_at, r.finished_at,
+        );
+        for (const p of r.players) await insertRestoredPlayer(db, r.id, p);
+        for (const p of r.players) {
+          for (const s of p.scores) await insertRestoredScore(db, p.id, s.hole_number, s.strokes, s.updated_at);
+        }
+      } else {
+        if (a.finishedAt) await db.runAsync('UPDATE rounds SET finished_at = ? WHERE id = ?', a.finishedAt, a.id);
+        for (const p of a.players) await insertRestoredPlayer(db, a.id, p);
+        for (const s of a.scores) await insertRestoredScore(db, s.playerId, s.hole, s.strokes, s.updatedAt);
+      }
+    }
+  });
+}
+
+async function insertRestoredPlayer(
+  db: SQLite.SQLiteDatabase, roundId: string,
+  p: { id: string; position: number; user_id: string | null; guest_name: string | null; name: string | null },
+) {
+  await db.runAsync(
+    'INSERT OR IGNORE INTO round_players (id, round_id, user_id, guest_name, name, position) VALUES (?,?,?,?,?,?)',
+    p.id, roundId, p.user_id, p.guest_name, p.name, p.position,
+  );
+}
+
+async function insertRestoredScore(
+  db: SQLite.SQLiteDatabase, playerId: string, hole: number, strokes: number, updatedAt: string,
+) {
+  await db.runAsync(
+    `INSERT INTO scores (round_player_id, hole_number, strokes, updated_at) VALUES (?,?,?,?)
+     ON CONFLICT (round_player_id, hole_number) DO UPDATE SET strokes = excluded.strokes, updated_at = excluded.updated_at`,
+    playerId, hole, strokes, updatedAt,
+  );
 }
 
 // ------------------------------------------------------------------ friends

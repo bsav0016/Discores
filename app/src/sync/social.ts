@@ -1,6 +1,7 @@
-import { replaceFriends, replaceSharedRounds, type FriendRow, type SharedRound } from '@/db/local';
+import { applyRestore, listRestoreState, replaceFriends, replaceSharedRounds, type FriendRow, type SharedRound } from '@/db/local';
 import { classifyLookup } from '@/lib/invite';
 import { supabase } from '@/lib/supabase';
+import { planRestore, type PullMyRounds } from './restore';
 
 /** Downloads the friend list and requests into the local cache. Returns false (cache untouched) when offline. */
 export async function refreshFriends(): Promise<boolean> {
@@ -23,6 +24,24 @@ export async function pullSharedRounds(myId: string): Promise<boolean> {
     await replaceSharedRounds(myId, data as SharedRound[]);
   } catch (e) {
     console.warn('Could not store shared rounds', String(e));
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Brings our own rounds from the server onto this phone (new phone, reinstall, a second device) and drops rounds
+ * deleted elsewhere. Run after the push, so our own edits are already up. Cache untouched when offline.
+ */
+export async function pullMyRounds(myId: string): Promise<boolean> {
+  const { data, error } = await supabase.rpc('pull_my_rounds');
+  if (error || !data || !Array.isArray((data as PullMyRounds).rounds) || !Array.isArray((data as PullMyRounds).deleted)) {
+    return false;
+  }
+  try {
+    await applyRestore(myId, planRestore(await listRestoreState(myId), data as PullMyRounds));
+  } catch (e) {
+    console.warn('Could not restore rounds', String(e));
     return false;
   }
   return true;

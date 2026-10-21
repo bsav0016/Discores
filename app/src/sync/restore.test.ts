@@ -90,8 +90,19 @@ describe('planRestore', () => {
     expect(planRestore([local('r1', { pendingDelete: true })], { rounds: [remote('r1')], deleted: [] })).toEqual([]);
   });
 
-  it('keeps a finish time the phone already has', () => {
+  it('keeps an earlier finish time the phone already has', () => {
     const r = remote('r1', { finished_at: T2 });
     expect(planRestore([local('r1', { finishedAt: T1 })], { rounds: [r], deleted: [] })).toEqual([]);
+  });
+
+  it('takes an earlier finish time from the server (two devices finished the same round)', () => {
+    const r = remote('r1', { finished_at: T1 });
+    expect(planRestore([local('r1', { finishedAt: T2 })], { rounds: [r], deleted: [] }))
+      .toEqual([{ type: 'merge', id: 'r1', finishedAt: T1, players: [], scores: [] }]);
+  });
+
+  it('never un-finishes a round the phone has finished', () => {
+    expect(planRestore([local('r1', { finishedAt: T1 })], { rounds: [remote('r1', { finished_at: null })], deleted: [] }))
+      .toEqual([]);
   });
 });

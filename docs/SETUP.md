@@ -76,9 +76,9 @@ Google users go through the same `complete_profile()` age check as Apple users. 
 browser shows Supabase's error instead of the sign-in page.
 
 ## Legal documents
-The Privacy Policy and Terms of Service are drafts in `docs/legal/` (markdown). They are bundled into the app by
+The Privacy Policy and Terms of Service are in `docs/legal/` (markdown). They are bundled into the app by
 `node app/scripts/build-legal.mjs` and shown at Settings > Terms/Privacy and on the sign-in, sign-up and profile
-screens. Before launch: replace every `[PLACEHOLDER]`, have a lawyer review them, re-run the script, and host the
+screens. After editing them, re-run the script and `build-site.mjs`, and host the
 same text at a public URL (both app stores ask for one).
 
 ## Account deletion and Apple token revocation

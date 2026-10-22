@@ -56,7 +56,7 @@ npm test
 npm run typecheck
 ```
 
-The Jest suite covers scoring, stats, the sync engine, sign-in recovery and invites, display names, and the on-device migrations (fresh install, upgrading a first-release database with its data, a failed step rolling back, repeat runs), the on-device delete queue, and the sync engine's delete handling. The SQL is tested for real: `supabase/tests/run.sh` applies every migration to a scratch PostgreSQL database (with stand-ins for Supabase's `auth` schema) and runs the assertions in `supabase/tests/*.test.sql`; CI does the same in a `sql` job. Run it yourself against any throwaway Postgres with `PGHOST`, `PGUSER` and `PGPASSWORD` set, never a real project. The migration tests run on Node's built-in SQLite, so they need Node 22.13 or newer.
+The Jest suite covers scoring, stats, the sync engine, sign-in recovery and invites, display names, and the on-device migrations (fresh install, upgrading a first-release database with its data, a failed step rolling back, repeat runs), the on-device delete queue, the sync engine's delete handling, the restore merge (new device, unsynced edits, server deletes, two devices) and the first-finish-time rule. The SQL is tested for real: `supabase/tests/run.sh` applies every migration to a scratch PostgreSQL database (with stand-ins for Supabase's `auth` schema) and runs the assertions in `supabase/tests/*.test.sql`; CI does the same in a `sql` job. Run it yourself against any throwaway Postgres with `PGHOST`, `PGUSER` and `PGPASSWORD` set, never a real project. The migration tests run on Node's built-in SQLite, so they need Node 22.13 or newer.
 
 ## Design decisions
 
@@ -73,8 +73,7 @@ The Jest suite covers scoring, stats, the sync engine, sign-in recovery and invi
 ## Limitations
 
 - US course coverage only, and thinner outside big cities.
-- The privacy policy and terms in `docs/legal` are drafts and still contain placeholders.
 
 ## License
 
-MIT. See [LICENSE](LICENSE). The legal documents in `docs/legal` are separate drafts for the app's users and are not covered by it.
+MIT. See [LICENSE](LICENSE). The legal documents in `docs/legal` are separate documents for the app's users and are not covered by it.

@@ -73,8 +73,7 @@ The Jest suite covers scoring, stats, the sync engine, sign-in recovery and invi
 ## Limitations
 
 - US course coverage only, and thinner outside big cities.
-- The privacy policy and terms in `docs/legal` are drafts and still contain placeholders.
 
 ## License
 
-MIT. See [LICENSE](LICENSE). The legal documents in `docs/legal` are separate drafts for the app's users and are not covered by it.
+MIT. See [LICENSE](LICENSE). The legal documents in `docs/legal` are separate documents for the app's users and are not covered by it.

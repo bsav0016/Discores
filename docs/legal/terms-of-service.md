@@ -1,6 +1,6 @@
 <!--
-DRAFT. Have a lawyer review it before launch, then replace every [PLACEHOLDER] below. After editing, run
-`node app/scripts/build-legal.mjs` so the in-app copy matches. HTML comments are not shown in the app.
+After editing, run `node app/scripts/build-legal.mjs` and `node app/scripts/build-site.mjs` so the in-app copy and
+the web pages match. HTML comments like this one are not shown to readers.
 -->
 # Terms of Service
 

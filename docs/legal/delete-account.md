@@ -1,6 +1,6 @@
 <!--
-DRAFT. Public page for "how do I delete my account and data", which Google Play requires a link to and which
-also helps with App Store review. Replace every [PLACEHOLDER] and keep it in step with the Privacy Policy.
+Public page for "how do I delete my account and data", which Google Play requires a link to and which also helps with
+App Store review. Keep it in step with the Privacy Policy, then run `node app/scripts/build-site.mjs`.
 -->
 # Delete your Discores account
 

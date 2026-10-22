@@ -1,11 +1,10 @@
 <!--
-DRAFT. Written from what the app actually collects and does (see README and supabase/migrations). Have a lawyer
-review it before launch, then replace every [PLACEHOLDER] below. After editing, run `node app/scripts/build-legal.mjs`
-so the in-app copy matches. HTML comments like this one are not shown in the app.
+After editing, run `node app/scripts/build-legal.mjs` and `node app/scripts/build-site.mjs` so the in-app copy and
+the web pages match. HTML comments like this one are not shown to readers.
 -->
 # Privacy Policy
 
-Effective October 20, 2026
+Effective October 22, 2026
 
 Discores is a free disc golf score tracker run by Savidge Apps ("we", "us"). This policy explains what we collect, why, who can see it, and how to delete it. You can reach us at savidgeapps@gmail.com.
 

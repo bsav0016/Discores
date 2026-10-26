@@ -22,6 +22,16 @@ export function planPush(input: {
   return 'skip';
 }
 
+export type SettingsView = 'switches' | 'turn-on' | 'blocked';
+
+/**
+ * What the Settings screen shows for notifications: the two switches once the phone allows them, a button to ask
+ * while the system question is still open, or an explanation with a way to the phone's own settings after a denial.
+ */
+export function settingsView(status: PermissionStatus): SettingsView {
+  return status === 'granted' ? 'switches' : status === 'undetermined' ? 'turn-on' : 'blocked';
+}
+
 export type PushScreen = '/friends' | '/confirm-rounds';
 
 /**

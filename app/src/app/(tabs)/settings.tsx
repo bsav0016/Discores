@@ -1,14 +1,19 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
-import { Alert, ScrollView, Switch, Text, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { Alert, AppState, Linking, ScrollView, Switch, Text, View } from 'react-native';
 import { COURSE_DATA_CREDIT } from '@/lib/attribution';
 import { useAuth } from '@/lib/auth';
 import { LegalLinks } from '@/lib/LegalLinks';
+import { enablePush, getPushStatus } from '@/lib/push';
+import { settingsView, type PermissionStatus } from '@/lib/pushRules';
 import { Button, Card, colors, Field, s, SectionTitle } from '@/lib/ui';
 import { isAdmin } from '@/sync/admin';
 import { checkDisplayName } from '@/lib/displayName';
-import { getDisplayName, getFindability, saveDisplayName, saveUsername, setDiscoverable } from '@/sync/social';
+import {
+  getDisplayName, getFindability, getNotificationSettings, saveDisplayName, saveNotificationSettings, saveUsername,
+  setDiscoverable, type NotificationSettings,
+} from '@/sync/social';
 
 export default function Settings() {
   const { session, guest, endGuest, signOut, deleteAccount, sync } = useAuth();
@@ -21,13 +26,26 @@ export default function Settings() {
   const [nameInput, setNameInput] = useState('');
   const [savedName, setSavedName] = useState<string | null>(null);
   const [nameMsg, setNameMsg] = useState<{ ok: boolean; message: string } | null>(null);
+  const [pushStatus, setPushStatus] = useState<PermissionStatus | 'unsupported'>('unsupported');
+  const [notify, setNotify] = useState<NotificationSettings | null>(null);
   const router = useRouter();
+
+  // Re-read when the screen is shown again and when the app returns from the phone's own settings.
+  const refreshPush = useCallback(() => {
+    void getPushStatus().then(setPushStatus);
+  }, []);
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (st) => st === 'active' && refreshPush());
+    return () => sub.remove();
+  }, [refreshPush]);
 
   // Checked on every focus so a newly granted admin sees the entry without restarting.
   const userId = session?.user.id;
   useFocusEffect(useCallback(() => {
     void isAdmin().then(setAdmin);
+    refreshPush();
     if (userId) {
+      void getNotificationSettings().then(setNotify);
       void getDisplayName(userId).then((n) => {
         if (n === null) return;
         setSavedName(n);
@@ -40,7 +58,7 @@ export default function Settings() {
         setUsername(f.username ?? '');
       });
     }
-  }, [userId]));
+  }, [userId, refreshPush]));
 
   async function saveDisplay() {
     if (!userId) return;
@@ -71,6 +89,22 @@ export default function Settings() {
       setDiscoverableState(!value);
       setMsg("Couldn't save that. Check your connection and try again.");
     }
+  }
+
+  async function toggleNotify(change: Partial<NotificationSettings>) {
+    if (!notify) return;
+    const next = { ...notify, ...change };
+    setNotify(next);
+    const err = await saveNotificationSettings(next);
+    if (err) {
+      setNotify(notify);
+      setMsg("Couldn't save that. Check your connection and try again.");
+    }
+  }
+
+  async function turnOnNotifications() {
+    if (!userId) return;
+    setPushStatus(await enablePush(userId));
   }
 
   function confirmDelete() {
@@ -152,6 +186,50 @@ export default function Settings() {
         <Switch value={!!discoverable} disabled={discoverable === null} onValueChange={toggleDiscoverable}
           trackColor={{ true: colors.brand }} accessibilityLabel="Let people find me by email" />
       </Card>
+
+      {pushStatus !== 'unsupported' && (
+        <>
+          <SectionTitle>Notifications</SectionTitle>
+          {settingsView(pushStatus) === 'switches' ? (
+            <>
+              <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.body}>Friend requests</Text>
+                  <Text style={[s.muted, { fontSize: 13 }]}>When someone sends you a request, or accepts yours.</Text>
+                </View>
+                <Switch value={!!notify?.requests} disabled={notify === null}
+                  onValueChange={(v) => void toggleNotify({ requests: v })}
+                  trackColor={{ true: colors.brand }} accessibilityLabel="Friend request notifications" />
+              </Card>
+              <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.body}>Rounds to confirm</Text>
+                  <Text style={[s.muted, { fontSize: 13 }]}>When a friend finishes a round with you in it.</Text>
+                </View>
+                <Switch value={!!notify?.rounds} disabled={notify === null}
+                  onValueChange={(v) => void toggleNotify({ rounds: v })}
+                  trackColor={{ true: colors.brand }} accessibilityLabel="Round notifications" />
+              </Card>
+            </>
+          ) : settingsView(pushStatus) === 'turn-on' ? (
+            <Card style={{ gap: 8 }}>
+              <Text style={[s.muted, { fontSize: 13 }]}>
+                Get a notification when a friend sends a request or scores a round with you. Messages only show a name.
+              </Text>
+              <Button title="Turn on notifications" variant="soft" onPress={turnOnNotifications} style={{ marginTop: 0 }} />
+            </Card>
+          ) : (
+            <Card style={{ gap: 8 }}>
+              <Text style={[s.muted, { fontSize: 13 }]}>
+                Notifications are turned off for Discores in your phone's settings. Turn them on there to hear about
+                friend requests and rounds to confirm.
+              </Text>
+              <Button title="Open phone settings" variant="soft" onPress={() => void Linking.openSettings()}
+                style={{ marginTop: 0 }} />
+            </Card>
+          )}
+        </>
+      )}
 
       <SectionTitle>Data</SectionTitle>
       <Button title="Sync now" variant="soft" onPress={() => sync().then(() => setMsg('Synced.'))} style={{ marginTop: 0 }} />

@@ -91,6 +91,22 @@ export async function addFriend(text: string): Promise<AddFriendResult> {
   return addFriendResult(error, data, how);
 }
 
+export type NotificationSettings = { requests: boolean; rounds: boolean };
+
+/** Which kinds of notification this account wants. Null when offline. */
+export async function getNotificationSettings(): Promise<NotificationSettings | null> {
+  const { data, error } = await supabase.rpc('get_notification_settings');
+  const d = data as Partial<NotificationSettings> | null;
+  return error || !d || typeof d.requests !== 'boolean' || typeof d.rounds !== 'boolean'
+    ? null : { requests: d.requests, rounds: d.rounds };
+}
+
+/** Returns an error message, or null on success. */
+export async function saveNotificationSettings(s: NotificationSettings): Promise<string | null> {
+  const { error } = await supabase.rpc('set_notification_settings', { p_requests: s.requests, p_rounds: s.rounds });
+  return error?.message ?? null;
+}
+
 export type Findability = { discoverable: boolean; username: string | null; username_changed_at: string | null };
 
 export async function getFindability(userId: string): Promise<Findability | null> {

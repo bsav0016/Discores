@@ -4,7 +4,7 @@ the web pages match. HTML comments like this one are not shown to readers.
 -->
 # Privacy Policy
 
-Effective October 22, 2026
+Effective October 26, 2026
 
 Discores is a free disc golf score tracker run by Savidge Apps ("we", "us"). This policy explains what we collect, why, who can see it, and how to delete it. You can reach us at savidgeapps@gmail.com.
 
@@ -13,6 +13,7 @@ Discores is a free disc golf score tracker run by Savidge Apps ("we", "us"). Thi
 - We collect only what the app needs: an account, a name, your birth year, and your rounds and scores.
 - We do not show ads, sell your data, or track you across other apps or websites.
 - We do not use your location. Courses are found by searching their name.
+- Notifications are optional. If you turn them on, we keep a token for your phone and send short messages that show a name and nothing else.
 - Other players never see your email, birth year or gender. Friends see your display name.
 - When you are signed in, your rounds are saved to your account, so they come back if you reinstall the app or get a new phone.
 - You can delete a round, or your whole account and data, inside the app at any time.
@@ -29,7 +30,9 @@ Discores is a free disc golf score tracker run by Savidge Apps ("we", "us"). Thi
 
 **Courses.** If you add a course or suggest a correction, we keep what you submitted and the account that submitted it.
 
-**Technical data.** Sign-in sessions and counters that limit how fast friend lookups can be tried. We do not run analytics or advertising software, and we do not collect your device identifiers or IP address for our own use. Our hosting provider may keep ordinary server logs.
+**Notifications (optional).** If you allow notifications, Apple or Google gives the app a token that identifies your phone for notifications. We store it with your account so we can tell you when someone sends you a friend request, accepts yours, or scores a round with you that waits for your confirmation. We also keep a short list of notifications waiting to be sent, for up to 30 days. A notification contains the other person's display name and a fixed sentence; it never contains scores, courses or dates. You can turn each kind off in Settings, or turn notifications off for Discores in your phone's settings. We remove the token when you sign out or delete your account, and when Apple or Google tell us the phone no longer receives notifications.
+
+**Technical data.** Sign-in sessions and counters that limit how fast friend lookups can be tried. We do not run analytics or advertising software, and apart from the notification token above we do not collect your device identifiers, and we do not collect your IP address for our own use. Our hosting provider may keep ordinary server logs.
 
 **Camera.** If you tap "Scan a friend's QR code", the app uses the camera to read the code. Nothing is recorded, saved or sent.
 
@@ -55,7 +58,7 @@ We use these providers to run Discores. They handle data only for us:
 
 - **Supabase** hosts our database, sign-in and server code in the United States.
 - **Apple and Google** if you choose to sign in with them, and the app stores that distribute the app.
-- **Expo** builds the app. The app does not send your usage data to Expo.
+- **Expo** builds the app. If you turn on notifications, our server also sends each notification (its text and your phone's token) to Expo's push service, which passes it to Apple or Google to deliver. The app does not send your usage data to Expo.
 
 Course data comes from OpenStreetMap contributors (ODbL), Overture Maps Foundation (CDLA Permissive 2.0) and Foursquare Labs, Inc. (Apache 2.0). It describes places, not people.
 
@@ -63,7 +66,7 @@ Course data comes from OpenStreetMap contributors (ODbL), Overture Maps Foundati
 
 We keep your data while your account exists. A round you delete in the app is removed from your account and from your friends' view of your scores, but a friend who confirmed their own scores in it keeps those scores (without your name on the round). We keep the deleted round's identifier for 90 days, then it is cleared. You can delete your account in the app: Settings > Delete account and data. When you do:
 
-- Your profile, email or Apple/Google sign-in (and Apple's token, which we revoke), friends, blocks, friend requests and course suggestions are deleted.
+- Your profile, email or Apple/Google sign-in (and Apple's token, which we revoke), friends, blocks, friend requests, course suggestions, notification token and any notifications waiting to be sent are deleted.
 - Rounds you scored that include other registered players stay in their history, and your name on them is replaced with "Deleted player". Your other rounds are deleted.
 - Courses you added stay, without any link to you.
 - Reports you sent stay with your name removed. Reports about you may be kept so that we can keep people safe.
@@ -74,7 +77,7 @@ Your rounds are saved to your account so you can restore them, which means they 
 
 ## Your choices and rights
 
-You can change your name, username and email-lookup setting in the app. You can ask us for a copy of your data, or to correct it, by emailing savidgeapps@gmail.com. Depending on where you live (for example California, or the EU and UK) you may have additional rights, and we will honor them. You can also complain to your local data protection authority.
+You can change your name, username, email-lookup setting and notification settings in the app. You can ask us for a copy of your data, or to correct it, by emailing savidgeapps@gmail.com. Depending on where you live (for example California, or the EU and UK) you may have additional rights, and we will honor them. You can also complain to your local data protection authority.
 
 ## Children
 

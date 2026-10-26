@@ -93,6 +93,18 @@ verification on. They need these secrets (Supabase dashboard > Edge Functions > 
 nothing is stored. Create the key in the Apple developer portal: Certificates, IDs & Profiles > Keys > "+" > Sign in
 with Apple, choosing the `com.discores.app` App ID.
 
+## Push notifications (sender)
+Migration 0020 queues events in `push_outbox`; the `send-push` Edge Function delivers them through Expo's push
+service. It is not called by the app: a scheduler calls it about once a minute, and it answers only to a caller that
+sends the `x-push-secret` header. Deploy it with JWT verification off:
+`supabase functions deploy send-push --no-verify-jwt`. Secrets: `PUSH_SECRET` (any long random string; the
+scheduler sends the same value) and optionally `EXPO_ACCESS_TOKEN` (only if "enhanced push security" is turned on in
+the Expo account). Each run claims waiting rows first, so overlapping runs never send twice; rows older than a day are
+dropped unsent, a phone token Expo reports as `DeviceNotRegistered` is deleted, and rows are put back if Expo is
+unreachable. A response like `{"ok":true,"sent":3,"rows":2,...}` summarises a run. The scheduler itself (pg_cron
+and pg_net calling the function) is set up when notifications are switched on in production.
+
+
 ## Public web pages
 `node app/scripts/build-site.mjs` turns `docs/legal/*.md` into plain HTML in `site/` (home, privacy policy, terms,
 and a page explaining how to delete an account and data, which Google Play requires). Upload `site/` to any static

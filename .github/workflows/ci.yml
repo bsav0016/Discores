@@ -117,3 +117,20 @@ jobs:
 
       - name: Migrations and SQL tests
         run: bash supabase/tests/run.sh
+
+  # The Edge Functions are Deno. Their logic is tested with fakes (no network, no database), and the entry point is
+  # type-checked against the real Supabase client. Runs in the official Deno image, pinned by digest.
+  functions:
+    name: functions
+    runs-on: ubuntu-24.04 # pinned: ubuntu-latest moves to Ubuntu 26 on 2026-10-19
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Test and type-check send-push
+        run: |
+          docker run --rm -v "$PWD/supabase/functions/send-push:/w:ro" -w /w \
+            denoland/deno:2.1.4@sha256:3bf75873714baa410dcf7fabaf76d806d20f0ac8a7579df11577b4ed97416e34 \
+            sh -c 'deno test --no-lock && deno check --no-lock index.ts'

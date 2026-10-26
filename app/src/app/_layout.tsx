@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { codeFromUrl } from '@/lib/invite';
 import { savePendingInvite, takePendingInvite } from '@/lib/pendingInvite';
 import { parseConfirmUrl, parseRecoveryUrl } from '@/lib/recovery';
+import { usePushTaps } from '@/lib/usePushTaps';
 import { ResetPasswordScreen } from '@/lib/ResetPasswordScreen';
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, Alert, Text, View } from 'react-native';
@@ -12,10 +13,11 @@ import { isSupabaseConfigured } from '@/lib/supabase';
 import { colors, s } from '@/lib/ui';
 
 function Routes() {
-  const { session, loading, guest, needsProfile, recovering, startRecovery, confirmEmail } = useAuth();
+  const { session, loading, guest, needsProfile, recovering, startRecovery, confirmEmail, sync } = useAuth();
   const router = useRouter();
   const url = Linking.useLinkingURL();
   const signedIn = !!session && !needsProfile;
+  usePushTaps(signedIn && !recovering, sync);
 
   // An invite opened while signed out is remembered, then shown once the person is in.
   useEffect(() => {

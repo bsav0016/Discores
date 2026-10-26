@@ -41,6 +41,12 @@
         }
       ],
       "expo-apple-authentication",
+      [
+        "expo-notifications",
+        {
+          "color": "#1b7f4b"
+        }
+      ],
       "expo-web-browser",
       [
         "expo-splash-screen",

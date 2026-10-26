@@ -10,6 +10,7 @@ import * as SecureStore from 'expo-secure-store';
 import { adoptGuestRounds, countGuestRounds, GUEST_ID, listFriends, wipeLocalData } from '@/db/local';
 import { refreshLayouts, syncNow } from '@/sync';
 import { listPendingRounds, pullMyRounds, pullSharedRounds, refreshFriends } from '@/sync/social';
+import { forgetThisPhone, setupPush } from './push';
 import { isSessionGone } from './session';
 import { supabase } from './supabase';
 
@@ -177,6 +178,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (pending) setPendingCount(pending.length);
     setSyncTick((t) => t + 1);
   }, [syncUserId, sessionStillValid, refreshRequests]);
+
+  // Once the first sync is done: register this phone for notifications, or ask once if there is something to be told about.
+  useEffect(() => {
+    if (syncUserId && syncTick > 0) void setupPush(syncUserId, pendingCount > 0);
+  }, [syncUserId, syncTick, pendingCount]);
 
   const refreshPending = useCallback(async () => {
     const pending = await listPendingRounds().catch(() => null);
@@ -391,6 +397,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return error.message;
       },
       signOut: async () => {
+        await forgetThisPhone();
         await supabase.auth.signOut();
       },
       deleteAccount: async () => {
@@ -402,6 +409,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (error) return error.message;
         }
         await wipeLocalData();
+        await forgetThisPhone();
         await supabase.auth.signOut();
         return null;
       },

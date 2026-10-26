@@ -51,6 +51,35 @@ function askFirst(): Promise<boolean> {
   });
 }
 
+/** The phone's notification permission, or 'unsupported' where there are no push notifications (web). */
+export async function getPushStatus(): Promise<PermissionStatus | 'unsupported'> {
+  if (!supported) return 'unsupported';
+  try {
+    return await permissionStatus();
+  } catch {
+    return 'unsupported';
+  }
+}
+
+/**
+ * For the Settings button: asks the system if it has not been asked yet, registers the phone when allowed, and
+ * returns the resulting permission. Counts as having been asked, so the one-time prompt will not appear later.
+ */
+export async function enablePush(userId: string): Promise<PermissionStatus> {
+  try {
+    let status = await permissionStatus();
+    if (status === 'undetermined') {
+      status = (await Notifications.requestPermissionsAsync()).granted ? 'granted' : 'denied';
+      await SecureStore.setItemAsync(ASKED_KEY, '1').catch(() => {});
+    }
+    if (status === 'granted' && (await registerThisPhone())) registeredFor = userId;
+    return status;
+  } catch (e) {
+    console.warn('Could not turn on notifications', String(e));
+    return 'denied';
+  }
+}
+
 let registeredFor: string | null = null; // the account this phone was registered for during this run
 let asking = false;
 

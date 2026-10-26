@@ -91,8 +91,10 @@ Data collected, all linked to the user, none used for tracking, none shared with
 | User ID | Account |
 | Other user content (scores, rounds, usernames, report notes) | App functionality (rounds are saved to the account and restored on a new device) |
 | Gender (optional), birth year | Profile (birth year for the age check) |
+| Device ID (the push notification token; only if the person turns notifications on) | App functionality (notifications about friend requests and rounds to confirm) |
 
-Not collected: location, contacts, photos, browsing history, device identifiers, advertising data, diagnostics.
+Not collected: location, contacts, photos, browsing history, advertising identifiers, advertising data, diagnostics.
+Check in App Store Connect whether Apple wants the push token declared as "Device ID"; declaring it is the safe answer.
 
 ## Google Play: Data safety
 
@@ -100,11 +102,11 @@ Not collected: location, contacts, photos, browsing history, device identifiers,
   sharing). **Data encrypted in transit:** yes. **Users can request deletion:** yes (in-app and the deletion URL).
 - **Data types:** Personal info (name, email address, user IDs, other info: birth year, gender), App activity (other
   user-generated content: rounds, scores, reports). Purpose for all: App functionality and Account management.
-  Optional: gender, username.
-- **Not collected:** location, financial, health, messages, photos, audio, contacts, web history, device IDs.
+  Optional: gender, username. Also Device or other IDs (the push notification token, only if notifications are turned on): App functionality.
+- **Not collected:** location, financial, health, messages, photos, audio, contacts, web history. (Device IDs: only the push token above.)
 - **Content rating (IARC):** fill in honestly; user interaction is limited to friend requests and shared rounds.
 - **Target audience:** 13+ (the app does not allow under 13). Not designed for children.
-- **Permissions:** Camera (QR scanning only). Internet and network state.
+- **Permissions:** Camera (QR scanning only). Internet and network state. Notifications (Android 13+ asks at run time; used only for friend requests and rounds to confirm).
 
 ## Screenshots to prepare
 

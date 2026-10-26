@@ -1,4 +1,4 @@
-import { looksLikeExpoToken, planPush, routeForNotification } from './pushRules';
+import { looksLikeExpoToken, planPush, routeForNotification, settingsView } from './pushRules';
 
 describe('planPush', () => {
   const base = { status: 'undetermined' as const, askedBefore: false, hasFriend: false, hasPendingRound: false };
@@ -19,6 +19,14 @@ describe('planPush', () => {
   });
   it('leaves a denial alone', () => {
     expect(planPush({ ...base, status: 'denied', hasFriend: true })).toBe('skip');
+  });
+});
+
+describe('settingsView', () => {
+  it('shows the switches only when the phone allows notifications', () => {
+    expect(settingsView('granted')).toBe('switches');
+    expect(settingsView('undetermined')).toBe('turn-on');
+    expect(settingsView('denied')).toBe('blocked');
   });
 });
 

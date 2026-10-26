@@ -24,6 +24,7 @@ Email savidgeapps@gmail.com from the address on your account with the subject "D
 - Your profile: display name, birth year, gender, years playing, username and friend code.
 - Your sign-in: email address and password, or the Apple or Google link.
 - Your friends, friend requests and blocked people.
+- Your phone's notification token and any notifications that were waiting to be sent.
 - Course corrections you suggested.
 - Rounds you scored that have no other registered player in them, with all their scores.
 

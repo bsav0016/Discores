@@ -49,5 +49,8 @@
   "private": true,
   "jest": {
     "preset": "jest-expo"
+  },
+  "overrides": {
+    "zod": "^4.6.6"
   }
 }

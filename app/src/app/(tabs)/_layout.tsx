@@ -24,14 +24,14 @@ export default function TabsLayout() {
           title: 'Rounds',
           tabBarBadge: pendingCount > 0 ? pendingCount : undefined,
           tabBarBadgeStyle: { backgroundColor: colors.accent, color: colors.ink },
-          tabBarIcon: ({ color, size }) => <Ionicons name="disc-outline" color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <Ionicons name="disc-outline" color={color as string} size={size} />,
         }}
       />
       <Tabs.Screen
         name="stats"
         options={{
           title: 'Stats',
-          tabBarIcon: ({ color, size }) => <Ionicons name="stats-chart-outline" color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <Ionicons name="stats-chart-outline" color={color as string} size={size} />,
         }}
       />
       <Tabs.Screen
@@ -41,14 +41,14 @@ export default function TabsLayout() {
           // Friend requests waiting for you, so a new one is visible without opening the tab.
           tabBarBadge: requestCount > 0 ? requestCount : undefined,
           tabBarBadgeStyle: { backgroundColor: colors.accent, color: colors.ink },
-          tabBarIcon: ({ color, size }) => <Ionicons name="people-outline" color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <Ionicons name="people-outline" color={color as string} size={size} />,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           title: 'Settings',
-          tabBarIcon: ({ color, size }) => <Ionicons name="settings-outline" color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <Ionicons name="settings-outline" color={color as string} size={size} />,
         }}
       />
     </Tabs>

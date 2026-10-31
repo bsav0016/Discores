@@ -49,6 +49,10 @@ jobs:
         working-directory: app
         run: npx jest --ci
 
+      - name: Course import rules
+        working-directory: supabase/overture
+        run: python3 -m unittest
+
       # The legal text bundled into the app and the public web pages are generated from docs/legal.
       # If this fails, run `node app/scripts/build-legal.mjs` and `node app/scripts/build-site.mjs` and commit.
       # `git status` (not `git diff`) so a newly generated file that was never committed fails too.

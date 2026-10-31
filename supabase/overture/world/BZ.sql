@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"735bd7b3-0f83-4ca5-9c7e-f1378ce1172b","name":"Corozal Disc Golf Club, Belize","area":"Corozal, BZ","lat":18.355446,"lng":-88.329041},{"overture_id":"23f2082c-1290-4dc3-8a38-bc177fb60dfb","name":"Jungle Life Disc Golf at Walker Ranch","area":"Dangriga, BZ","lat":17.085665,"lng":-88.313942}]$ovt$::jsonb);

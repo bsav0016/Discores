@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"60a7b192-cc29-41b0-bde8-506f62aa273d","name":"Peters Creek Disc Golf Course","area":"Chugiak, AK","lat":61.404713,"lng":-149.454727}]$ovt$::jsonb);

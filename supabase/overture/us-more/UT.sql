@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"c568895a-066c-4fb8-8bdc-0abc2d43ddb7","name":"Old City Park Disc Golf Course","area":"Olds, UT","lat":39.303905,"lng":-110.358231},{"overture_id":"cf8be98f-0c8c-46f1-8c4d-6c63243dfb63","name":"Thunderbird Gardens Disc Golf Course","area":"Cedar City, UT","lat":37.690422,"lng":-113.043846}]$ovt$::jsonb);

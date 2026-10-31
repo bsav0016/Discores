@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"3c898ba9-9c38-4ec1-b43a-1d36a40c9e53","name":"Belgrade Disc Golf Course","area":"Чукарица, RS","lat":44.651016,"lng":20.403673}]$ovt$::jsonb);

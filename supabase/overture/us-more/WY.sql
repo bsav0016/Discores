@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"d1717162-a05e-4517-a1b4-85f06f56513d","name":"Arther Park disc golf course. Rock Springs, WY","area":"Rock Springs, WY","lat":41.600651,"lng":-109.247093}]$ovt$::jsonb);

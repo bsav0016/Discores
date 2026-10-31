@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"d89df8c4-74af-4fbd-8511-9cdeae065557","name":"The Ranch Disc Golf Course","area":"Reno, NV","lat":39.553673,"lng":-119.826523},{"overture_id":"64cc1cb2-2ec4-41ef-b3b1-b4b5e2c82cec","name":"Red Ridge Disc Golf Course","area":"Las Vegas, NV","lat":36.060143,"lng":-115.290245}]$ovt$::jsonb);

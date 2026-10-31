@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"1faaba0c-d88a-46b0-8fb6-962e227330cd","name":"Wrightsville Beach DGC","area":"Middlesex, VT","lat":44.330669,"lng":-72.575211},{"overture_id":"9926c997-3413-4b50-ac0f-223bbb5ce339","name":"Unbroken Chains Disc Golf Course","area":"Charlotte, VT","lat":44.298889,"lng":-73.184425}]$ovt$::jsonb);

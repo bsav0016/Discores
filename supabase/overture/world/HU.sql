@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"674bc085-af75-43c8-81ee-5addf6f28b88","name":"Spiritus Sc Disc Golf Park","area":"Budapest, HU","lat":47.56057,"lng":19.02051}]$ovt$::jsonb);

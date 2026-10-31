@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"c244ac38-2710-4380-98b9-ef1e82bfc333","name":"Road to Damascus Disc Golf Course","area":"Amadeo, PH","lat":14.17032,"lng":120.921967}]$ovt$::jsonb);

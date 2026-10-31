@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"6b8ba41b-fafa-4c63-a7c1-21c3ade3d056","name":"Parc Bourdon Disc Golf Course","area":"Braine-l'Alleud, BE","lat":50.692276,"lng":4.384191},{"overture_id":"1074b595-455c-4d0d-bed6-35dba77721a5","name":"Disc Golf Course Zandbergen","area":"Kontich, BE","lat":51.148724,"lng":4.427516}]$ovt$::jsonb);

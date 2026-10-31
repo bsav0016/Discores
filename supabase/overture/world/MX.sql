@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"28dc0507-70d3-48cd-9acb-ddf285a5994c","name":"Disc golf El Hormiguero","area":"Guanajuato, MX","lat":21.003775,"lng":-101.253059}]$ovt$::jsonb);

@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"cca0493f-46a7-49d4-8858-20a2da8eb499","name":"Discgolfpark Skalka arena","area":"Kremnica, SK","lat":48.7351,"lng":18.987389}]$ovt$::jsonb);

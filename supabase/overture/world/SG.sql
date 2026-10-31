@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"d164bf8f-dd1b-4826-b519-f6095304fd96","name":"Kallang Riverside Park Disc Golf Course","area":"Singapore, SG","lat":1.307444,"lng":103.86689}]$ovt$::jsonb);

@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"f7d2371a-8956-426f-af84-f644a0b9a414","name":"Kahului Disc Golf Park","area":"Kahului, HI","lat":20.879066,"lng":-156.478577}]$ovt$::jsonb);

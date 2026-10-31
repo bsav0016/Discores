@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"4932dabc-deb1-4b21-9771-a1d400b4c090","name":"Disc Golf Pruntrutermatte","area":"Basel, CH","lat":47.544941,"lng":7.580952},{"overture_id":"c4c34282-dbf5-4e7d-be2a-744d697d1867","name":"Disc Golf Parcours Pays-d'Enhaut","area":"Château-d'Oex, CH","lat":46.495426,"lng":7.152862}]$ovt$::jsonb);

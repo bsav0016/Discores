@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"5f265907-3bc2-495f-8da3-7538086e444e","name":"Tatum Trails Disc Golf Course","area":"Hattiesburg, MS","lat":31.280542,"lng":-89.320854},{"overture_id":"32bcc63d-83b5-4eb7-9a09-5bd2d34b97a8","name":"Soaring South Disc Golf Park","area":"Gulfport, MS","lat":30.499872,"lng":-89.123138}]$ovt$::jsonb);

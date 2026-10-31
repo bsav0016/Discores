@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"4ee43339-4b0c-4a63-8d28-d0b9729cc25f","name":"Center of the Nation Disc Golf Course","area":"Belle Fourche, SD","lat":44.673996,"lng":-103.853111}]$ovt$::jsonb);

@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"48ebf643-a302-4e57-9b90-4b1c317c0df9","name":"Lexington Manor Disc Golf Course","area":"Lexington Park, MD","lat":38.2612,"lng":-76.448402},{"overture_id":"9a2dcfd7-b510-4f4e-bcb8-69b4f6e12db6","name":"Patapsco Valley Disc Golf Course","area":"Carroll County, MD","lat":39.355705,"lng":-76.884567}]$ovt$::jsonb);

@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"13106954-2a6c-4e73-af2a-bc2927eb79b5","name":"Ned Houk South Disc Golf Course","area":"Clovis, NM","lat":34.514324,"lng":-103.174904},{"overture_id":"215fdf43-13cd-4c4c-bc99-002e8eba7a5d","name":"Robert Lumpkin Memorial Disc Golf Course","area":"Tucumcari, NM","lat":35.145237,"lng":-103.799919}]$ovt$::jsonb);

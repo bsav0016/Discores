@@ -31,3 +31,4 @@ docs/store/screenshots/
 
 # local Claude Code config
 .claude/
+__pycache__/

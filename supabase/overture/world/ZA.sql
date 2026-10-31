@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"b6b6ef5f-3131-4b42-adfd-37cef5956a3f","name":"Paarl Disc Golf","area":"Paarl, ZA","lat":-33.758961,"lng":18.979433},{"overture_id":"cf65807a-2e57-48f9-9441-c08924c7fa57","name":"Garden Route Frisbee Golf","area":"George, ZA","lat":-33.959171,"lng":22.464087}]$ovt$::jsonb);

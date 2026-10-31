@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"e7285da6-118a-4fb8-b62a-93e8e2a306da","name":"Pušyno diskgolfo parkas","area":"Šveicarija, LT","lat":55.04443,"lng":24.23357},{"overture_id":"004ae6f3-2354-4198-bfe9-78a0bf9af88a","name":"Elektrėnai Diskgolf Park","area":"Elektrėnai, LT","lat":54.783581,"lng":24.665255}]$ovt$::jsonb);

@@ -24,6 +24,7 @@ describe('migrate', () => {
     expect(columns(db, 'rounds')).toContain('shared');
     expect(columns(db, 'round_players')).toContain('name');
     expect(columns(db, 'rounds')).toContain('pending_delete');
+    expect(columns(db, 'layouts')).toContain('verified');
   });
 
   it('upgrades a first-release database and keeps its data', async () => {
@@ -44,6 +45,18 @@ describe('migrate', () => {
     expect(round.course_name).toBe('Maple Hill');
     expect(round.shared).toBe(0);
     expect(db.raw.prepare('SELECT strokes FROM scores').get().strokes).toBe(3);
+  });
+
+  it('adds verified to cached layouts as false and keeps them', async () => {
+    const db = testDb();
+    await installFirstRelease(db);
+    db.raw.exec(`INSERT INTO layouts (layout_id, course_id, course_name, area, hole_count, pars)
+      VALUES ('L1', 'C1', 'Maple Hill', NULL, 2, '[3,3]')`);
+
+    await migrate(db);
+
+    const row = db.raw.prepare('SELECT course_name, verified FROM layouts').get();
+    expect(row).toMatchObject({ course_name: 'Maple Hill', verified: 0 });
   });
 
   it('accepts a database that already got the later columns before versioning', async () => {

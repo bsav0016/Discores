@@ -72,6 +72,12 @@ export const MIGRATIONS: Migration[] = [
     // A deleted round waits here (hidden everywhere) until the server has acknowledged the delete.
     up: (db) => addColumnIfMissing(db, 'rounds', 'pending_delete', 'INTEGER NOT NULL DEFAULT 0'),
   },
+  {
+    version: 4,
+    name: 'verified course layouts',
+    // Cached layouts start unverified; the next search or refresh brings the real flag.
+    up: (db) => addColumnIfMissing(db, 'layouts', 'verified', 'INTEGER NOT NULL DEFAULT 0'),
+  },
 ];
 
 export const LATEST_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;

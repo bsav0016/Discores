@@ -14,6 +14,8 @@ export type LayoutRow = {
   area: string | null;
   hole_count: number;
   pars: number[];
+  /** True once the holes and pars have been confirmed (by the admin or by agreeing players). */
+  verified: boolean;
 };
 
 export type PlayerRow = {
@@ -95,8 +97,8 @@ export async function replaceLayouts(layouts: LayoutRow[]) {
     await db.runAsync('DELETE FROM layouts');
     for (const l of layouts) {
       await db.runAsync(
-        'INSERT INTO layouts (layout_id, course_id, course_name, area, hole_count, pars) VALUES (?,?,?,?,?,?)',
-        l.layout_id, l.course_id, l.course_name, l.area, l.hole_count, JSON.stringify(l.pars),
+        'INSERT INTO layouts (layout_id, course_id, course_name, area, hole_count, pars, verified) VALUES (?,?,?,?,?,?,?)',
+        l.layout_id, l.course_id, l.course_name, l.area, l.hole_count, JSON.stringify(l.pars), l.verified ? 1 : 0,
       );
     }
   });
@@ -106,10 +108,10 @@ export async function replaceLayouts(layouts: LayoutRow[]) {
 export async function upsertLayout(l: LayoutRow) {
   const db = await getDb();
   await db.runAsync(
-    `INSERT INTO layouts (layout_id, course_id, course_name, area, hole_count, pars) VALUES (?,?,?,?,?,?)
+    `INSERT INTO layouts (layout_id, course_id, course_name, area, hole_count, pars, verified) VALUES (?,?,?,?,?,?,?)
      ON CONFLICT(layout_id) DO UPDATE SET course_name = excluded.course_name, area = excluded.area,
-       hole_count = excluded.hole_count, pars = excluded.pars`,
-    l.layout_id, l.course_id, l.course_name, l.area, l.hole_count, JSON.stringify(l.pars),
+       hole_count = excluded.hole_count, pars = excluded.pars, verified = excluded.verified`,
+    l.layout_id, l.course_id, l.course_name, l.area, l.hole_count, JSON.stringify(l.pars), l.verified ? 1 : 0,
   );
 }
 
@@ -125,7 +127,7 @@ export async function removeLayouts(layoutIds: string[]) {
 export async function listLayouts(): Promise<LayoutRow[]> {
   const db = await getDb();
   const rows = await db.getAllAsync<any>('SELECT * FROM layouts ORDER BY course_name');
-  return rows.map((r) => ({ ...r, pars: JSON.parse(r.pars) }));
+  return rows.map((r) => ({ ...r, pars: JSON.parse(r.pars), verified: r.verified === 1 }));
 }
 
 // ------------------------------------------------------------------- rounds

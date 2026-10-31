@@ -1,6 +1,6 @@
 import {
   GUEST_ID, createRound, deleteRound, finishPendingDelete, listDirtyRoundIds, listPendingDeleteIds, listRounds,
-  listStatRounds, replaceSharedRounds, applyRestore, listRestoreState, setScore, wipeLocalData, finishRound, getRound,
+  listStatRounds, listLayouts, upsertLayout, replaceLayouts, replaceSharedRounds, applyRestore, listRestoreState, setScore, wipeLocalData, finishRound, getRound,
 } from './local';
 import { planRestore } from '@/sync/restore';
 
@@ -9,7 +9,7 @@ jest.mock('expo-sqlite', () => ({
   openDatabaseAsync: async () => require('./testDb').createTestDb(),
 }));
 
-const layout = { layout_id: 'L1', course_id: 'C1', course_name: 'Maple Hill', area: null, hole_count: 2, pars: [3, 3] };
+const layout = { layout_id: 'L1', course_id: 'C1', course_name: 'Maple Hill', area: null, hole_count: 2, pars: [3, 3], verified: false };
 
 async function ownRound(id: string, ownerId = 'me') {
   await createRound({
@@ -21,6 +21,22 @@ async function ownRound(id: string, ownerId = 'me') {
 }
 
 beforeEach(() => wipeLocalData());
+
+describe('layouts', () => {
+  it('stores the verified flag and updates it when the course is confirmed later', async () => {
+    await upsertLayout(layout);
+    expect((await listLayouts())[0].verified).toBe(false);
+
+    await upsertLayout({ ...layout, verified: true, pars: [4, 3] });
+    const [row] = await listLayouts();
+    expect(row).toMatchObject({ verified: true, pars: [4, 3] });
+  });
+
+  it('keeps the flag when the cache is replaced', async () => {
+    await replaceLayouts([{ ...layout, verified: true }]);
+    expect((await listLayouts())[0].verified).toBe(true);
+  });
+});
 
 describe('finishRound', () => {
   it('keeps the first finish time when a round is finished again', async () => {

@@ -32,7 +32,7 @@ export async function refreshLayouts(): Promise<boolean> {
   if (cached.length === 0) return true;
   const { data, error } = await supabase
     .from('course_layouts')
-    .select('id, hole_count, courses(id, name, area), holes(number, par)')
+    .select('id, hole_count, verified, courses(id, name, area), holes(number, par)')
     .in('id', cached.map((l) => l.layout_id));
   if (error || !data) return false;
   // A course that was removed server side (e.g. a duplicate cleaned up) must not stay selectable here: a round
@@ -46,6 +46,7 @@ export async function refreshLayouts(): Promise<boolean> {
       course_name: l.courses.name,
       area: l.courses.area,
       hole_count: l.hole_count,
+      verified: l.verified === true,
       pars: [...l.holes].sort((a: any, b: any) => a.number - b.number).map((h: any) => h.par),
     });
   }

@@ -19,6 +19,7 @@ function toLayout(r: any): LayoutRow {
     area: r.area,
     hole_count: r.hole_count,
     pars: r.pars ?? [],
+    verified: r.verified === true,
   };
 }
 
@@ -43,6 +44,7 @@ export async function addCourse(name: string, area: string, pars: number[]): Pro
     area: area.trim() || null,
     hole_count: pars.length,
     pars,
+    verified: false,
   };
   await upsertLayout(layout);
   return layout;

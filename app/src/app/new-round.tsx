@@ -138,6 +138,7 @@ export default function NewRound() {
             </View>
             <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', marginTop: 2 }}>
               <Badge label={`${l.hole_count} holes`} />
+              {!l.verified && <Badge label="Pars not confirmed" tone="warn" />}
               {l.area ? <Text style={s.muted}>{l.area}</Text> : null}
             </View>
           </Card>

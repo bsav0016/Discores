@@ -33,6 +33,25 @@ describe('buildSyncPayload', () => {
   });
 });
 
+describe('buildSyncPayload pars', () => {
+  it("sends the round's own pars, whether they are an array or the local JSON text", () => {
+    const asArray = src('a');
+    asArray.round.pars = [3, 4, 3];
+    expect(buildSyncPayload(asArray).round.pars).toEqual([3, 4, 3]);
+    const asText = src('a');
+    asText.round.pars = '[4,3,3,5]';
+    expect(buildSyncPayload(asText).round.pars).toEqual([4, 3, 3, 5]);
+  });
+
+  it('leaves pars out when there are none, so the server keeps what it has', () => {
+    for (const pars of [undefined, null, '', '[]', 'not json', '[3,"x"]', [], [3.5]] as any[]) {
+      const s = src('a');
+      s.round.pars = pars;
+      expect('pars' in buildSyncPayload(s).round).toBe(false);
+    }
+  });
+});
+
 describe('buildSyncPayload players', () => {
   it('sends the display name of registered players as a fallback for the server', () => {
     const s = src('a');

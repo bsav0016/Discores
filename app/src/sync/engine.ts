@@ -1,17 +1,34 @@
 export type SyncSource = {
-  round: { id: string; layout_id: string; started_at: string; finished_at: string | null; rev: number };
+  round: {
+    id: string; layout_id: string; started_at: string; finished_at: string | null; rev: number;
+    /** The pars this round was played with. The local database stores them as JSON text. */
+    pars?: number[] | string | null;
+  };
   players: { id: string; user_id: string | null; guest_name: string | null; name?: string | null; position: number }[];
   scores: { round_player_id: string; hole_number: number; strokes: number; updated_at: string }[];
 };
 
+/** The round's pars as an array of numbers, or undefined when there are none worth sending. */
+function roundPars(raw: SyncSource['round']['pars']): number[] | undefined {
+  let value: unknown = raw;
+  if (typeof raw === 'string') {
+    try { value = JSON.parse(raw); } catch { return undefined; }
+  }
+  return Array.isArray(value) && value.length > 0 && value.every((n) => Number.isInteger(n)) ? (value as number[]) : undefined;
+}
+
 /** Shape expected by the sync_round() Postgres function. */
 export function buildSyncPayload(src: SyncSource) {
+  const pars = roundPars(src.round.pars);
   return {
     round: {
       id: src.round.id,
       layout_id: src.round.layout_id,
       started_at: src.round.started_at,
       finished_at: src.round.finished_at,
+      // The holes and pars this round was played with (the server keeps them with the round, so a later change to
+      // the course does not rewrite it). Left out when unknown; the server then keeps what it has.
+      ...(pars ? { pars } : {}),
     },
     players: src.players.map((p) => ({
       id: p.id,

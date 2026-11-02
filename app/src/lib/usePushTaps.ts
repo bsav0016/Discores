@@ -2,7 +2,7 @@ import * as Notifications from 'expo-notifications';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
-import { routeForNotification } from './pushRules';
+import { pushSupportedOn, routeForNotification } from './pushRules';
 
 /**
  * While signed in:
@@ -16,7 +16,7 @@ export function usePushTaps(enabled: boolean, sync: () => Promise<void>) {
   const handled = useRef<string | null>(null);
   const syncRef = useRef(sync);
   syncRef.current = sync;
-  const live = enabled && (Platform.OS === 'ios' || Platform.OS === 'android');
+  const live = enabled && pushSupportedOn(Platform.OS);
 
   useEffect(() => {
     if (!live) return;

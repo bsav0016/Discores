@@ -18,6 +18,8 @@ the README and `docs/SETUP.md`.
       `android` in `app/app.json`, and upload the FCM V1 service-account key to EAS (`eas credentials` >
       Android > Google Service Account > FCM V1). Without this the Android app still works but cannot get a push
       token, so Android people get no notifications. iOS is unaffected.
+      Until this is done the app does not offer notifications on Android at all (`PUSH_PLATFORMS` in
+      `app/src/lib/pushRules.ts`); add `'android'` there when it is.
 - [ ] **Expo access token (optional).** Only if you turn on "enhanced push security" in the Expo account; then set it
       as `EXPO_ACCESS_TOKEN` in step 3.
 - [ ] **Privacy policy.** Read `docs/legal/privacy-policy.md` (it was drafted, not reviewed), set the effective date to

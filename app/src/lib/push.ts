@@ -7,12 +7,12 @@ import * as SecureStore from 'expo-secure-store';
 import { Alert, Platform } from 'react-native';
 import { listFriends } from '@/db/local';
 import { supabase } from './supabase';
-import { looksLikeExpoToken, planPush, type PermissionStatus } from './pushRules';
+import { looksLikeExpoToken, planPush, pushSupportedOn, type PermissionStatus } from './pushRules';
 
 const ASKED_KEY = 'discores.push.asked';
 const TOKEN_KEY = 'discores.push.token';
 
-const supported = Platform.OS === 'ios' || Platform.OS === 'android';
+const supported = pushSupportedOn(Platform.OS);
 
 async function permissionStatus(): Promise<PermissionStatus> {
   const p = await Notifications.getPermissionsAsync();

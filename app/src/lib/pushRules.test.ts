@@ -1,4 +1,4 @@
-import { looksLikeExpoToken, planPush, routeForNotification, settingsView } from './pushRules';
+import { looksLikeExpoToken, planPush, pushSupportedOn, routeForNotification, settingsView } from './pushRules';
 
 describe('planPush', () => {
   const base = { status: 'undetermined' as const, askedBefore: false, hasFriend: false, hasPendingRound: false };
@@ -53,5 +53,15 @@ describe('looksLikeExpoToken', () => {
     for (const bad of ['', 'abc', 'ExponentPushToken[]', 'ExponentPushToken[a]]x', null, undefined, 12, {}]) {
       expect(looksLikeExpoToken(bad)).toBe(false);
     }
+  });
+});
+
+describe('pushSupportedOn', () => {
+  it('offers notifications on iOS', () => {
+    expect(pushSupportedOn('ios')).toBe(true);
+  });
+  it('keeps them off Android and web until Android has its credentials', () => {
+    expect(pushSupportedOn('android')).toBe(false);
+    expect(pushSupportedOn('web')).toBe(false);
   });
 });

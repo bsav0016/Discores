@@ -1,5 +1,16 @@
 // The decisions behind push notifications, kept free of native modules so they are tested directly.
 
+/**
+ * Where notifications are offered. Android is left out until its Firebase credentials are set up (issue #22): without
+ * them the phone cannot get a push token, so asking for permission would end with Settings saying "on" and nothing
+ * ever arriving. Add 'android' here once that is done.
+ */
+const PUSH_PLATFORMS = ['ios'];
+
+export function pushSupportedOn(os: string): boolean {
+  return PUSH_PLATFORMS.includes(os);
+}
+
 export type PermissionStatus = 'undetermined' | 'granted' | 'denied';
 
 export type PushPlan = 'register' | 'ask' | 'skip';

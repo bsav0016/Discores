@@ -90,7 +90,7 @@ Data collected, all linked to the user, none used for tracking, none shared with
 | Name (display name) | Shown to friends |
 | User ID | Account |
 | Other user content (scores, rounds, usernames, report notes) | App functionality (rounds are saved to the account and restored on a new device) |
-| Gender (optional), birth year | Profile (birth year for the age check) |
+| Gender (optional), years playing (optional), birth year | Profile (birth year for the age check) |
 | Device ID (the push notification token; only if the person turns notifications on) | App functionality (notifications about friend requests and rounds to confirm) |
 
 Not collected: location, contacts, photos, browsing history, advertising identifiers, advertising data, diagnostics.
@@ -100,9 +100,18 @@ Check in App Store Connect whether Apple wants the push token declared as "Devic
 
 - **Collects data:** yes. **Shares data with third parties:** no (service providers acting for us do not count as
   sharing). **Data encrypted in transit:** yes. **Users can request deletion:** yes (in-app and the deletion URL).
-- **Data types:** Personal info (name, email address, user IDs, other info: birth year, gender), App activity (other
-  user-generated content: rounds, scores, reports). Purpose for all: App functionality and Account management.
-  Optional: gender, username. Also Device or other IDs (the push notification token, only if notifications are turned on): App functionality.
+- **Data types:** Personal info (name, email address, user IDs, other info: birth year, gender, years playing), App
+  activity (other user-generated content: rounds, scores, reports). Purpose for all: App functionality and Account
+  management. Also Device or other IDs (the push notification token, only if notifications are turned on): App
+  functionality only.
+- **For every type:** collected, not shared (service providers acting for us do not count), not processed ephemerally.
+- **Required or optional:** required for email address, user IDs, and rounds, scores and reports; optional for the
+  display name (it defaults to the email name), the push token (only sent after the person allows notifications) and
+  username. "Other info" is one entry on Google's form, so answer Required (birth year is required at sign-up; gender and
+  years playing are optional).
+- **Account creation methods** (Google's form): Username and password (email sign-up), and OAuth (Google sign-in). Sign in
+  with Apple is iOS only. Do not tick "Username and other authentication".
+- **Account deletion link:** the deletion URL above.
 - **Not collected:** location, financial, health, messages, photos, audio, contacts, web history. (Device IDs: only the push token above.)
 - **Content rating (IARC):** fill in honestly; user interaction is limited to friend requests and shared rounds.
 - **Target audience:** 13+ (the app does not allow under 13). Not designed for children.

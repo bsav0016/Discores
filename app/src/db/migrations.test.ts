@@ -25,6 +25,7 @@ describe('migrate', () => {
     expect(columns(db, 'round_players')).toContain('name');
     expect(columns(db, 'rounds')).toContain('pending_delete');
     expect(columns(db, 'layouts')).toContain('verified');
+    expect(columns(db, 'rounds')).toContain('pars_edited');
   });
 
   it('upgrades a first-release database and keeps its data', async () => {

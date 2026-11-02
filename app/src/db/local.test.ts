@@ -1,6 +1,6 @@
 import {
   GUEST_ID, createRound, deleteRound, finishPendingDelete, listDirtyRoundIds, listPendingDeleteIds, listRounds,
-  listStatRounds, listLayouts, upsertLayout, replaceLayouts, replaceSharedRounds, applyRestore, listRestoreState, setScore, wipeLocalData, finishRound, getRound,
+  listStatRounds, listLayouts, upsertLayout, replaceLayouts, setRoundPars, getSyncSource, isLayoutVerified, replaceSharedRounds, applyRestore, listRestoreState, setScore, wipeLocalData, finishRound, getRound,
 } from './local';
 import { planRestore } from '@/sync/restore';
 
@@ -157,5 +157,77 @@ describe('restoring your own rounds', () => {
     }]);
     await applyRestore('me', [{ type: 'insert', round: pulled.rounds[0] }]);
     expect(await getRound('r1')).toMatchObject({ shared: false });
+  });
+});
+
+describe('setRoundPars', () => {
+  async function openRound(id = 'e1') {
+    await createRound({
+      id, ownerId: 'me', layout, startedAt: '2026-10-04T10:00:00Z',
+      players: [{ id: `${id}-p0`, userId: 'me', guestName: null, name: 'You' }],
+    });
+    return id;
+  }
+  const source = async (id: string) => (await getSyncSource(id)).round;
+
+  it('changes the pars and hole count of a round in progress and queues it to sync', async () => {
+    const id = await openRound();
+    expect(await setRoundPars(id, [4, 3, 5])).toBeNull();
+    const round = await getRound(id);
+    expect(round).toMatchObject({ pars: [4, 3, 5], hole_count: 3, dirty: true });
+    const row = await source(id);
+    expect(row.pars_edited).toBe(1);
+    expect(row.rev).toBeGreaterThan(0);
+  });
+
+  it('can shrink the round but not below a hole that has a score', async () => {
+    const id = await openRound();
+    await setScore(`${id}-p0`, id, 2, 4, '2026-10-04T10:05:00Z');
+    expect(await setRoundPars(id, [3])).toMatch(/Hole 2 already has a score/);
+    expect((await getRound(id))?.pars).toEqual([3, 3]);
+    expect(await setRoundPars(id, [3, 4])).toBeNull();
+  });
+
+  it('refuses bad pars and leaves the round alone', async () => {
+    const id = await openRound();
+    expect(await setRoundPars(id, [])).toMatch(/1 to 36 holes/);
+    expect(await setRoundPars(id, [3, 7])).toMatch(/between 2 and 6/);
+    expect(await setRoundPars(id, [3, 1])).toMatch(/between 2 and 6/);
+    expect((await getRound(id))?.pars).toEqual([3, 3]);
+    expect((await source(id)).pars_edited).toBe(0);
+  });
+
+  it('does nothing when the pars are the same', async () => {
+    const id = await openRound();
+    const before = await source(id);
+    expect(await setRoundPars(id, [3, 3])).toBeNull();
+    const after = await source(id);
+    expect([after.rev, after.pars_edited]).toEqual([before.rev, 0]);
+  });
+
+  it('leaves a finished round, a shared round and a missing round alone', async () => {
+    await ownRound('f1');
+    expect(await setRoundPars('f1', [4, 4])).toMatch(/in progress/);
+    expect((await getRound('f1'))?.pars).toEqual([3, 3]);
+    expect(await setRoundPars('nope', [3])).toMatch(/no longer exists/);
+  });
+
+  it('changes what the stats and history compare against', async () => {
+    const id = await openRound();
+    await setScore(`${id}-p0`, id, 1, 3, '2026-10-04T10:05:00Z');
+    await setScore(`${id}-p0`, id, 2, 3, '2026-10-04T10:06:00Z');
+    await setRoundPars(id, [4, 3]);
+    await finishRound(id, '2026-10-04T11:00:00Z');
+    expect((await listStatRounds('me'))[0].pars).toEqual([4, 3]);
+  });
+});
+
+describe('isLayoutVerified', () => {
+  it('reads the cached flag and is false for a layout that is not cached', async () => {
+    expect(await isLayoutVerified('nope')).toBe(false);
+    await upsertLayout({ ...layout, verified: true });
+    expect(await isLayoutVerified('L1')).toBe(true);
+    await upsertLayout({ ...layout, verified: false });
+    expect(await isLayoutVerified('L1')).toBe(false);
   });
 });

@@ -1,4 +1,5 @@
 import * as SQLite from 'expo-sqlite';
+import { parsError, samePars } from '@/domain/pars';
 import { holesScored, relativeToPar, totalStrokes, type ScoreMap } from '@/domain/scoring';
 import type { StatRound } from '@/domain/stats';
 import type { LocalRoundState, RestoreAction } from '@/sync/restore';
@@ -186,6 +187,36 @@ export async function setScore(playerId: string, roundId: string, hole: number, 
     );
     await db.runAsync('UPDATE rounds SET dirty = 1, rev = rev + 1 WHERE id = ?', roundId);
   });
+}
+
+/**
+ * Changes the holes and pars of one of the user's own rounds that is still in progress. The round's hole count
+ * follows the length of `pars`. A round cannot shrink below a hole that already has a score, and a finished round
+ * or one shared with us is left alone. Returns an error message to show, or null when it was saved (or nothing
+ * changed). The change is marked dirty so it syncs, and `pars_edited` remembers it for suggesting to the course.
+ */
+export async function setRoundPars(roundId: string, pars: number[]): Promise<string | null> {
+  const db = await getDb();
+  const round = await db.getFirstAsync<any>('SELECT * FROM rounds WHERE id = ?', roundId);
+  if (!round) return 'This round no longer exists.';
+  if (round.shared || round.finished_at) return 'Only a round in progress can be changed.';
+  const rows = await db.getAllAsync<{ hole_number: number }>(
+    `SELECT s.hole_number FROM scores s JOIN round_players p ON p.id = s.round_player_id WHERE p.round_id = ?`, roundId);
+  const scoredThrough = rows.reduce((m, r) => Math.max(m, r.hole_number), 0);
+  const error = parsError(pars, scoredThrough);
+  if (error) return error;
+  if (samePars(JSON.parse(round.pars), pars)) return null;
+  await db.runAsync(
+    'UPDATE rounds SET pars = ?, hole_count = ?, pars_edited = 1, dirty = 1, rev = rev + 1 WHERE id = ?',
+    JSON.stringify(pars), pars.length, roundId);
+  return null;
+}
+
+/** Whether the cached course layout for a round has confirmed pars (false when the layout is not cached). */
+export async function isLayoutVerified(layoutId: string): Promise<boolean> {
+  const db = await getDb();
+  const row = await db.getFirstAsync<{ verified: number }>('SELECT verified FROM layouts WHERE layout_id = ?', layoutId);
+  return row?.verified === 1;
 }
 
 export async function finishRound(roundId: string, now: string) {

@@ -60,3 +60,12 @@ export async function suggestLayout(layoutId: string, pars: number[]) {
   const { data, error } = await supabase.rpc('suggest_layout', { p_layout_id: layoutId, p_pars: pars });
   return { result: typeof data === 'string' ? data : null, error };
 }
+
+export type SimilarCourse = LayoutRow & { similarity: number };
+
+/** Courses whose name is close to `name` (and, ranked higher, in the same area), for "is it one of these?". */
+export async function similarCourses(name: string, area: string): Promise<SimilarCourse[]> {
+  const { data, error } = await supabase.rpc('similar_courses', { p_name: name.trim(), p_area: area.trim() || null });
+  if (error || !Array.isArray(data)) return [];
+  return data.map((r: any) => ({ ...toLayout(r), similarity: Number(r.similarity) || 0 }));
+}

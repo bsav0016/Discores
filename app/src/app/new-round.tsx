@@ -1,11 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Crypto from 'expo-crypto';
-import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { createRound, listFriends, listLayouts, upsertLayout, type FriendRow, type LayoutRow } from '@/db/local';
 import { COURSE_DATA_CREDIT } from '@/lib/attribution';
 import { useAuth } from '@/lib/auth';
+import { takePendingPick } from '@/lib/pendingPick';
 import { Badge, Button, Card, Chip, colors, Field, radius, s, SectionTitle } from '@/lib/ui';
 import { syncNow } from '@/sync';
 import { searchCourses } from '@/sync/courses';
@@ -69,6 +70,19 @@ export default function NewRound() {
     setPicked(l);
     upsertLayout(l).then(() => listLayouts().then(setCached)); // cache it so the round works offline
   }
+
+  // Back from "Add a course" with a course to play: one the player added, or an existing one they recognised.
+  useFocusEffect(
+    useCallback(() => {
+      const id = takePendingPick();
+      if (!id) return;
+      void listLayouts().then((all) => {
+        setCached(all);
+        const found = all.find((l) => l.layout_id === id);
+        if (found) setPicked(found);
+      });
+    }, []),
+  );
 
   function addGuest() {
     const name = guestInput.trim();
@@ -145,7 +159,10 @@ export default function NewRound() {
         ))
       )}
 
-      {!guest && <Button title="Add a course" variant="soft" onPress={() => router.push('/add-course')} />}
+      {!guest && (
+        <Button title={searching && q ? `Add "${q}"` : 'Add a course'} variant="soft"
+          onPress={() => router.push(searching && q ? { pathname: '/add-course', params: { name: q } } : '/add-course')} />
+      )}
       {picked && !guest && (
         <Pressable onPress={() => router.push({ pathname: '/report-course', params: { id: picked.course_id, name: picked.course_name } })}
           style={{ alignSelf: 'center', padding: 8 }}>

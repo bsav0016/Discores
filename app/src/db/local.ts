@@ -212,6 +212,25 @@ export async function setRoundPars(roundId: string, pars: number[]): Promise<str
   return null;
 }
 
+/** The user's own finished rounds whose edited pars have not been suggested to the course yet, oldest first. */
+export async function listPendingSuggestions(ownerId: string) {
+  const db = await getDb();
+  const rows = await db.getAllAsync<any>(
+    `SELECT id, layout_id, pars, finished_at FROM rounds
+      WHERE owner_id = ? AND shared = 0 AND pending_delete = 0 AND finished_at IS NOT NULL AND pars_edited = 1
+      ORDER BY finished_at`, ownerId);
+  return rows.map((r) => ({
+    roundId: r.id as string, layoutId: r.layout_id as string, pars: JSON.parse(r.pars) as number[],
+    finishedAt: r.finished_at as string,
+  }));
+}
+
+/** Stops a round's pars from being suggested again. Local only: it does not touch the revision or the sync flag. */
+export async function clearSuggestion(roundId: string) {
+  const db = await getDb();
+  await db.runAsync('UPDATE rounds SET pars_edited = 0 WHERE id = ?', roundId);
+}
+
 /** Whether the cached course layout for a round has confirmed pars (false when the layout is not cached). */
 export async function isLayoutVerified(layoutId: string): Promise<boolean> {
   const db = await getDb();

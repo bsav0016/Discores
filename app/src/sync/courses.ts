@@ -54,3 +54,9 @@ export async function reportCourseIssue(courseId: string, kind: CourseKind, note
   const { error } = await supabase.rpc('report_course_issue', { p_course_id: courseId, p_kind: kind, p_note: note });
   return error?.message ?? null;
 }
+
+/** Suggests pars to a course (suggest_layout). The answer is 'ok', 'verified', 'already_verified' or 'not_found'. */
+export async function suggestLayout(layoutId: string, pars: number[]) {
+  const { data, error } = await supabase.rpc('suggest_layout', { p_layout_id: layoutId, p_pars: pars });
+  return { result: typeof data === 'string' ? data : null, error };
+}

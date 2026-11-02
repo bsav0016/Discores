@@ -1,11 +1,44 @@
 import {
-  finishPendingDelete, getRound, getSyncSource, listDirtyRoundIds, listLayouts, listPendingDeleteIds, markSynced,
-  removeLayouts, upsertLayout,
+  clearSuggestion, finishPendingDelete, getRound, getSyncSource, GUEST_ID, isLayoutVerified, listDirtyRoundIds,
+  listLayouts, listPendingDeleteIds, listPendingSuggestions, markSynced, removeLayouts, upsertLayout,
 } from '@/db/local';
 import { supabase } from '@/lib/supabase';
+import { suggestLayout } from './courses';
 import { syncDirtyRounds, type SyncResult } from './engine';
+import { sendPendingSuggestions } from './suggestions';
 
-export function syncNow(ownerId: string): Promise<SyncResult> {
+let suggesting: Promise<void> | null = null;
+
+/** Suggests edited pars to their courses. Best effort: never throws, never delays or fails a sync. */
+function suggestPendingPars(ownerId: string): Promise<void> {
+  if (ownerId === GUEST_ID) return Promise.resolve();
+  if (!suggesting) {
+    suggesting = runSuggestions(ownerId).finally(() => { suggesting = null; });
+  }
+  return suggesting; // overlapping syncs share one pass
+}
+
+async function runSuggestions(ownerId: string) {
+  try {
+    await sendPendingSuggestions({
+      listPending: () => listPendingSuggestions(ownerId),
+      clear: clearSuggestion,
+      isVerified: isLayoutVerified,
+      suggest: suggestLayout,
+      onVerified: async () => void (await refreshLayouts().catch(() => false)),
+    });
+  } catch {
+    // Left pending; the next sync tries again.
+  }
+}
+
+export async function syncNow(ownerId: string): Promise<SyncResult> {
+  const result = await pushRounds(ownerId);
+  await suggestPendingPars(ownerId);
+  return result;
+}
+
+function pushRounds(ownerId: string): Promise<SyncResult> {
   return syncDirtyRounds({
     listDirtyRoundIds: () => listDirtyRoundIds(ownerId),
     getSource: getSyncSource,

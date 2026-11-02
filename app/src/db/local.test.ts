@@ -1,6 +1,6 @@
 import {
   GUEST_ID, createRound, deleteRound, finishPendingDelete, listDirtyRoundIds, listPendingDeleteIds, listRounds,
-  listStatRounds, listLayouts, upsertLayout, replaceLayouts, setRoundPars, getSyncSource, isLayoutVerified, replaceSharedRounds, applyRestore, listRestoreState, setScore, wipeLocalData, finishRound, getRound,
+  listStatRounds, listLayouts, upsertLayout, replaceLayouts, setRoundPars, getSyncSource, isLayoutVerified, listPendingSuggestions, clearSuggestion, replaceSharedRounds, applyRestore, listRestoreState, setScore, wipeLocalData, finishRound, getRound,
 } from './local';
 import { planRestore } from '@/sync/restore';
 
@@ -229,5 +229,44 @@ describe('isLayoutVerified', () => {
     expect(await isLayoutVerified('L1')).toBe(true);
     await upsertLayout({ ...layout, verified: false });
     expect(await isLayoutVerified('L1')).toBe(false);
+  });
+});
+
+describe('pending suggestions', () => {
+  async function edited(id: string, finish: boolean, ownerId = 'me') {
+    await createRound({
+      id, ownerId, layout, startedAt: '2026-10-04T10:00:00Z',
+      players: [{ id: `${id}-p0`, userId: ownerId, guestName: null, name: 'You' }],
+    });
+    await setRoundPars(id, [4, 3, 5]);
+    if (finish) await finishRound(id, `2026-10-0${id.length}T11:00:00Z`);
+  }
+
+  it('lists only finished rounds whose pars were edited, and clearing one removes it', async () => {
+    await edited('a', true);
+    await edited('bb', false);        // edited but still in progress
+    await ownRound('c');              // finished, never edited
+    const pending = await listPendingSuggestions('me');
+    expect(pending.map((p) => p.roundId)).toEqual(['a']);
+    expect(pending[0]).toMatchObject({ layoutId: 'L1', pars: [4, 3, 5] });
+
+    await clearSuggestion('a');
+    expect(await listPendingSuggestions('me')).toEqual([]);
+  });
+
+  it("does not list another person's rounds or a deleted round", async () => {
+    await edited('a', true, 'someone-else');
+    await edited('bb', true);
+    await deleteRound('bb');
+    expect(await listPendingSuggestions('me')).toEqual([]);
+  });
+
+  it('clearing does not queue a sync', async () => {
+    await edited('a', true);
+    await getSyncSource('a');
+    const before = (await getSyncSource('a')).round;
+    await clearSuggestion('a');
+    const after = (await getSyncSource('a')).round;
+    expect([after.rev, after.dirty]).toEqual([before.rev, before.dirty]);
   });
 });

@@ -3,11 +3,15 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { getSeatStatus, type SeatStatus } from '@/sync/social';
-import { deleteRound, finishRound, getRound, setScore, type RoundDetail } from '@/db/local';
+import {
+  deleteRound, finishRound, getRound, isLayoutVerified, setRoundPars, setScore, type RoundDetail,
+} from '@/db/local';
+import { highestScoredHole } from '@/domain/pars';
 import {
   clampStrokes, formatRelative, isComplete, relativeToPar, totalStrokes,
 } from '@/domain/scoring';
 import { useAuth } from '@/lib/auth';
+import { RoundParsEditor } from '@/lib/RoundParsEditor';
 import { Badge, Button, Card, colors, radius, s } from '@/lib/ui';
 
 export default function RoundScreen() {
@@ -16,8 +20,14 @@ export default function RoundScreen() {
   const { ownerId, guest, sync, pushSoon, syncTick } = useAuth();
   const [round, setRound] = useState<RoundDetail | null>(null);
   const [hole, setHole] = useState(1);
+  const [editingPars, setEditingPars] = useState(false);
+  const [layoutVerified, setLayoutVerified] = useState(true);
 
   const reload = useCallback(() => getRound(id).then(setRound), [id]);
+  const layoutId = round?.layout_id;
+  useEffect(() => {
+    if (layoutId) void isLayoutVerified(layoutId).then(setLayoutVerified);
+  }, [layoutId]);
   // Re-read after each sync so the "waiting to sync" / "synced" label stays current.
   useEffect(() => void reload(), [reload, syncTick]);
 
@@ -56,6 +66,19 @@ export default function RoundScreen() {
     sync();
   }
 
+  async function saveParsEdit(pars: number[]): Promise<string | null> {
+    const error = await setRoundPars(round!.id, pars);
+    if (error) return error;
+    setHole((h) => Math.min(h, pars.length));
+    setEditingPars(false);
+    await reload();
+    pushSoon();
+    return null;
+  }
+
+  // Only the person scoring a round in progress can change its holes and pars.
+  const canEditPars = round.owner_id === ownerId && !round.shared && !finished;
+
   function confirmDelete() {
     const message = guest
       ? 'It will be removed from this phone.'
@@ -75,6 +98,20 @@ export default function RoundScreen() {
 
   const scoredHoles = (n: number) => round!.players.some((p) => p.scores[n] !== undefined);
 
+  if (editingPars && canEditPars) {
+    return (
+      <ScrollView style={s.screen} contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled">
+        <Text style={s.muted}>{round.course_name}</Text>
+        <RoundParsEditor
+          pars={round.pars}
+          scoredThrough={highestScoredHole(round.players.map((p) => p.scores))}
+          verified={layoutVerified}
+          onSave={saveParsEdit}
+          onCancel={() => setEditingPars(false)} />
+      </ScrollView>
+    );
+  }
+
   return (
     <ScrollView style={s.screen} contentContainerStyle={s.pad}>
       <Text style={s.muted}>{round.course_name}</Text>
@@ -92,6 +129,15 @@ export default function RoundScreen() {
         <NavButton icon="chevron-forward" label="Next hole" onPress={() => setHole(Math.min(round.hole_count, hole + 1))}
           disabled={hole === round.hole_count} />
       </View>
+
+      {canEditPars && (
+        <Pressable onPress={() => setEditingPars(true)} accessibilityRole="button" accessibilityLabel="Edit holes and pars"
+          style={{ alignSelf: 'center', paddingVertical: 4 }}>
+          <Text style={{ color: colors.brand, fontWeight: '700', fontSize: 14 }}>
+            {layoutVerified ? 'Edit holes & pars' : 'Pars not confirmed · Edit holes & pars'}
+          </Text>
+        </Pressable>
+      )}
 
       {/* Progress dots: tap to jump */}
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, justifyContent: 'center', marginVertical: 4 }}>

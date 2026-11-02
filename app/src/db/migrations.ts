@@ -78,6 +78,12 @@ export const MIGRATIONS: Migration[] = [
     // Cached layouts start unverified; the next search or refresh brings the real flag.
     up: (db) => addColumnIfMissing(db, 'layouts', 'verified', 'INTEGER NOT NULL DEFAULT 0'),
   },
+  {
+    version: 5,
+    name: 'rounds remember when their pars were edited',
+    // Set when the player changes a round's holes or pars, so the change can be suggested to the course (once).
+    up: (db) => addColumnIfMissing(db, 'rounds', 'pars_edited', 'INTEGER NOT NULL DEFAULT 0'),
+  },
 ];
 
 export const LATEST_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;

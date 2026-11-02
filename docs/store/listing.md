@@ -42,7 +42,7 @@ KNOW YOUR GAME
 - A simple breakdown of birdies, pars, bogeys and worse.
 
 FIND YOUR COURSE
-- Search courses by name or city. Missing or wrong? Add a course or suggest a fix.
+- Search courses by name or city. Missing or wrong? Add a course, or set the holes and pars as you play and help confirm them with other players.
 
 YOUR PRIVACY, YOUR CALL
 - No ads and no tracking. We never sell your data.
@@ -89,7 +89,7 @@ Data collected, all linked to the user, none used for tracking, none shared with
 | Email address | Account, sign-in |
 | Name (display name) | Shown to friends |
 | User ID | Account |
-| Other user content (scores, rounds, usernames, report notes) | App functionality (rounds are saved to the account and restored on a new device) |
+| Other user content (scores, rounds, course pars you suggest, usernames, report notes) | App functionality (rounds are saved to the account and restored on a new device) |
 | Gender (optional), years playing (optional), birth year | Profile (birth year for the age check) |
 | Device ID (the push notification token; only if the person turns notifications on) | App functionality (notifications about friend requests and rounds to confirm) |
 
@@ -101,7 +101,7 @@ Check in App Store Connect whether Apple wants the push token declared as "Devic
 - **Collects data:** yes. **Shares data with third parties:** no (service providers acting for us do not count as
   sharing). **Data encrypted in transit:** yes. **Users can request deletion:** yes (in-app and the deletion URL).
 - **Data types:** Personal info (name, email address, user IDs, other info: birth year, gender, years playing), App
-  activity (other user-generated content: rounds, scores, reports). Purpose for all: App functionality and Account
+  activity (other user-generated content: rounds, scores, course pars you suggest, reports). Purpose for all: App functionality and Account
   management. Also Device or other IDs (the push notification token, only if notifications are turned on): App
   functionality only.
 - **For every type:** collected, not shared (service providers acting for us do not count), not processed ephemerally.
@@ -133,3 +133,10 @@ Friends tab with the QR code, and "Confirm scores".
 - [ ] Run `node app/scripts/make-icons.mjs` only if you change the icon design; consider a custom icon later.
 - [ ] Production builds: `eas build --platform ios --profile production` and `--platform android --profile production`
       (Android produces the .aab file Google Play wants).
+
+## 1.1.0 release notes (draft, for both stores)
+
+- Get a notification when a friend sends you a friend request, accepts yours, or scores a round with you (optional: switch each kind on or off in Settings).
+- Courses: change the holes and pars of a round as you play. When other players agree with your pars, the course is confirmed for everyone. Courses with unconfirmed pars are labelled.
+- Adding a course is quicker: your search is filled in for you, and similar courses are shown first so the same course is not added twice.
+- More courses, including courses outside the United States.

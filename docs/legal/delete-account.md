@@ -25,13 +25,13 @@ Email savidgeapps@gmail.com from the address on your account with the subject "D
 - Your sign-in: email address and password, or the Apple or Google link.
 - Your friends, friend requests and blocked people.
 - Your phone's notification token and any notifications that were waiting to be sent.
-- Course corrections you suggested.
+- Course corrections you suggested, and pars you suggested for a course that no other player had agreed with yet.
 - Rounds you scored that have no other registered player in them, with all their scores.
 
 ## What stays
 
 - Rounds you scored with other registered players stay in their history. Your name on them is replaced with "Deleted player" and nothing links them to you.
-- Courses you added stay, with no link to you.
+- Courses you added stay, with no link to you. So do course pars that other players agreed on.
 - Reports you sent about another person stay with your name removed. Reports about you may be kept so that we can keep other people safe.
 - Nothing else stays. The identifiers we hold for 90 days for rounds you deleted earlier (so another device cannot restore them) are deleted with your account. We keep no other backup copies.
 

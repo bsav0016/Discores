@@ -27,6 +27,7 @@
 <li>We collect only what the app needs: an account, a name, your birth year, and your rounds and scores.</li>
 <li>We do not show ads, sell your data, or track you across other apps or websites.</li>
 <li>We do not use your location. Courses are found by searching their name.</li>
+<li>If you change the holes or pars of a round, they can be suggested to the course. Suggestions are never shown with your name, and only take effect when another player agrees.</li>
 <li>Notifications are optional. If you turn them on, we keep a token for your phone and send short messages that show a name and nothing else.</li>
 <li>Other players never see your email, birth year or gender. Friends see your display name.</li>
 <li>When you are signed in, your rounds are saved to your account, so they come back if you reinstall the app or get a new phone.</li>
@@ -35,9 +36,9 @@
 <h2>What we collect</h2>
 <p><strong>Account.</strong> Your email address and a password (stored only as a salted hash). If you sign in with Apple or Google, we receive your email address (which may be a private relay address from Apple) and, if you allow it, your name. We never see your Apple or Google password. If you use Apple, we also keep a token Apple gives us, only so that we can tell Apple to disconnect Discores when you delete your account.</p>
 <p><strong>Profile.</strong> Your display name, your birth year (not your full birthday), and a confirmation that you are 13 or older. Optional: gender, years playing disc golf, a username, and a setting that lets people find you by exact email address (off unless you turn it on). We also create a friend code for you.</p>
-<p><strong>Rounds and scores.</strong> The courses you play, the date, your scores, and the names of the other players in the round. Names of people without the app are typed in by whoever scores the round. While you are signed in, the app saves each round to your account and restores your rounds from it when you sign in on a new phone or after reinstalling. If you delete a round, we keep only its identifier, with the date you deleted it, for 90 days so that another device of yours cannot bring it back.</p>
+<p><strong>Rounds and scores.</strong> The courses you play, the date, your scores, the holes and pars the round was played with (you can change them while you play), and the names of the other players in the round. Names of people without the app are typed in by whoever scores the round. While you are signed in, the app saves each round to your account and restores your rounds from it when you sign in on a new phone or after reinstalling. If you delete a round, we keep only its identifier, with the date you deleted it, for 90 days so that another device of yours cannot bring it back.</p>
 <p><strong>Friends and safety.</strong> Friend requests and friendships, people you have blocked, and reports you send about another person or a course, including any note you write.</p>
-<p><strong>Courses.</strong> If you add a course or suggest a correction, we keep what you submitted and the account that submitted it.</p>
+<p><strong>Courses.</strong> If you add a course, report a problem with one, or change the holes or pars of a round, we keep what you submitted and the account that submitted it. When you finish a round whose holes or pars you changed, on a course whose pars are not confirmed yet, the app suggests those pars to the course. We keep each suggestion, linked to your account, until another player's suggestion matches it and the course takes those pars (then the suggestions are deleted), or until you delete your account. The pars you enter when you add a course count as your suggestion too. Nobody else can see who suggested what. Your own rounds keep the pars you played them with, whatever later happens to the course.</p>
 <p><strong>Notifications (optional).</strong> If you allow notifications, Apple or Google gives the app a token that identifies your phone for notifications. We store it with your account so we can tell you when someone sends you a friend request, accepts yours, or scores a round with you that waits for your confirmation. We also keep a short list of notifications waiting to be sent, for up to 30 days. A notification contains the other person's display name and a fixed sentence; it never contains scores, courses or dates. You can turn each kind off in Settings, or turn notifications off for Discores in your phone's settings. We remove the token when you sign out or delete your account, and when Apple or Google tell us the phone no longer receives notifications.</p>
 <p><strong>Technical data.</strong> Sign-in sessions and counters that limit how fast friend lookups can be tried. We do not run analytics or advertising software, and apart from the notification token above we do not collect your device identifiers, and we do not collect your IP address for our own use. Our hosting provider may keep ordinary server logs.</p>
 <p><strong>Camera.</strong> If you tap "Scan a friend's QR code", the app uses the camera to read the code. Nothing is recorded, saved or sent.</p>
@@ -48,7 +49,7 @@
 <ul>
 <li><strong>Friends and people with your code.</strong> Anyone who has your friend code can send you a friend request, and the request shows your display name. If you set a username, anyone who types it exactly can send a request. If you turn on email lookup, anyone who types your exact email address can send a request. Nobody can browse or search a list of users.</li>
 <li><strong>Players in your rounds.</strong> When someone scores a round that includes you, you are asked to confirm your scores first. Only after you confirm does the round appear in your history and stats, and then it shows each player's display name and scores. If you decline, your name stays on their round as plain text with no link to your account.</li>
-<li><strong>Course contributions.</strong> Courses you add are visible to everyone, without your name.</li>
+<li><strong>Course contributions.</strong> Courses you add, and pars that other players agreed on, are visible to everyone, without your name.</li>
 <li><strong>Blocking.</strong> Someone you block can no longer find you or send you requests, and cannot tell that they were blocked.</li>
 <li><strong>Us.</strong> A small number of administrators can see reports and the names involved, in order to review them. Reports are the only place we look at individual people's data.</li>
 </ul>
@@ -64,9 +65,9 @@
 <h2>Keeping and deleting data</h2>
 <p>We keep your data while your account exists. A round you delete in the app is removed from your account and from your friends' view of your scores, but a friend who confirmed their own scores in it keeps those scores (without your name on the round). We keep the deleted round's identifier for 90 days, then it is cleared. You can delete your account in the app: Settings &gt; Delete account and data. When you do:</p>
 <ul>
-<li>Your profile, email or Apple/Google sign-in (and Apple's token, which we revoke), friends, blocks, friend requests, course suggestions, notification token and any notifications waiting to be sent are deleted.</li>
+<li>Your profile, email or Apple/Google sign-in (and Apple's token, which we revoke), friends, blocks, friend requests, pars you suggested for a course that no other player had agreed with yet, notification token and any notifications waiting to be sent are deleted.</li>
 <li>Rounds you scored that include other registered players stay in their history, and your name on them is replaced with "Deleted player". Your other rounds are deleted.</li>
-<li>Courses you added stay, without any link to you.</li>
+<li>Courses you added stay, without any link to you, and so do course pars that other players agreed on.</li>
 <li>Reports you sent stay with your name removed. Reports about you may be kept so that we can keep people safe.</li>
 <li>The identifiers we kept for rounds you deleted are removed.</li>
 <li>A username you used is not reserved for you afterward.</li>

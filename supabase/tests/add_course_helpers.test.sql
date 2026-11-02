@@ -60,7 +60,23 @@ begin
   select count(*) into n from similar_courses(null);
   perform pg_temp.assert(n = 0, 'null is fine');
   select count(*) into n from similar_courses('Park');
-  perform pg_temp.assert(n <= 5, 'at most five');
+  perform pg_temp.assert(n = 0, 'a name that is only filler words matches nothing');
+  select count(*) into n from similar_courses('Disc Golf Park');
+  perform pg_temp.assert(n = 0, 'nor does disc golf park');
+
+  -- 0025: matching on the name key
+  select count(*) into n from similar_courses('Jacobson');
+  perform pg_temp.assert(n = 2, 'the bare name matches both despite the filler words');
+  select count(*) into n from similar_courses('Jacobsen Park');
+  perform pg_temp.assert(n = 2, 'a small spelling difference matches');
+  select count(*) into n from similar_courses('Jacobs');
+  perform pg_temp.assert(n = 2, 'a name typed so far matches the start of a longer one');
+  select count(*) into n from similar_courses('Jaco');
+  perform pg_temp.assert(n = 0, 'but not before five letters');
+  select count(*) into n from similar_courses('Lawcon Park');
+  perform pg_temp.assert(n = 0, 'sharing only Park is not a match');
+  select count(*) into n from similar_courses('Totally Different Place');
+  perform pg_temp.assert(n = 1, 'an exact name is found');
   reset role;
 end $$;
 

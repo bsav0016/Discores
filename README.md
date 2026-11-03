@@ -25,7 +25,7 @@ Disc golf is played outdoors, often with weak or no signal, and a round usually 
 ## Stack
 
 - **App:** Expo SDK 58, React Native 0.88, TypeScript, Expo Router, `expo-sqlite`
-- **Backend:** [Supabase](https://supabase.com) – Postgres (20 SQL migrations in `supabase/migrations`), Auth, and three Edge Functions (`apple-link`, `delete-account`, `send-push`)
+- **Backend:** [Supabase](https://supabase.com) – Postgres (25 SQL migrations in `supabase/migrations`), Auth, and three Edge Functions (`apple-link`, `delete-account`, `send-push`)
 - **Tests:** Jest (`jest-expo`)
 - **CI:** GitHub Actions – type check, tests, and a check that the generated legal text and web pages are up to date
 
@@ -35,7 +35,7 @@ Disc golf is played outdoors, often with weak or no signal, and a round usually 
 | --- | --- |
 | `app/` | The Expo app (`src/app` routes, `src/domain` scoring and stats, `src/sync` offline sync engine) |
 | `supabase/` | Migrations, seed data, Edge Functions, and the course import scripts |
-| `docs/` | Setup guide, legal documents, screenshots, store-listing drafts |
+| `docs/` | [Architecture overview](docs/ARCHITECTURE.md), setup guide, legal documents, screenshots, store-listing drafts |
 | `site/` | Static pages (privacy policy, terms, account deletion) generated from `docs/legal` |
 
 ## Running it

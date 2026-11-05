@@ -11,6 +11,7 @@ import {
   clampStrokes, formatRelative, isComplete, relativeToPar, totalStrokes,
 } from '@/domain/scoring';
 import { useAuth } from '@/lib/auth';
+import { maybeAskForReview } from '@/lib/reviewPrompt';
 import { RoundParsEditor } from '@/lib/RoundParsEditor';
 import { Badge, Button, Card, colors, radius, s } from '@/lib/ui';
 
@@ -64,6 +65,9 @@ export default function RoundScreen() {
     await finishRound(round!.id, new Date().toISOString());
     await reload();
     sync();
+    // A moment after the screen settles, and only when it is a good one; the store decides if the prompt shows.
+    const id = round!.id;
+    setTimeout(() => { void maybeAskForReview(ownerId, id); }, 1500);
   }
 
   async function saveParsEdit(pars: number[]): Promise<string | null> {

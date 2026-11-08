@@ -1,15 +1,18 @@
 import { applyRestore, listRestoreState, replaceFriends, replaceSharedRounds, type FriendRow, type SharedRound } from '@/db/local';
 import { classifyLookup } from '@/lib/invite';
 import { supabase } from '@/lib/supabase';
+import { report, reportRpcFailure } from '@/lib/telemetry';
 import { planRestore, type PullMyRounds } from './restore';
 
 /** Downloads the friend list and requests into the local cache. Returns false (cache untouched) when offline. */
 export async function refreshFriends(): Promise<boolean> {
   const { data, error } = await supabase.rpc('list_friends');
+  if (error) reportRpcFailure('rpc.list_friends', error);
   if (error || !data) return false;
   try {
     await replaceFriends(data as FriendRow[]);
   } catch (e) {
+    report('error', 'local.store_friends', e);
     console.warn('Could not store friends', e);
     return false;
   }
@@ -19,10 +22,12 @@ export async function refreshFriends(): Promise<boolean> {
 /** Downloads finished rounds that other people scored and that include us. Cache untouched when offline. */
 export async function pullSharedRounds(myId: string): Promise<boolean> {
   const { data, error } = await supabase.rpc('pull_shared_rounds');
+  if (error) reportRpcFailure('rpc.pull_shared_rounds', error);
   if (error || !Array.isArray(data)) return false;
   try {
     await replaceSharedRounds(myId, data as SharedRound[]);
   } catch (e) {
+    report('error', 'local.store_shared_rounds', e);
     console.warn('Could not store shared rounds', String(e));
     return false;
   }
@@ -35,12 +40,14 @@ export async function pullSharedRounds(myId: string): Promise<boolean> {
  */
 export async function pullMyRounds(myId: string): Promise<boolean> {
   const { data, error } = await supabase.rpc('pull_my_rounds');
+  if (error) reportRpcFailure('rpc.pull_my_rounds', error);
   if (error || !data || !Array.isArray((data as PullMyRounds).rounds) || !Array.isArray((data as PullMyRounds).deleted)) {
     return false;
   }
   try {
     await applyRestore(myId, planRestore(await listRestoreState(myId), data as PullMyRounds));
   } catch (e) {
+    report('error', 'local.restore_rounds', e);
     console.warn('Could not restore rounds', String(e));
     return false;
   }

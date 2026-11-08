@@ -10,7 +10,26 @@ import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, Alert, Text, View } from 'react-native';
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { isSupabaseConfigured } from '@/lib/supabase';
-import { colors, s } from '@/lib/ui';
+import { installGlobalErrorHandler, report } from '@/lib/telemetry';
+import { Button, colors, s } from '@/lib/ui';
+
+installGlobalErrorHandler();
+
+/** Expo Router shows this instead of a blank screen when a screen throws while rendering. */
+export function ErrorBoundary({ error, retry }: { error: Error; retry: () => Promise<unknown> }) {
+  useEffect(() => {
+    report('crash', 'render.boundary', error);
+  }, [error]);
+  return (
+    <View style={[s.screen, s.pad, { justifyContent: 'center' }]}>
+      <Text style={s.h2}>Something went wrong</Text>
+      <Text style={s.body}>
+        Your rounds are safe on this phone. Try again, and if it keeps happening, close and reopen the app.
+      </Text>
+      <Button title="Try again" onPress={() => void retry()} />
+    </View>
+  );
+}
 
 function Routes() {
   const { session, loading, guest, needsProfile, recovering, startRecovery, confirmEmail, sync } = useAuth();

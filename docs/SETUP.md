@@ -118,6 +118,17 @@ rows in total. Rows older than 30 days are deleted whenever an event is logged; 
 `supabase/go-live/events-purge-schedule.sql` (pg_cron). The tables are closed to the API; read them in the SQL editor
 (`select code, count(*) from client_events group by 1 order by 2 desc`) until the admin summary exists.
 
+## Error log (app side)
+`app/src/lib/telemetry.ts` sends failures to `log_client_event`; `scrub.ts` cleans every message first (emails, ids, tokens,
+links, file paths, long numbers and long keys become placeholders, then the text is cut to 200 characters). Reported:
+uncaught JavaScript errors (global handler), screens that crash while rendering (the root `ErrorBoundary` in
+`app/_layout.tsx`, which also shows "Something went wrong" with a retry button), rounds the server refused, server errors
+from the friend and round downloads, and failures to store downloaded data or set up notifications. Not reported: being
+offline, guests, web. A run sends each distinct failure once and at most 10 in all, and stops if the server limits it or
+the function is missing, so the app works unchanged before migration 0026 is applied. To report from a new place call
+`report(kind, 'area.what', error)`; codes are lower case and never contain ids. Tests: `scrub.test.ts`, `telemetry.test.ts`.
+A fatal crash may close the app before its report is sent.
+
 ## Public web pages
 `node app/scripts/build-site.mjs` turns `docs/legal/*.md` into plain HTML in `site/` (home, privacy policy, terms,
 and a page explaining how to delete an account and data, which Google Play requires). Upload `site/` to any static

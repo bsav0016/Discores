@@ -2,6 +2,7 @@
 // account, and forgetting it again on sign-out. The decisions live in pushRules.ts (tested); this file is the part
 // that talks to the system and to Supabase.
 import Constants from 'expo-constants';
+import { report } from './telemetry';
 import * as Notifications from 'expo-notifications';
 import * as SecureStore from 'expo-secure-store';
 import { Alert, Platform } from 'react-native';
@@ -75,6 +76,7 @@ export async function enablePush(userId: string): Promise<PermissionStatus> {
     if (status === 'granted' && (await registerThisPhone())) registeredFor = userId;
     return status;
   } catch (e) {
+    report('error', 'push.enable', e);
     console.warn('Could not turn on notifications', String(e));
     return 'denied';
   }
@@ -112,6 +114,7 @@ export async function setupPush(userId: string, hasPendingRound: boolean): Promi
     }
     if (await registerThisPhone()) registeredFor = userId;
   } catch (e) {
+    report('error', 'push.setup', e);
     console.warn('Push setup failed', String(e));
   }
 }

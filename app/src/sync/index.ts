@@ -3,6 +3,7 @@ import {
   listLayouts, listPendingDeleteIds, listPendingSuggestions, markSynced, recordSyncFailure, removeLayouts, upsertLayout,
 } from '@/db/local';
 import { supabase } from '@/lib/supabase';
+import { report } from '@/lib/telemetry';
 import { suggestLayout } from './courses';
 import { syncDirtyRounds, type SyncResult } from './engine';
 import { sendPendingSuggestions } from './suggestions';
@@ -27,7 +28,8 @@ async function runSuggestions(ownerId: string) {
       suggest: suggestLayout,
       onVerified: async () => void (await refreshLayouts().catch(() => false)),
     });
-  } catch {
+  } catch (e) {
+    report('error', 'sync.suggestions', e);
     // Left pending; the next sync tries again.
   }
 }
@@ -47,7 +49,11 @@ function pushRounds(ownerId: string): Promise<SyncResult> {
       return { error };
     },
     markSynced,
-    recordFailure: recordSyncFailure,
+    recordFailure: async (roundId, failure) => {
+      await recordSyncFailure(roundId, failure);
+      // Being offline is not a bug; only a refusal from the server is worth knowing about.
+      if (failure.kind === 'rejected') report('sync', 'sync.rejected', failure.message);
+    },
     listPendingDeleteIds: () => listPendingDeleteIds(ownerId),
     deleteRemote: async (roundId) => {
       const { data, error } = await supabase.rpc('delete_round', { p_round: roundId });

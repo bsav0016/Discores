@@ -35,6 +35,8 @@ npm run typecheck
 npx expo-doctor
 ```
 
+Backups, the manual dump and the restore procedure are in [OPERATIONS.md](OPERATIONS.md).
+
 ## How offline sync works
 Rounds, players and scores are written to on-device SQLite first (client-generated UUIDs). A round is
 flagged dirty with every change; `sync_round()` on the server upserts it idempotently (scores are

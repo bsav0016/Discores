@@ -35,7 +35,7 @@ Disc golf is played outdoors, often with weak or no signal, and a round usually 
 | --- | --- |
 | `app/` | The Expo app (`src/app` routes, `src/domain` scoring and stats, `src/sync` offline sync engine) |
 | `supabase/` | Migrations, seed data, Edge Functions, and the course import scripts |
-| `docs/` | [Architecture overview](docs/ARCHITECTURE.md), setup guide, legal documents, screenshots, store-listing drafts |
+| `docs/` | [Architecture overview](docs/ARCHITECTURE.md), setup guide, [backup and restore](docs/OPERATIONS.md), legal documents, screenshots, store-listing drafts |
 | `site/` | Static pages (privacy policy, terms, account deletion) generated from `docs/legal` |
 
 ## Running it

@@ -48,11 +48,31 @@ export function buildSyncPayload(src: SyncSource) {
   };
 }
 
+/** 'offline': the server was not reached (try again later). 'rejected': the server answered and refused the round. */
+export type SyncErrorKind = 'offline' | 'rejected';
+export type SyncFailure = { kind: SyncErrorKind; message: string };
+
+const MAX_MESSAGE = 200;
+
+/**
+ * Tells a network failure from a refusal. supabase-js returns the server's refusals (Postgres errors, auth errors)
+ * with a non-empty `code`; a request that never got an answer has none, and a thrown exception is always a
+ * network problem.
+ */
+export function classifySyncError(error: unknown, thrown = false): SyncFailure {
+  const e = (error ?? {}) as { message?: unknown; code?: unknown };
+  const message = (typeof e.message === 'string' ? e.message : String(error ?? 'unknown')).slice(0, MAX_MESSAGE);
+  const answered = !thrown && typeof e.code === 'string' && e.code.length > 0;
+  return { kind: answered ? 'rejected' : 'offline', message };
+}
+
 export type SyncDeps = {
   listDirtyRoundIds: () => Promise<string[]>;
   getSource: (roundId: string) => Promise<SyncSource>;
   push: (payload: ReturnType<typeof buildSyncPayload>) => Promise<{ error: unknown | null }>;
   markSynced: (roundId: string, rev: number) => Promise<void>;
+  /** Remembers why the latest attempt to sync this round failed. markSynced clears it. */
+  recordFailure: (roundId: string, failure: SyncFailure) => Promise<void>;
   /** Rounds the user deleted that the server has not been told about yet. */
   listPendingDeleteIds: () => Promise<string[]>;
   /** Calls delete_round(): resolves with its answer ('ok', 'not_found', 'not_signed_in'). */
@@ -126,13 +146,24 @@ async function run(deps: SyncDeps): Promise<SyncResult> {
       const { error } = await deps.push(buildSyncPayload(src));
       if (error) {
         result.failed++;
+        await remember(deps, id, classifySyncError(error));
         continue;
       }
       await deps.markSynced(id, src.round.rev);
       result.pushed++;
-    } catch {
+    } catch (e) {
       result.failed++; // offline or transient; stays dirty
+      await remember(deps, id, classifySyncError(e, true));
     }
   }
   return result;
+}
+
+/** Saving the reason must never turn one failed round into a failed run. */
+async function remember(deps: SyncDeps, id: string, failure: SyncFailure) {
+  try {
+    await deps.recordFailure(id, failure);
+  } catch {
+    // The round stays dirty either way.
+  }
 }

@@ -1,6 +1,6 @@
 import {
   clearSuggestion, finishPendingDelete, getRound, getSyncSource, GUEST_ID, isLayoutVerified, listDirtyRoundIds,
-  listLayouts, listPendingDeleteIds, listPendingSuggestions, markSynced, removeLayouts, upsertLayout,
+  listLayouts, listPendingDeleteIds, listPendingSuggestions, markSynced, recordSyncFailure, removeLayouts, upsertLayout,
 } from '@/db/local';
 import { supabase } from '@/lib/supabase';
 import { suggestLayout } from './courses';
@@ -47,6 +47,7 @@ function pushRounds(ownerId: string): Promise<SyncResult> {
       return { error };
     },
     markSynced,
+    recordFailure: recordSyncFailure,
     listPendingDeleteIds: () => listPendingDeleteIds(ownerId),
     deleteRemote: async (roundId) => {
       const { data, error } = await supabase.rpc('delete_round', { p_round: roundId });

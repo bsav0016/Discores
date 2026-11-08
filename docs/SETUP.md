@@ -41,7 +41,7 @@ Backups, the manual dump and the restore procedure are in [OPERATIONS.md](OPERAT
 Rounds, players and scores are written to on-device SQLite first (client-generated UUIDs). A round is
 flagged dirty with every change; `sync_round()` on the server upserts it idempotently (scores are
 last-write-wins per player+hole). Sync runs after sign-in, on app foreground, when connectivity returns,
-and when a round finishes. Failed pushes stay dirty and retry.
+and when a round finishes. Failed pushes stay dirty and retry. The reason for the latest failure is kept on the round (on-device migration 6: `offline` when the server was not reached, `rejected` when it answered with an error, plus its short message, never round content). The history screen shows a banner ("waiting to sync" or "could not be saved") and a badge on each affected round; both go away when the round syncs. Nothing is sent anywhere: this is on-device only.
 
 ## Friends and shared rounds
 Everyone has an 8-character friend code (Friends tab), shown with a QR code and a shareable invite link (`discores://friend/CODE`; opening it asks before sending a request). Adding someone's code sends a request; once they accept,

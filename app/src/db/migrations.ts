@@ -84,6 +84,17 @@ export const MIGRATIONS: Migration[] = [
     // Set when the player changes a round's holes or pars, so the change can be suggested to the course (once).
     up: (db) => addColumnIfMissing(db, 'rounds', 'pars_edited', 'INTEGER NOT NULL DEFAULT 0'),
   },
+  {
+    version: 6,
+    name: 'last sync error per round',
+    // Why the latest push of a round failed ('offline' or 'rejected', plus the server's short message), so the
+    // history screen can say what is wrong. Cleared when the round syncs.
+    up: async (db) => {
+      await addColumnIfMissing(db, 'rounds', 'sync_error_kind', 'TEXT');
+      await addColumnIfMissing(db, 'rounds', 'sync_error_message', 'TEXT');
+      await addColumnIfMissing(db, 'rounds', 'sync_error_at', 'TEXT');
+    },
+  },
 ];
 
 export const LATEST_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;

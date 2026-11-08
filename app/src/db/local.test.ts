@@ -1,6 +1,6 @@
 import {
   GUEST_ID, createRound, deleteRound, finishPendingDelete, listDirtyRoundIds, listPendingDeleteIds, listRounds,
-  listStatRounds, listLayouts, upsertLayout, replaceLayouts, setRoundPars, getSyncSource, isLayoutVerified, listPendingSuggestions, clearSuggestion, replaceSharedRounds, applyRestore, listRestoreState, setScore, wipeLocalData, finishRound, getRound,
+  listStatRounds, recordSyncFailure, markSynced, listLayouts, upsertLayout, replaceLayouts, setRoundPars, getSyncSource, isLayoutVerified, listPendingSuggestions, clearSuggestion, replaceSharedRounds, applyRestore, listRestoreState, setScore, wipeLocalData, finishRound, getRound,
 } from './local';
 import { planRestore } from '@/sync/restore';
 
@@ -43,6 +43,30 @@ describe('finishRound', () => {
     await ownRound('r1');
     await finishRound('r1', '2026-10-04T12:00:00Z');
     expect((await getRound('r1'))?.finished_at).toBe('2026-10-04T11:00:00Z');
+  });
+});
+
+describe('sync failures', () => {
+  it('keeps the reason a round failed to sync and clears it once the round syncs', async () => {
+    await ownRound('r1');
+    expect((await listRounds('me'))[0].sync_error).toBeNull();
+
+    await recordSyncFailure('r1', { kind: 'rejected', message: 'round belongs to another user' });
+    expect((await listRounds('me'))[0].sync_error).toMatchObject({ kind: 'rejected', message: 'round belongs to another user' });
+    expect((await getRound('r1'))?.sync_error?.kind).toBe('rejected');
+
+    const { round } = await getSyncSource('r1');
+    await markSynced('r1', round.rev);
+    const [row] = await listRounds('me');
+    expect(row.dirty).toBe(false);
+    expect(row.sync_error).toBeNull();
+  });
+
+  it('keeps the error when a newer edit means the round is still dirty', async () => {
+    await ownRound('r1');
+    await recordSyncFailure('r1', { kind: 'offline', message: 'x' });
+    await markSynced('r1', -1);
+    expect((await listRounds('me'))[0].sync_error?.kind).toBe('offline');
   });
 });
 

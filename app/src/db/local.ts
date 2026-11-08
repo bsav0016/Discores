@@ -67,6 +67,8 @@ export type RoundRow = {
   dirty: boolean;
   /** Scored by someone else; read-only here. */
   shared: boolean;
+  /** Why the latest sync of this round failed, if it did. */
+  sync_error: { kind: 'offline' | 'rejected'; message: string; at: string } | null;
 };
 
 export type RoundDetail = RoundRow & {
@@ -276,7 +278,13 @@ export async function finishPendingDelete(roundId: string) {
 }
 
 function toRound(r: any): RoundRow {
-  return { ...r, pars: JSON.parse(r.pars), dirty: !!r.dirty, shared: !!r.shared };
+  const { sync_error_kind, sync_error_message, sync_error_at, ...rest } = r;
+  return {
+    ...rest, pars: JSON.parse(r.pars), dirty: !!r.dirty, shared: !!r.shared,
+    sync_error: sync_error_kind
+      ? { kind: sync_error_kind, message: sync_error_message ?? '', at: sync_error_at ?? '' }
+      : null,
+  };
 }
 
 /** History rows (own and shared), summarised for the signed-in user's own seat. */
@@ -371,7 +379,17 @@ export async function getSyncSource(roundId: string) {
 /** Clears dirty only if nothing changed since the pushed revision (edits during an in-flight push bump rev). */
 export async function markSynced(roundId: string, pushedRev: number) {
   const db = await getDb();
-  await db.runAsync('UPDATE rounds SET dirty = 0 WHERE id = ? AND rev = ?', roundId, pushedRev);
+  await db.runAsync(
+    `UPDATE rounds SET dirty = 0, sync_error_kind = NULL, sync_error_message = NULL, sync_error_at = NULL
+      WHERE id = ? AND rev = ?`, roundId, pushedRev);
+}
+
+/** Keeps the reason for a failed push (only the kind and the server's short message; no round content). */
+export async function recordSyncFailure(roundId: string, failure: { kind: 'offline' | 'rejected'; message: string }) {
+  const db = await getDb();
+  await db.runAsync(
+    'UPDATE rounds SET sync_error_kind = ?, sync_error_message = ?, sync_error_at = ? WHERE id = ?',
+    failure.kind, failure.message, new Date().toISOString(), roundId);
 }
 
 // ------------------------------------------------------------ restore (own rounds)

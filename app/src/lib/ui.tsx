@@ -101,9 +101,9 @@ export function Chip({ label, selected, onPress }: { label: string; selected?: b
   );
 }
 
-export function Badge({ label, tone = 'neutral' }: { label: string; tone?: 'neutral' | 'good' | 'warn' }) {
-  const bg = tone === 'good' ? colors.brandSoft : tone === 'warn' ? '#fdf0d8' : '#eceee8';
-  const fg = tone === 'good' ? colors.brandDark : tone === 'warn' ? '#8a5a00' : colors.muted;
+export function Badge({ label, tone = 'neutral' }: { label: string; tone?: 'neutral' | 'good' | 'warn' | 'danger' }) {
+  const bg = tone === 'good' ? colors.brandSoft : tone === 'warn' ? '#fdf0d8' : tone === 'danger' ? colors.dangerSoft : '#eceee8';
+  const fg = tone === 'good' ? colors.brandDark : tone === 'warn' ? '#8a5a00' : tone === 'danger' ? colors.danger : colors.muted;
   return (
     <View style={{ backgroundColor: bg, paddingHorizontal: 9, paddingVertical: 3, borderRadius: radius.pill, alignSelf: 'flex-start' }}>
       <Text style={{ color: fg, fontSize: 12, fontWeight: '700' }}>{label}</Text>

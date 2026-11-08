@@ -1,4 +1,4 @@
-import { buildSyncPayload, syncDirtyRounds, type SyncDeps, type SyncSource } from './engine';
+import { buildSyncPayload, classifySyncError, syncDirtyRounds, type SyncDeps, type SyncSource } from './engine';
 
 const src = (id: string, rev = 1): SyncSource => ({
   round: { id, layout_id: 'L1', started_at: '2026-10-04T10:00:00Z', finished_at: null, rev },
@@ -17,6 +17,7 @@ function deps(over: Partial<SyncDeps> = {}): SyncDeps & { synced: [string, numbe
     getSource: async (id) => src(id, id === 'a' ? 2 : 5),
     push: async () => ({ error: null }),
     markSynced: async (id, rev) => void synced.push([id, rev]),
+    recordFailure: async () => {},
     ...over,
   };
 }
@@ -187,5 +188,42 @@ describe('syncDirtyRounds deletes', () => {
     });
     await syncDirtyRounds(d);
     expect(order).toEqual(['delete', 'push']);
+  });
+});
+
+describe('sync failures', () => {
+  it('tells a refusal (error with a code) from a network failure (no code, or thrown)', () => {
+    expect(classifySyncError({ message: 'round belongs to another user', code: 'P0001' })).toEqual({
+      kind: 'rejected', message: 'round belongs to another user',
+    });
+    expect(classifySyncError({ message: 'TypeError: Network request failed', code: '' }).kind).toBe('offline');
+    expect(classifySyncError(new Error('boom'), true).kind).toBe('offline');
+    expect(classifySyncError({ message: 'x', code: 'P0001' }, true).kind).toBe('offline');
+  });
+
+  it('caps the stored message', () => {
+    expect(classifySyncError({ message: 'x'.repeat(500), code: 'P0001' }).message).toHaveLength(200);
+  });
+
+  it('records why each round failed and keeps going', async () => {
+    const recorded: [string, string][] = [];
+    const d = deps({
+      push: async (p) => (p.round.id === 'a'
+        ? { error: { message: 'nope', code: 'P0001' } }
+        : { error: { message: 'Network request failed', code: '' } }),
+      recordFailure: async (id, f) => void recorded.push([id, f.kind]),
+    });
+    expect(await syncDirtyRounds(d)).toEqual({ pushed: 0, failed: 2 });
+    expect(recorded).toEqual([['a', 'rejected'], ['b', 'offline']]);
+  });
+
+  it('records a thrown push as offline, and a failing recorder does not break the run', async () => {
+    const recorded: string[] = [];
+    const d = deps({
+      push: async (p) => { if (p.round.id === 'a') throw new Error('offline'); return { error: null }; },
+      recordFailure: async (id, f) => { recorded.push(`${id}:${f.kind}`); throw new Error('disk'); },
+    });
+    expect(await syncDirtyRounds(d)).toEqual({ pushed: 1, failed: 1 });
+    expect(recorded).toEqual(['a:offline']);
   });
 });

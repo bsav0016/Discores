@@ -4,6 +4,7 @@ import { useCallback, useLayoutEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
 import { listRounds } from '@/db/local';
 import { formatRelative } from '@/domain/scoring';
+import { roundSyncLabel, syncBanner } from '@/domain/syncStatus';
 import { useAuth } from '@/lib/auth';
 import { Badge, Button, Card, colors, s } from '@/lib/ui';
 
@@ -17,6 +18,7 @@ export default function History() {
   const [refreshing, setRefreshing] = useState(false); // the header button
   const [pulling, setPulling] = useState(false); // pull down on the list
   const uid = ownerId;
+  const banner = guest ? null : syncBanner(rounds);
 
   const refresh = useCallback(async (setBusy: (v: boolean) => void) => {
     setBusy(true);
@@ -57,6 +59,19 @@ export default function History() {
         )}
         ListHeaderComponent={
           <View style={{ gap: 12 }}>
+            {banner && (
+              <View accessibilityRole="alert" style={{
+                flexDirection: 'row', gap: 12, padding: 14, borderRadius: 14,
+                backgroundColor: banner.tone === 'danger' ? colors.dangerSoft : '#fdf0d8',
+              }}>
+                <Ionicons name={banner.tone === 'danger' ? 'alert-circle' : 'cloud-offline'} size={26}
+                  color={banner.tone === 'danger' ? colors.danger : '#8a5a00'} />
+                <View style={{ flex: 1, gap: 2 }}>
+                  <Text style={s.h2}>{banner.title}</Text>
+                  <Text style={s.muted}>{banner.detail}</Text>
+                </View>
+              </View>
+            )}
             {pendingCount > 0 && (
               <Card onPress={() => router.push('/confirm-rounds')} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                 <Ionicons name="checkmark-done-circle" size={30} color={colors.accent} />
@@ -81,6 +96,7 @@ export default function History() {
         }
         renderItem={({ item }) => {
           const rel = formatRelative(item.relative);
+          const syncLabel = guest ? null : roundSyncLabel(item);
           return (
             <Card onPress={() => router.push({ pathname: '/round/[id]', params: { id: item.id } })}
               style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
@@ -93,7 +109,7 @@ export default function History() {
                 <View style={{ flexDirection: 'row', gap: 6, marginTop: 2 }}>
                   <Badge label={item.finished_at ? 'Finished' : 'In progress'} tone={item.finished_at ? 'good' : 'warn'} />
                   {item.shared ? <Badge label="Shared with you" /> : null}
-                  {guest ? <Badge label="On this phone only" /> : item.dirty ? <Badge label="Not synced yet" /> : null}
+                  {guest ? <Badge label="On this phone only" /> : syncLabel ? <Badge label={syncLabel.label} tone={syncLabel.tone} /> : null}
                 </View>
               </View>
               <View style={{ alignItems: 'center', minWidth: 60 }}>

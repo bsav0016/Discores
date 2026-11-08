@@ -26,6 +26,7 @@ describe('migrate', () => {
     expect(columns(db, 'rounds')).toContain('pending_delete');
     expect(columns(db, 'layouts')).toContain('verified');
     expect(columns(db, 'rounds')).toContain('pars_edited');
+    expect(columns(db, 'rounds')).toEqual(expect.arrayContaining(['sync_error_kind', 'sync_error_message', 'sync_error_at']));
   });
 
   it('upgrades a first-release database and keeps its data', async () => {

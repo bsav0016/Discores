@@ -238,7 +238,7 @@ export default function Settings() {
       {admin && (
         <>
           <SectionTitle>Admin</SectionTitle>
-          <Button title="Review reports" variant="soft" onPress={() => router.push('/review-reports')}
+          <Button title="Reports and errors" variant="soft" onPress={() => router.push('/review-reports')}
             style={{ marginTop: 0 }} />
         </>
       )}

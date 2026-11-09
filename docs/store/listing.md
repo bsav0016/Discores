@@ -82,7 +82,7 @@ Discores is free. Course data comes from OpenStreetMap contributors, Overture Ma
 
 ## Apple: App Privacy ("nutrition label")
 
-Data collected, all linked to the user, none used for tracking, none shared with third parties for their own use:
+Data collected, linked to the user except the diagnostics rows below, none used for tracking, none shared with third parties for their own use:
 
 | Data type | Why |
 | --- | --- |
@@ -93,7 +93,11 @@ Data collected, all linked to the user, none used for tracking, none shared with
 | Gender (optional), years playing (optional), birth year | Profile (birth year for the age check) |
 | Device ID (the push notification token; only if the person turns notifications on) | App functionality (notifications about friend requests and rounds to confirm) |
 
-Not collected: location, contacts, photos, browsing history, advertising identifiers, advertising data, diagnostics.
+| Crash data and other diagnostic data (error reports: error kind, short scrubbed message, app version, platform; no user ID) | App functionality (finding and fixing bugs) |
+
+These two diagnostics rows are the only data **not linked to the user** (the report has no account or device identifier), and not used for tracking. In App Store Connect add them as "Not linked to the user".
+
+Not collected: location, contacts, photos, browsing history, advertising identifiers, advertising data.
 Check in App Store Connect whether Apple wants the push token declared as "Device ID"; declaring it is the safe answer.
 
 ## Google Play: Data safety
@@ -105,6 +109,9 @@ Check in App Store Connect whether Apple wants the push token declared as "Devic
   management. Also Device or other IDs (the push notification token, only if notifications are turned on): App
   functionality only.
 - **For every type:** collected, not shared (service providers acting for us do not count), not processed ephemerally.
+- **App info and performance** (added with error reporting): Crash logs and Diagnostics. Collected, not shared, not processed
+  ephemerally, purpose App functionality (bug fixing), **optional?** No: reports are sent automatically, so answer Required.
+  Data is not linked to an identity, but Play's form has no such switch; answer as for the other types.
 - **Required or optional:** required for email address, user IDs, and rounds, scores and reports; optional for the
   display name (it defaults to the email name), the push token (only sent after the person allows notifications) and
   username. "Other info" is one entry on Google's form, so answer Required (birth year is required at sign-up; gender and

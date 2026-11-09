@@ -69,3 +69,21 @@ export async function resolveReport(
   });
   return error?.message ?? null;
 }
+
+export type ErrorGroup = {
+  kind: string;
+  code: string;
+  platform: string;
+  app_version: string;
+  n: number;
+  first_seen: string;
+  last_seen: string;
+  sample: string;
+};
+
+/** The app's error log grouped by kind, code, platform and version (admins only). Returns the server's message on failure. */
+export async function listErrorSummary(days: number): Promise<ErrorGroup[] | string> {
+  const { data, error } = await supabase.rpc('list_error_summary', { p_days: days });
+  if (error) return error.message;
+  return (data as ErrorGroup[]).map((g) => ({ ...g, n: Number(g.n) }));
+}

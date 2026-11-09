@@ -5,7 +5,7 @@ import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'rea
 import { ParGrid } from '@/lib/ParGrid';
 import { Badge, Button, Card, Chip, colors, Field, s } from '@/lib/ui';
 import {
-  listReports, listUserReports, resolveReport, resolveUserReport, type CourseReport, type UserReport,
+  listErrorSummary, listReports, listUserReports, resolveReport, resolveUserReport, type CourseReport, type ErrorGroup, type UserReport,
 } from '@/sync/admin';
 import { CORRECTION_KINDS } from '@/sync/courses';
 import { REPORT_REASONS } from '@/sync/social';
@@ -14,15 +14,72 @@ const kindLabel = (k: string) => CORRECTION_KINDS.find((c) => c.value === k)?.la
 const sameArray = (a: number[], b: number[]) => a.length === b.length && a.every((v, i) => v === b[i]);
 
 export default function ReviewReports() {
-  const [tab, setTab] = useState<'courses' | 'people'>('courses');
+  const [tab, setTab] = useState<'courses' | 'people' | 'errors'>('courses');
   return (
     <View style={s.screen}>
       <View style={{ flexDirection: 'row', gap: 8, padding: 16, paddingBottom: 0 }}>
         <Chip label="Courses" selected={tab === 'courses'} onPress={() => setTab('courses')} />
         <Chip label="People" selected={tab === 'people'} onPress={() => setTab('people')} />
+        <Chip label="Errors" selected={tab === 'errors'} onPress={() => setTab('errors')} />
       </View>
-      {tab === 'courses' ? <CourseReports /> : <PeopleReports />}
+      {tab === 'courses' ? <CourseReports /> : tab === 'people' ? <PeopleReports /> : <ErrorSummary />}
     </View>
+  );
+}
+
+const DAY_CHOICES = [1, 7, 30];
+
+function ErrorSummary() {
+  const [days, setDays] = useState(7);
+  const [groups, setGroups] = useState<ErrorGroup[] | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    const r = await listErrorSummary(days);
+    if (typeof r === 'string') setLoadError(r);
+    else {
+      setLoadError(null);
+      setGroups(r);
+    }
+  }, [days]);
+  useFocusEffect(useCallback(() => void load(), [load]));
+
+  return (
+    <ScrollView contentContainerStyle={s.pad}>
+      <View style={{ flexDirection: 'row', gap: 8 }}>
+        {DAY_CHOICES.map((d) => (
+          <Chip key={d} label={d === 1 ? 'Today' : `${d} days`} selected={days === d} onPress={() => { setGroups(null); setDays(d); }} />
+        ))}
+      </View>
+      {loadError ? (
+        <View style={{ alignItems: 'center', gap: 12, marginTop: 24 }}>
+          <Text style={s.error}>{loadError}</Text>
+          <Button title="Try again" variant="soft" onPress={load} />
+        </View>
+      ) : groups === null ? (
+        <ActivityIndicator color={colors.brand} style={{ marginTop: 24 }} />
+      ) : groups.length === 0 ? (
+        <View style={{ alignItems: 'center', marginTop: 48, gap: 8 }}>
+          <Ionicons name="checkmark-circle-outline" size={56} color={colors.line} />
+          <Text style={s.h2}>No errors reported</Text>
+          <Text style={[s.muted, { textAlign: 'center' }]}>Nothing in this period.</Text>
+        </View>
+      ) : (
+        groups.map((g) => (
+          <Card key={`${g.kind}|${g.code}|${g.platform}|${g.app_version}`}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+              <Text style={[s.h2, { flex: 1 }]} numberOfLines={1}>{g.code}</Text>
+              <Badge label={`${g.n}×`} tone={g.kind === 'crash' ? 'danger' : 'warn'} />
+            </View>
+            <Text style={s.muted}>
+              {[g.kind, g.platform, g.app_version ? `v${g.app_version}` : null,
+                `last ${new Date(g.last_seen).toLocaleString()}`].filter(Boolean).join(' · ')}
+            </Text>
+            {g.sample ? <Text style={[s.body, { marginTop: 6 }]}>{g.sample}</Text> : null}
+          </Card>
+        ))
+      )}
+    </ScrollView>
   );
 }
 

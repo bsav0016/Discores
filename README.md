@@ -25,7 +25,7 @@ Disc golf is played outdoors, often with weak or no signal, and a round usually 
 ## Stack
 
 - **App:** Expo SDK 58, React Native 0.88, TypeScript, Expo Router, `expo-sqlite`
-- **Backend:** [Supabase](https://supabase.com) – Postgres (26 SQL migrations in `supabase/migrations`), Auth, and three Edge Functions (`apple-link`, `delete-account`, `send-push`)
+- **Backend:** [Supabase](https://supabase.com) – Postgres (27 SQL migrations in `supabase/migrations`), Auth, and three Edge Functions (`apple-link`, `delete-account`, `send-push`)
 - **Tests:** Jest (`jest-expo`)
 - **CI:** GitHub Actions – type check, tests, and a check that the generated legal text and web pages are up to date
 

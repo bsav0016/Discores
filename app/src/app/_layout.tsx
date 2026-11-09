@@ -94,7 +94,7 @@ function Routes() {
         <Stack.Screen name="new-round" options={{ title: 'New round', presentation: 'modal' }} />
         <Stack.Screen name="add-course" options={{ title: 'Add a course' }} />
         <Stack.Screen name="report-course" options={{ title: 'Report a problem' }} />
-        <Stack.Screen name="review-reports" options={{ title: 'Reports' }} />
+        <Stack.Screen name="review-reports" options={{ title: 'Reports and errors' }} />
         <Stack.Screen name="round/[id]" options={{ title: 'Round' }} />
         <Stack.Screen name="person/[id]" options={{ title: 'Person' }} />
         <Stack.Screen name="confirm-rounds" options={{ title: 'Confirm scores' }} />

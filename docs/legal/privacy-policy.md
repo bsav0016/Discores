@@ -4,7 +4,7 @@ the web pages match. HTML comments like this one are not shown to readers.
 -->
 # Privacy Policy
 
-Effective October 26, 2026
+Effective November 9, 2026
 
 Discores is a free disc golf score tracker run by Savidge Apps ("we", "us"). This policy explains what we collect, why, who can see it, and how to delete it. You can reach us at savidgeapps@gmail.com.
 
@@ -15,6 +15,7 @@ Discores is a free disc golf score tracker run by Savidge Apps ("we", "us"). Thi
 - We do not use your location. Courses are found by searching their name.
 - If you change the holes or pars of a round, they can be suggested to the course. Suggestions are never shown with your name, and only take effect when another player agrees.
 - Notifications are optional. If you turn them on, we keep a token for your phone and send short messages that show a name and nothing else.
+- When something goes wrong in the app, a short error report may be sent to us. It contains no name, email, account identifier or scores.
 - Other players never see your email, birth year or gender. Friends see your display name.
 - When you are signed in, your rounds are saved to your account, so they come back if you reinstall the app or get a new phone.
 - You can delete a round, or your whole account and data, inside the app at any time.
@@ -33,7 +34,9 @@ Discores is a free disc golf score tracker run by Savidge Apps ("we", "us"). Thi
 
 **Notifications (optional).** If you allow notifications, Apple or Google gives the app a token that identifies your phone for notifications. We store it with your account so we can tell you when someone sends you a friend request, accepts yours, or scores a round with you that waits for your confirmation. We also keep a short list of notifications waiting to be sent, for up to 30 days. A notification contains the other person's display name and a fixed sentence; it never contains scores, courses or dates. You can turn each kind off in Settings, or turn notifications off for Discores in your phone's settings. We remove the token when you sign out or delete your account, and when Apple or Google tell us the phone no longer receives notifications.
 
-**Technical data.** Sign-in sessions and counters that limit how fast friend lookups can be tried. We do not run analytics or advertising software, and apart from the notification token above we do not collect your device identifiers, and we do not collect your IP address for our own use. Our hosting provider may keep ordinary server logs.
+**Error reports.** If the app crashes, or the server refuses something the app sent (for example a round that could not be saved), a signed-in app may send us a short error report: the kind of error, a short code, a brief message from which email addresses, identifiers, links, file paths and long numbers have been removed, the app version, and whether the phone is an iPhone or Android. A report is not linked to your account, and it contains no scores, courses, names or other content. We use reports only to find and fix bugs. We keep them for 30 days, then delete them. To stop one person from flooding the log, we count how many reports an account has sent in the past hour; that counter is deleted with your account. Guest mode sends no reports.
+
+**Technical data.** Sign-in sessions and counters that limit how fast friend lookups can be tried. We do not run analytics or advertising software or use a third-party crash reporting service, and apart from the notification token above we do not collect your device identifiers, and we do not collect your IP address for our own use. Our hosting provider may keep ordinary server logs.
 
 **Camera.** If you tap "Scan a friend's QR code", the app uses the camera to read the code. Nothing is recorded, saved or sent.
 

@@ -3,6 +3,10 @@
     "name": "Discores",
     "slug": "discores",
     "version": "1.0.1",
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -67,6 +71,12 @@
         "projectId": "98404543-7d63-4157-a6fb-702bf8368437"
       }
     },
-    "owner": "bsav0016"
+    "owner": "bsav0016",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/98404543-7d63-4157-a6fb-702bf8368437"
+    }
   }
 }

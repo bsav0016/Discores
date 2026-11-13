@@ -20,6 +20,7 @@
     "expo-sqlite": "~58.0.14",
     "expo-status-bar": "~58.0.4",
     "expo-store-review": "~58.0.2",
+    "expo-updates": "~58.0.22",
     "expo-web-browser": "~58.0.6",
     "react": "19.3.0",
     "react-dom": "19.3.0",
@@ -45,7 +46,10 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "test": "jest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build:check": "expo export --platform ios --platform android --output-dir dist",
+    "update:preview": "node scripts/publish-update.js preview",
+    "update:production": "node scripts/publish-update.js production"
   },
   "private": true,
   "jest": {

@@ -12,14 +12,16 @@
       "env": {
         "EXPO_PUBLIC_SUPABASE_URL": "https://ygewircfvsadazpwxquv.supabase.co",
         "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_hNEPsTUi35seVWuazSnWCw_eERzQ32b"
-      }
+      },
+      "channel": "preview"
     },
     "production": {
       "autoIncrement": true,
       "env": {
         "EXPO_PUBLIC_SUPABASE_URL": "https://ygewircfvsadazpwxquv.supabase.co",
         "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_hNEPsTUi35seVWuazSnWCw_eERzQ32b"
-      }
+      },
+      "channel": "production"
     }
   },
   "submit": {

@@ -1,7 +1,9 @@
 import {
   GUEST_ID, createRound, deleteRound, finishPendingDelete, listDirtyRoundIds, listPendingDeleteIds, listRounds,
   listStatRounds, recordSyncFailure, markSynced, listLayouts, upsertLayout, replaceLayouts, setRoundPars, getSyncSource, isLayoutVerified, listPendingSuggestions, clearSuggestion, replaceSharedRounds, applyRestore, listRestoreState, setScore, wipeLocalData, finishRound, getRound,
+  applyLive, getLiveSeat, listDirtyLiveRoundIds, listLiveState, setLiveScore,
 } from './local';
+import { planLive, type LiveRemoteRound } from '@/sync/live';
 import { planRestore } from '@/sync/restore';
 
 // The real database code, run on Node's SQLite instead of expo-sqlite.
@@ -292,5 +294,126 @@ describe('pending suggestions', () => {
     await clearSuggestion('a');
     const after = (await getSyncSource('a')).round;
     expect([after.rev, after.dirty]).toEqual([before.rev, before.dirty]);
+  });
+});
+
+describe('live rounds', () => {
+  const liveRound = (over: Partial<LiveRemoteRound> = {}): LiveRemoteRound => ({
+    id: 'lr', layout_id: 'L1', course_name: 'Maple Hill', hole_count: 2, pars: [3, 3],
+    started_at: '2026-11-15T10:00:00Z', finished_at: null, is_owner: false, owner_name: 'Brian',
+    players: [
+      { id: 'pb', position: 0, is_me: false, name: 'Brian', scores: [{ hole_number: 1, strokes: 3, updated_at: '2026-11-15T10:05:00Z' }] },
+      { id: 'pm', position: 1, is_me: true, name: 'Me', scores: [] },
+    ],
+    ...over,
+  });
+
+  async function follow(round = liveRound()) {
+    await applyLive('me', planLive(await listLiveState('me'), [round]));
+  }
+
+  it("follows a friend's round: stored read-only, clean, with the owner's name", async () => {
+    await follow();
+    const r = await getRound('lr');
+    expect(r).toMatchObject({ shared: true, live: true, dirty: false, owner_name: 'Brian', finished_at: null });
+    expect(r?.players.find((p) => p.id === 'pm')?.display_name).toBe('You');
+    expect(r?.players.find((p) => p.id === 'pb')?.scores).toEqual({ 1: 3 });
+    expect(await listDirtyRoundIds('me')).toEqual([]);
+  });
+
+  it('lets us write our own seat only, queues it for sync, and never as a normal round push', async () => {
+    await follow();
+    expect(await setLiveScore('lr', 1, 4, '2026-11-15T10:10:00Z')).toBe(true);
+    expect((await getRound('lr'))?.players.find((p) => p.id === 'pm')?.scores).toEqual({ 1: 4 });
+    expect((await getRound('lr'))?.players.find((p) => p.id === 'pb')?.scores).toEqual({ 1: 3 });
+    expect(await listDirtyLiveRoundIds('me')).toEqual(['lr']);
+    expect(await listDirtyRoundIds('me')).toEqual([]); // sync_round would be refused for a round we do not own
+    const seat = await getLiveSeat('lr');
+    expect(seat.scores).toEqual([{ hole_number: 1, strokes: 4, updated_at: '2026-11-15T10:10:00Z' }]);
+    await markSynced('lr', seat.rev);
+    expect(await listDirtyLiveRoundIds('me')).toEqual([]);
+  });
+
+  it('refuses to write a round that is not live, is finished, or has no seat for us', async () => {
+    await ownRound('mine');
+    expect(await setLiveScore('mine', 1, 4, 'T')).toBe(false);
+    expect(await setLiveScore('missing', 1, 4, 'T')).toBe(false);
+    await follow(liveRound({ players: [{ id: 'pb', position: 0, is_me: false, name: 'Brian', scores: [] }] }));
+    expect(await setLiveScore('lr', 1, 4, 'T')).toBe(false);
+    await wipeLocalData();
+    await follow();
+    await finishRound('lr', '2026-11-15T12:00:00Z');
+    expect(await setLiveScore('lr', 1, 4, 'T')).toBe(false);
+  });
+
+  it("a pull merges the others' scores without touching dirty or our own newer score", async () => {
+    await follow();
+    await setLiveScore('lr', 1, 4, '2026-11-15T10:10:00Z');
+    const before = await getSyncSource('lr');
+    await follow(liveRound({
+      players: [
+        { id: 'pb', position: 0, is_me: false, name: 'Brian', scores: [
+          { hole_number: 1, strokes: 3, updated_at: '2026-11-15T10:05:00Z' },
+          { hole_number: 2, strokes: 6, updated_at: '2026-11-15T10:20:00Z' }] },
+        { id: 'pm', position: 1, is_me: true, name: 'Me', scores: [{ hole_number: 1, strokes: 9, updated_at: '2026-11-15T10:01:00Z' }] },
+      ],
+    }));
+    const r = await getRound('lr');
+    expect(r?.players.find((p) => p.id === 'pb')?.scores).toEqual({ 1: 3, 2: 6 });
+    expect(r?.players.find((p) => p.id === 'pm')?.scores).toEqual({ 1: 4 });
+    expect(r).toMatchObject({ dirty: true });
+    expect((await getSyncSource('lr')).round.rev).toBe(before.round.rev);
+  });
+
+  it("on the owner's phone a pull brings in the friend's score and does not queue a push", async () => {
+    await createRound({
+      id: 'o2', ownerId: 'me', layout, startedAt: '2026-11-15T10:00:00Z',
+      players: [{ id: 'o2-me', userId: 'me', guestName: null, name: 'You' }, { id: 'o2-j', userId: 'john', guestName: null, name: 'John' }],
+    });
+    const { round } = await getSyncSource('o2');
+    await markSynced('o2', round.rev);
+    await applyLive('me', planLive(await listLiveState('me'), [liveRound({
+      id: 'o2', is_owner: true,
+      players: [
+        { id: 'o2-me', position: 0, is_me: true, name: 'Me', scores: [] },
+        { id: 'o2-j', position: 1, is_me: false, name: 'John', scores: [{ hole_number: 1, strokes: 5, updated_at: '2026-11-15T10:05:00Z' }] },
+      ],
+    })]));
+    expect((await getRound('o2'))?.players.find((p) => p.id === 'o2-j')?.scores).toEqual({ 1: 5 });
+    expect((await getRound('o2'))?.dirty).toBe(false);
+  });
+
+  it('forgets a followed round the server stops listing, but keeps one with unsent scores', async () => {
+    await follow();
+    await applyLive('me', planLive(await listLiveState('me'), []));
+    expect(await getRound('lr')).toBeNull();
+
+    await follow();
+    await setLiveScore('lr', 1, 4, '2026-11-15T10:10:00Z');
+    await applyLive('me', planLive(await listLiveState('me'), []));
+    expect(await getRound('lr')).not.toBeNull();
+  });
+
+  it('moves into history when the finished round arrives, but not while our scores are unsent', async () => {
+    const finished = {
+      id: 'lr', layout_id: 'L1', course_name: 'Maple Hill', hole_count: 2, pars: [3, 3],
+      started_at: '2026-11-15T10:00:00Z', finished_at: '2026-11-15T12:00:00Z',
+      players: [{ id: 'pm', position: 0, is_me: true, name: 'Me', scores: [{ hole_number: 1, strokes: 4, updated_at: '2026-11-15T10:10:00Z' }] }],
+    };
+    await follow();
+    await replaceSharedRounds('me', [finished]);
+    expect(await getRound('lr')).toMatchObject({ live: false, shared: true, finished_at: '2026-11-15T12:00:00Z' });
+
+    await wipeLocalData();
+    await follow();
+    await setLiveScore('lr', 1, 4, '2026-11-15T10:10:00Z');
+    await replaceSharedRounds('me', [finished]);
+    expect(await getRound('lr')).toMatchObject({ live: true, dirty: true });
+  });
+
+  it('a history refresh keeps rounds we follow', async () => {
+    await follow();
+    await replaceSharedRounds('me', []);
+    expect(await getRound('lr')).not.toBeNull();
   });
 });

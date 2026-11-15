@@ -2,6 +2,7 @@ import * as SQLite from 'expo-sqlite';
 import { parsError, samePars } from '@/domain/pars';
 import { holesScored, relativeToPar, totalStrokes, type ScoreMap } from '@/domain/scoring';
 import type { StatRound } from '@/domain/stats';
+import type { LiveAction, LiveLocalRound } from '@/sync/live';
 import type { LocalRoundState, RestoreAction } from '@/sync/restore';
 import { migrate } from './migrations';
 
@@ -65,8 +66,12 @@ export type RoundRow = {
   started_at: string;
   finished_at: string | null;
   dirty: boolean;
-  /** Scored by someone else; read-only here. */
+  /** Scored by someone else; read-only here (except our own seat while the round is live). */
   shared: boolean;
+  /** Someone else's round in progress that we follow and may score our own seat in. */
+  live: boolean;
+  /** Who owns a live round (null for every other round). */
+  owner_name: string | null;
   /** Why the latest sync of this round failed, if it did. */
   sync_error: { kind: 'offline' | 'rejected'; message: string; at: string } | null;
 };
@@ -280,7 +285,7 @@ export async function finishPendingDelete(roundId: string) {
 function toRound(r: any): RoundRow {
   const { sync_error_kind, sync_error_message, sync_error_at, ...rest } = r;
   return {
-    ...rest, pars: JSON.parse(r.pars), dirty: !!r.dirty, shared: !!r.shared,
+    ...rest, pars: JSON.parse(r.pars), dirty: !!r.dirty, shared: !!r.shared, live: !!r.live,
     sync_error: sync_error_kind
       ? { kind: sync_error_kind, message: sync_error_message ?? '', at: sync_error_at ?? '' }
       : null,
@@ -363,7 +368,7 @@ export async function getRound(roundId: string): Promise<RoundDetail | null> {
 export async function listDirtyRoundIds(ownerId: string): Promise<string[]> {
   const db = await getDb();
   const rows = await db.getAllAsync<{ id: string }>(
-    'SELECT id FROM rounds WHERE owner_id = ? AND dirty = 1 AND pending_delete = 0', ownerId);
+    'SELECT id FROM rounds WHERE owner_id = ? AND dirty = 1 AND pending_delete = 0 AND shared = 0', ownerId);
   return rows.map((r) => r.id);
 }
 
@@ -390,6 +395,109 @@ export async function recordSyncFailure(roundId: string, failure: { kind: 'offli
   await db.runAsync(
     'UPDATE rounds SET sync_error_kind = ?, sync_error_message = ?, sync_error_at = ? WHERE id = ?',
     failure.kind, failure.message, new Date().toISOString(), roundId);
+}
+
+// -------------------------------------------------------------- live rounds
+/**
+ * Writes the signed-in user's own score in a live round someone else owns. Only our own seat can be written: every
+ * other seat on this copy is read-only. Returns false when this is not a live round of ours or we have no seat in it.
+ * The round is marked dirty so the seat is sent with the next sync.
+ */
+export async function setLiveScore(roundId: string, hole: number, strokes: number, now: string): Promise<boolean> {
+  const db = await getDb();
+  const seat = await db.getFirstAsync<{ id: string }>(
+    `SELECT p.id FROM round_players p JOIN rounds r ON r.id = p.round_id
+      WHERE r.id = ? AND r.live = 1 AND r.finished_at IS NULL AND r.pending_delete = 0 AND p.user_id = r.owner_id`,
+    roundId);
+  if (!seat) return false;
+  await setScore(seat.id, roundId, hole, strokes, now);
+  return true;
+}
+
+/** Followed rounds with scores of ours that the server has not seen yet. */
+export async function listDirtyLiveRoundIds(ownerId: string): Promise<string[]> {
+  const db = await getDb();
+  const rows = await db.getAllAsync<{ id: string }>(
+    'SELECT id FROM rounds WHERE owner_id = ? AND live = 1 AND dirty = 1 AND pending_delete = 0', ownerId);
+  return rows.map((r) => r.id);
+}
+
+/** Our own seat's scores in a followed round, with the revision they were read at (for markSynced). */
+export async function getLiveSeat(roundId: string) {
+  const db = await getDb();
+  const round = await db.getFirstAsync<{ rev: number }>('SELECT rev FROM rounds WHERE id = ?', roundId);
+  const scores = await db.getAllAsync<{ hole_number: number; strokes: number; updated_at: string }>(
+    `SELECT s.hole_number, s.strokes, s.updated_at FROM scores s
+       JOIN round_players p ON p.id = s.round_player_id JOIN rounds r ON r.id = p.round_id
+      WHERE r.id = ? AND p.user_id = r.owner_id ORDER BY s.hole_number`, roundId);
+  return { scores, rev: round?.rev ?? 0 };
+}
+
+/** What the phone holds for planLive(): our own rounds, rounds we follow, and finished shared rounds. */
+export async function listLiveState(ownerId: string): Promise<LiveLocalRound[]> {
+  const db = await getDb();
+  const rounds = await db.getAllAsync<any>(
+    'SELECT id, dirty, pending_delete, finished_at, shared, live FROM rounds WHERE owner_id = ?', ownerId);
+  const players = await db.getAllAsync<{ id: string; round_id: string }>(
+    'SELECT p.id, p.round_id FROM round_players p JOIN rounds r ON r.id = p.round_id WHERE r.owner_id = ?', ownerId);
+  const scores = await db.getAllAsync<{ round_player_id: string; hole_number: number; updated_at: string }>(
+    `SELECT s.round_player_id, s.hole_number, s.updated_at FROM scores s
+       JOIN round_players p ON p.id = s.round_player_id JOIN rounds r ON r.id = p.round_id WHERE r.owner_id = ?`, ownerId);
+  const byRound = new Map<string, LiveLocalRound>(rounds.map((r) => [r.id, {
+    id: r.id, kind: r.live ? 'live' : r.shared ? 'history' : 'owned', dirty: !!r.dirty, pendingDelete: !!r.pending_delete,
+    finishedAt: r.finished_at, playerIds: [], scores: {},
+  }]));
+  const roundOfPlayer = new Map<string, string>();
+  for (const p of players) {
+    roundOfPlayer.set(p.id, p.round_id);
+    byRound.get(p.round_id)?.playerIds.push(p.id);
+  }
+  for (const s of scores) {
+    const roundId = roundOfPlayer.get(s.round_player_id);
+    if (roundId) byRound.get(roundId)!.scores[`${s.round_player_id}:${s.hole_number}`] = s.updated_at;
+  }
+  return [...byRound.values()];
+}
+
+/**
+ * Applies a plan from planLive(). Merged scores are not edits of ours: dirty and rev are left alone, so a pull never
+ * queues a push. A new followed round starts clean.
+ */
+export async function applyLive(myId: string, actions: LiveAction[]) {
+  if (actions.length === 0) return;
+  const db = await getDb();
+  await db.withTransactionAsync(async () => {
+    for (const a of actions) {
+      if (a.type === 'drop') {
+        await db.runAsync('DELETE FROM rounds WHERE id = ? AND owner_id = ? AND live = 1', a.id, myId);
+      } else if (a.type === 'insert') {
+        const r = a.round;
+        await db.runAsync(
+          `INSERT OR IGNORE INTO rounds (id, owner_id, layout_id, course_name, hole_count, pars, started_at, finished_at,
+                                         dirty, rev, shared, live, owner_name) VALUES (?,?,?,?,?,?,?,?,0,0,1,1,?)`,
+          r.id, myId, r.layout_id, r.course_name, r.hole_count, JSON.stringify(r.pars), r.started_at, r.finished_at,
+          r.owner_name);
+        for (const p of r.players) {
+          await insertLivePlayer(db, r.id, myId, p);
+          for (const s of p.scores) await insertRestoredScore(db, p.id, s.hole_number, s.strokes, s.updated_at);
+        }
+      } else {
+        if (a.finishedAt) await db.runAsync('UPDATE rounds SET finished_at = ? WHERE id = ?', a.finishedAt, a.id);
+        for (const p of a.players) await insertLivePlayer(db, a.id, myId, p);
+        for (const s of a.scores) await insertRestoredScore(db, s.playerId, s.hole, s.strokes, s.updatedAt);
+      }
+    }
+  });
+}
+
+async function insertLivePlayer(
+  db: SQLite.SQLiteDatabase, roundId: string, myId: string,
+  p: { id: string; position: number; is_me: boolean; name: string },
+) {
+  await db.runAsync(
+    'INSERT OR IGNORE INTO round_players (id, round_id, user_id, guest_name, name, position) VALUES (?,?,?,?,?,?)',
+    p.id, roundId, p.is_me ? myId : null, null, p.name, p.position,
+  );
 }
 
 // ------------------------------------------------------------ restore (own rounds)
@@ -501,10 +609,14 @@ export async function listFriends(): Promise<FriendRow[]> {
 export async function replaceSharedRounds(myId: string, rounds: SharedRound[]) {
   const db = await getDb();
   await db.withTransactionAsync(async () => {
-    await db.runAsync('DELETE FROM rounds WHERE shared = 1 AND owner_id = ?', myId);
+    // Followed (live) rounds are not history: they go away when the round ends or the server stops listing them.
+    await db.runAsync('DELETE FROM rounds WHERE shared = 1 AND live = 0 AND owner_id = ?', myId);
     for (const r of rounds) {
       // Another account on this device may hold a stale copy of the same round; this account's view replaces it.
       await db.runAsync('DELETE FROM rounds WHERE id = ? AND owner_id <> ?', r.id, myId);
+      // The round we followed is now finished and confirmed, so it moves into history, unless our own scores in it
+      // have not been sent yet (then it stays followed until they are).
+      await db.runAsync('DELETE FROM rounds WHERE id = ? AND live = 1 AND dirty = 0', r.id);
       await db.runAsync(
         `INSERT OR IGNORE INTO rounds (id, owner_id, layout_id, course_name, hole_count, pars, started_at, finished_at,
                                        dirty, rev, shared) VALUES (?,?,?,?,?,?,?,?,0,0,1)`,

@@ -43,7 +43,7 @@ export function settingsView(status: PermissionStatus): SettingsView {
   return status === 'granted' ? 'switches' : status === 'undetermined' ? 'turn-on' : 'blocked';
 }
 
-export type PushScreen = '/friends' | '/confirm-rounds';
+export type PushScreen = '/' | '/friends' | '/confirm-rounds';
 
 /**
  * The screen a tapped notification opens, from the data the sender attached (see send-push). Anything unexpected
@@ -56,6 +56,8 @@ export function routeForNotification(data: unknown): PushScreen | null {
       return '/friends';
     case 'confirm-rounds':
       return '/confirm-rounds';
+    case 'rounds':
+      return '/'; // the history list, where a round in progress sits at the top
     default:
       return null;
   }

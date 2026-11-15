@@ -26,8 +26,15 @@ Deno.test('round text asks for confirmation and opens the confirm screen', () =>
   assertEquals(m.data.screen, 'confirm-rounds');
 });
 
+Deno.test('live round text invites the friend in and opens the rounds list', () => {
+  const m = buildMessage('round_live', 'Sam', 't');
+  assertEquals(m.title, 'Round in progress');
+  assertEquals(m.body, 'Sam added you to a round. Open it to enter your scores.');
+  assertEquals(m.data.screen, 'rounds');
+});
+
 Deno.test('messages carry no scores, ids or course data', () => {
-  for (const kind of ['friend_request', 'friend_accepted', 'round_to_confirm'] as Kind[]) {
+  for (const kind of ['friend_request', 'friend_accepted', 'round_to_confirm', 'round_live'] as Kind[]) {
     const m = buildMessage(kind, 'Sam', 't');
     assertEquals(Object.keys(m.data).sort(), ['kind', 'screen']);
     assert(!/\d/.test(m.body), `no digits in: ${m.body}`);

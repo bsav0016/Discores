@@ -35,6 +35,7 @@ describe('routeForNotification', () => {
     expect(routeForNotification({ kind: 'friend_request', screen: 'friends' })).toBe('/friends');
     expect(routeForNotification({ kind: 'friend_accepted', screen: 'friends' })).toBe('/friends');
     expect(routeForNotification({ kind: 'round_to_confirm', screen: 'confirm-rounds' })).toBe('/confirm-rounds');
+    expect(routeForNotification({ kind: 'round_live', screen: 'rounds' })).toBe('/');
   });
   it('ignores anything unexpected', () => {
     for (const bad of [null, undefined, 'friends', 5, [], {}, { screen: 'settings' }, { screen: '/friends' },

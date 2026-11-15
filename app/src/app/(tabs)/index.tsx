@@ -84,6 +84,17 @@ export default function History() {
                 <Ionicons name="chevron-forward" size={20} color={colors.muted} />
               </Card>
             )}
+            {rounds.filter((r) => r.live && !r.finished_at).map((r) => (
+              <Card key={r.id} onPress={() => router.push({ pathname: '/round/[id]', params: { id: r.id } })}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <Ionicons name="radio" size={30} color={colors.brand} />
+                <View style={{ flex: 1 }}>
+                  <Text style={s.h2}>{r.owner_name ?? 'A friend'} added you to a round</Text>
+                  <Text style={s.muted}>{r.course_name} is in progress. Open it to enter your own scores.</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color={colors.muted} />
+              </Card>
+            ))}
             <Button title="Start a round" onPress={() => router.push('/new-round')} style={{ marginTop: 0 }} />
           </View>
         }
@@ -108,7 +119,8 @@ export default function History() {
                 </Text>
                 <View style={{ flexDirection: 'row', gap: 6, marginTop: 2 }}>
                   <Badge label={item.finished_at ? 'Finished' : 'In progress'} tone={item.finished_at ? 'good' : 'warn'} />
-                  {item.shared ? <Badge label="Shared with you" /> : null}
+                  {item.live && !item.finished_at ? <Badge label="Live" tone="good" /> : null}
+                  {item.shared && !item.live ? <Badge label="Shared with you" /> : null}
                   {guest ? <Badge label="On this phone only" /> : syncLabel ? <Badge label={syncLabel.label} tone={syncLabel.tone} /> : null}
                 </View>
               </View>

@@ -4,7 +4,7 @@ the web pages match. HTML comments like this one are not shown to readers.
 -->
 # Privacy Policy
 
-Effective November 9, 2026
+Effective November 15, 2026
 
 Discores is a free disc golf score tracker run by Savidge Apps ("we", "us"). This policy explains what we collect, why, who can see it, and how to delete it. You can reach us at savidgeapps@gmail.com.
 
@@ -17,6 +17,7 @@ Discores is a free disc golf score tracker run by Savidge Apps ("we", "us"). Thi
 - Notifications are optional. If you turn them on, we keep a token for your phone and send short messages that show a name and nothing else.
 - When something goes wrong in the app, a short error report may be sent to us. It contains no name, email, account identifier or scores.
 - Other players never see your email, birth year or gender. Friends see your display name.
+- A friend in your round can open it on their own phone while it is being played, and then sees the round's scores as they are entered.
 - When you are signed in, your rounds are saved to your account, so they come back if you reinstall the app or get a new phone.
 - You can delete a round, or your whole account and data, inside the app at any time.
 
@@ -26,13 +27,13 @@ Discores is a free disc golf score tracker run by Savidge Apps ("we", "us"). Thi
 
 **Profile.** Your display name, your birth year (not your full birthday), and a confirmation that you are 13 or older. Optional: gender, years playing disc golf, a username, and a setting that lets people find you by exact email address (off unless you turn it on). We also create a friend code for you.
 
-**Rounds and scores.** The courses you play, the date, your scores, the holes and pars the round was played with (you can change them while you play), and the names of the other players in the round. Names of people without the app are typed in by whoever scores the round. While you are signed in, the app saves each round to your account and restores your rounds from it when you sign in on a new phone or after reinstalling. If you delete a round, we keep only its identifier, with the date you deleted it, for 90 days so that another device of yours cannot bring it back.
+**Rounds and scores.** The courses you play, the date, your scores, the holes and pars the round was played with (you can change them while you play), and the names of the other players in the round. Names of people without the app are typed in by whoever scores the round. A registered friend in a round can also open it on their own phone while it is being played and enter their own scores. While you are signed in, the app saves each round to your account and restores your rounds from it when you sign in on a new phone or after reinstalling. If you delete a round, we keep only its identifier, with the date you deleted it, for 90 days so that another device of yours cannot bring it back.
 
 **Friends and safety.** Friend requests and friendships, people you have blocked, and reports you send about another person or a course, including any note you write.
 
 **Courses.** If you add a course, report a problem with one, or change the holes or pars of a round, we keep what you submitted and the account that submitted it. When you finish a round whose holes or pars you changed, on a course whose pars are not confirmed yet, the app suggests those pars to the course. We keep each suggestion, linked to your account, until another player's suggestion matches it and the course takes those pars (then the suggestions are deleted), or until you delete your account. The pars you enter when you add a course count as your suggestion too. Nobody else can see who suggested what. Your own rounds keep the pars you played them with, whatever later happens to the course.
 
-**Notifications (optional).** If you allow notifications, Apple or Google gives the app a token that identifies your phone for notifications. We store it with your account so we can tell you when someone sends you a friend request, accepts yours, or scores a round with you that waits for your confirmation. We also keep a short list of notifications waiting to be sent, for up to 30 days. A notification contains the other person's display name and a fixed sentence; it never contains scores, courses or dates. You can turn each kind off in Settings, or turn notifications off for Discores in your phone's settings. We remove the token when you sign out or delete your account, and when Apple or Google tell us the phone no longer receives notifications.
+**Notifications (optional).** If you allow notifications, Apple or Google gives the app a token that identifies your phone for notifications. We store it with your account so we can tell you when someone sends you a friend request, accepts yours, adds you to a round that is being played, or scores a round with you that waits for your confirmation. We also keep a short list of notifications waiting to be sent, for up to 30 days. A notification contains the other person's display name and a fixed sentence; it never contains scores, courses or dates. You can turn each kind off in Settings, or turn notifications off for Discores in your phone's settings. We remove the token when you sign out or delete your account, and when Apple or Google tell us the phone no longer receives notifications.
 
 **Error reports.** If the app crashes, or the server refuses something the app sent (for example a round that could not be saved), a signed-in app may send us a short error report: the kind of error, a short code, a brief message from which email addresses, identifiers, links, file paths and long numbers have been removed, the app version, and whether the phone is an iPhone or Android. A report is not linked to your account, and it contains no scores, courses, names or other content. We use reports only to find and fix bugs. We keep them for 30 days, then delete them. To stop one person from flooding the log, we count how many reports an account has sent in the past hour; that counter is deleted with your account. Guest mode sends no reports.
 
@@ -49,7 +50,8 @@ To run the app: sign you in, keep your rounds saved to your account and in sync 
 ## Who can see what
 
 - **Friends and people with your code.** Anyone who has your friend code can send you a friend request, and the request shows your display name. If you set a username, anyone who types it exactly can send a request. If you turn on email lookup, anyone who types your exact email address can send a request. Nobody can browse or search a list of users.
-- **Players in your rounds.** When someone scores a round that includes you, you are asked to confirm your scores first. Only after you confirm does the round appear in your history and stats, and then it shows each player's display name and scores. If you decline, your name stays on their round as plain text with no link to your account.
+- **Players in a round in progress.** If you add a registered friend to a round, they can see that round while it is being played: the course, the players' display names and everyone's scores so far. They can enter their own scores, and only their own. You can still enter any player's score yourself; for each hole the most recent entry is kept. A friend who enters their own scores has confirmed them. They see the round for up to an hour after it finishes, so the last scores arrive. Someone you block, or who removes you as a friend, can no longer see or change your round.
+- **Players in your rounds.** When someone scores a round that includes you, you are asked to confirm your scores first, unless you entered them yourself. Only after you confirm does the round appear in your history and stats, and then it shows each player's display name and scores. If you decline, your name stays on their round as plain text with no link to your account.
 - **Course contributions.** Courses you add, and pars that other players agreed on, are visible to everyone, without your name.
 - **Blocking.** Someone you block can no longer find you or send you requests, and cannot tell that they were blocked.
 - **Us.** A small number of administrators can see reports and the names involved, in order to review them. Reports are the only place we look at individual people's data.

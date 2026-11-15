@@ -30,8 +30,9 @@ SCORE A ROUND IN SECONDS
 
 PLAY WITH FRIENDS
 - Add friends with a friend code, a QR code, a share link, or an optional username.
-- Score a round for your whole group. Each friend gets to check their own scores and confirm them before the round
-  is added to their history, so nobody ends up with a score they didn't play.
+- Score a round for your whole group on one phone, or let friends open the round on their own phones and enter their
+  own scores while you play. Anyone you scored for checks their scores and confirms them before the round is added
+  to their history, so nobody ends up with a score they didn't play.
 
 YOUR ROUNDS FOLLOW YOU
 - Signed in, your rounds are saved to your account. Get a new phone or reinstall and they come back.

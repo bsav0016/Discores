@@ -1,7 +1,7 @@
 // Turns an outbox row into the text of a notification. Pure, so it is tested without a network.
 // The text carries the other person's display name and nothing else: no scores, courses or dates.
 
-export type Kind = 'friend_request' | 'friend_accepted' | 'round_to_confirm';
+export type Kind = 'friend_request' | 'friend_accepted' | 'round_to_confirm' | 'round_live';
 
 export type OutboxRow = {
   id: number;
@@ -18,7 +18,7 @@ export type PushMessage = {
   body: string;
   sound: 'default';
   // Read by the app when the notification is tapped: which screen to open.
-  data: { kind: Kind; screen: 'friends' | 'confirm-rounds' };
+  data: { kind: Kind; screen: 'friends' | 'confirm-rounds' | 'rounds' };
 };
 
 const MAX_NAME = 40;
@@ -48,6 +48,12 @@ export function buildMessage(kind: Kind, actorName: string | null | undefined, t
         to: token, sound: 'default', title: 'Round to confirm',
         body: `${name} scored a round with you. Confirm your scores.`,
         data: { kind, screen: 'confirm-rounds' },
+      };
+    case 'round_live':
+      return {
+        to: token, sound: 'default', title: 'Round in progress',
+        body: `${name} added you to a round. Open it to enter your scores.`,
+        data: { kind, screen: 'rounds' },
       };
   }
 }

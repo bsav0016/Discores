@@ -1,11 +1,13 @@
 import {
-  clearSuggestion, finishPendingDelete, getRound, getSyncSource, GUEST_ID, isLayoutVerified, listDirtyRoundIds,
-  listLayouts, listPendingDeleteIds, listPendingSuggestions, markSynced, recordSyncFailure, removeLayouts, upsertLayout,
+  applyLive, clearSuggestion, finishPendingDelete, getLiveSeat, getRound, getSyncSource, GUEST_ID, isLayoutVerified,
+  listDirtyLiveRoundIds, listDirtyRoundIds, listLayouts, listLiveState, listPendingDeleteIds, listPendingSuggestions,
+  markSynced, recordSyncFailure, removeLayouts, upsertLayout,
 } from '@/db/local';
 import { supabase } from '@/lib/supabase';
 import { report } from '@/lib/telemetry';
 import { suggestLayout } from './courses';
 import { syncDirtyRounds, type SyncResult } from './engine';
+import { planLive, syncLiveSeats, type LiveRemoteRound } from './live';
 import { sendPendingSuggestions } from './suggestions';
 
 let suggesting: Promise<void> | null = null;
@@ -35,9 +37,42 @@ async function runSuggestions(ownerId: string) {
 }
 
 export async function syncNow(ownerId: string): Promise<SyncResult> {
+  // Live rounds first: the owner's phone takes in what friends entered before it pushes its own edits.
+  await syncLive(ownerId);
   const result = await pushRounds(ownerId);
   await suggestPendingPars(ownerId);
   return result;
+}
+
+let liveRunning: Promise<void> | null = null;
+
+/**
+ * Sends our own seat of the rounds we follow, then pulls the rounds in progress we own or follow and merges what the
+ * others entered. Best effort: never throws and never fails or delays a normal sync. Overlapping calls share one pass.
+ */
+export function syncLive(ownerId: string): Promise<void> {
+  if (ownerId === GUEST_ID) return Promise.resolve();
+  liveRunning ??= runLive(ownerId).finally(() => { liveRunning = null; });
+  return liveRunning;
+}
+
+async function runLive(ownerId: string) {
+  try {
+    await syncLiveSeats({
+      listDirtyLiveRoundIds: () => listDirtyLiveRoundIds(ownerId),
+      getSeat: getLiveSeat,
+      pushSeat: async (roundId, scores) => {
+        const { data, error } = await supabase.rpc('sync_my_seat', { p_round: roundId, p_scores: scores });
+        return { result: typeof data === 'string' ? data : null, error };
+      },
+      markSynced,
+    });
+    const { data, error } = await supabase.rpc('list_live_rounds');
+    if (error || !Array.isArray(data)) return; // offline, or the server does not have live rounds yet
+    await applyLive(ownerId, planLive(await listLiveState(ownerId), data as LiveRemoteRound[]));
+  } catch (e) {
+    report('error', 'sync.live', e);
+  }
 }
 
 function pushRounds(ownerId: string): Promise<SyncResult> {

@@ -95,6 +95,16 @@ export const MIGRATIONS: Migration[] = [
       await addColumnIfMissing(db, 'rounds', 'sync_error_at', 'TEXT');
     },
   },
+  {
+    version: 7,
+    name: 'live rounds',
+    // live = 1: a round someone else is scoring that we follow while it is played, and may score our own seat in.
+    // owner_name: who owns it, for the screen. Both stay 0 / NULL for every other round.
+    up: async (db) => {
+      await addColumnIfMissing(db, 'rounds', 'live', 'INTEGER NOT NULL DEFAULT 0');
+      await addColumnIfMissing(db, 'rounds', 'owner_name', 'TEXT');
+    },
+  },
 ];
 
 export const LATEST_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;

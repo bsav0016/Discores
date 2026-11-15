@@ -4,8 +4,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { getSeatStatus, type SeatStatus } from '@/sync/social';
 import {
-  deleteRound, finishRound, getRound, isLayoutVerified, setRoundPars, setScore, type RoundDetail,
+  deleteRound, finishRound, getRound, isLayoutVerified, setLiveScore, setRoundPars, setScore, type RoundDetail,
 } from '@/db/local';
+import { canEditSeat, isLiveRound, liveBanner } from '@/domain/liveRound';
 import { highestScoredHole } from '@/domain/pars';
 import {
   clampStrokes, formatRelative, isComplete, relativeToPar, totalStrokes,
@@ -14,6 +15,9 @@ import { useAuth } from '@/lib/auth';
 import { maybeAskForReview } from '@/lib/reviewPrompt';
 import { RoundParsEditor } from '@/lib/RoundParsEditor';
 import { Badge, Button, Card, colors, radius, s } from '@/lib/ui';
+
+/** How often a round in progress with other people refreshes while its screen is open. */
+const LIVE_REFRESH_MS = 30_000;
 
 export default function RoundScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -34,16 +38,27 @@ export default function RoundScreen() {
 
   // For rounds this person scored with registered friends: has each friend confirmed their scores yet?
   const [seatStatus, setSeatStatus] = useState<Record<string, SeatStatus> | null>(null);
-  const hasFriendSeats = !!round && !round.shared && !!round.finished_at
+  const hasConfirmSeats = !!round && !round.shared && !!round.finished_at
     && round.players.some((p) => p.user_id && p.user_id !== round.owner_id);
   useEffect(() => {
-    if (!hasFriendSeats || guest) return;
+    if (!hasConfirmSeats || guest) return;
     let stale = false;
     getSeatStatus(id).then((st) => !stale && setSeatStatus(st));
     return () => {
       stale = true;
     };
-  }, [hasFriendSeats, guest, id, syncTick]);
+  }, [hasConfirmSeats, guest, id, syncTick]);
+
+  // A round in progress with other people in it keeps refreshing while this screen is open (the app also syncs when
+  // it comes to the foreground), so what the others enter shows up without leaving the screen.
+  const watching = !!round && !guest && isLiveRound(
+    { live: round.live, shared: round.shared, finished: !!round.finished_at, ownerId: round.owner_id },
+    round.players.map((p) => p.user_id));
+  useEffect(() => {
+    if (!watching) return;
+    const timer = setInterval(() => void sync().catch(() => {}), LIVE_REFRESH_MS);
+    return () => clearInterval(timer);
+  }, [watching, sync]);
 
   if (!round) return <View style={s.screen} />;
 
@@ -51,12 +66,20 @@ export default function RoundScreen() {
   const finished = !!round.finished_at;
   const complete = isComplete(round.hole_count, round.players.map((p) => p.scores));
 
-  async function bump(playerId: string, current: number | undefined, delta: number | 'par') {
-    if (finished) return;
+  const seatRound = { live: round.live, shared: round.shared, finished };
+  const editable = (userId: string | null) => canEditSeat(seatRound, userId, ownerId);
+  const hasFriendSeats = round.players.some((p) => p.user_id && p.user_id !== round.owner_id);
+  const banner = liveBanner({ live: round.live, ownerName: round.owner_name }, !round.shared && !finished && hasFriendSeats && !guest);
+
+  async function bump(playerId: string, seatUserId: string | null, current: number | undefined, delta: number | 'par') {
+    if (!editable(seatUserId)) return;
     const next = delta === 'par' || current === undefined
       ? clampStrokes(par + (delta === 'par' ? 0 : delta))
       : clampStrokes(current + delta);
-    await setScore(playerId, round!.id, hole, next, new Date().toISOString());
+    const now = new Date().toISOString();
+    // In a round someone else owns, only our own seat can be written (and it goes out through sync_my_seat).
+    if (round!.live) await setLiveScore(round!.id, hole, next, now);
+    else await setScore(playerId, round!.id, hole, next, now);
     await reload();
     pushSoon();
   }
@@ -134,6 +157,16 @@ export default function RoundScreen() {
           disabled={hole === round.hole_count} />
       </View>
 
+      {banner && (
+        <View style={{ flexDirection: 'row', gap: 10, padding: 12, borderRadius: 14, backgroundColor: colors.brandSoft }}>
+          <Ionicons name="radio" size={22} color={colors.brandDark} />
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text style={[s.h2, { fontSize: 15 }]}>{banner.title}</Text>
+            <Text style={s.muted}>{banner.detail}</Text>
+          </View>
+        </View>
+      )}
+
       {canEditPars && (
         <Pressable onPress={() => setEditingPars(true)} accessibilityRole="button" accessibilityLabel="Edit holes and pars"
           style={{ alignSelf: 'center', paddingVertical: 4 }}>
@@ -168,19 +201,20 @@ export default function RoundScreen() {
                 {totalStrokes(p.scores)} total · <Text style={{ fontWeight: '800', color: rel.startsWith('-') ? colors.brand : colors.muted }}>{rel}</Text>
               </Text>
             </View>
-            <Stepper label="−" onPress={() => bump(p.id, strokes, -1)} disabled={finished} />
-            <Pressable onPress={() => bump(p.id, strokes, 'par')} style={{ width: 52, alignItems: 'center' }}
+            <Stepper label="−" onPress={() => bump(p.id, p.user_id, strokes, -1)} disabled={!editable(p.user_id)} />
+            <Pressable onPress={() => bump(p.id, p.user_id, strokes, 'par')} disabled={!editable(p.user_id)}
+              style={{ width: 52, alignItems: 'center' }}
               accessibilityLabel={`${p.display_name} strokes, tap to set par`}>
               <Text style={{ fontSize: 38, fontWeight: '800', color: strokes === undefined ? colors.line : colors.ink }}>
                 {strokes ?? par}
               </Text>
             </Pressable>
-            <Stepper label="+" onPress={() => bump(p.id, strokes, 1)} disabled={finished} />
+            <Stepper label="+" onPress={() => bump(p.id, p.user_id, strokes, 1)} disabled={!editable(p.user_id)} />
           </Card>
         );
       })}
 
-      {!finished && (
+      {!finished && !round.live && (
         <Button title={complete ? 'Finish round' : 'Finish round (some holes unscored)'} onPress={finish}
           variant={complete ? 'primary' : 'ghost'} style={{ marginTop: 12 }} />
       )}
@@ -198,7 +232,7 @@ export default function RoundScreen() {
           )}
         </View>
       )}
-      {finished && hasFriendSeats && seatStatus && (
+      {finished && hasConfirmSeats && seatStatus && (
         <Card style={{ gap: 6 }}>
           <Text style={s.label}>FRIENDS' CONFIRMATION</Text>
           {round.players.filter((p) => p.user_id && p.user_id !== round.owner_id).map((p) => {

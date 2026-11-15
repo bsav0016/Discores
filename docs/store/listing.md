@@ -144,6 +144,7 @@ Friends tab with the QR code, and "Confirm scores".
 
 ## 1.1.0 release notes (draft, for both stores)
 
+- Score together: a friend in your round can open it on their own phone and enter their own scores while you play, and see everyone's scores update. Scoring everyone on one phone works exactly as before.
 - Get a notification when a friend sends you a friend request, accepts yours, or scores a round with you (optional: switch each kind on or off in Settings).
 - Courses: change the holes and pars of a round as you play. When other players agree with your pars, the course is confirmed for everyone. Courses with unconfirmed pars are labelled.
 - Adding a course is quicker: your search is filled in for you, and similar courses are shown first so the same course is not added twice.

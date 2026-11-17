@@ -71,6 +71,7 @@ for (const [file, title, src] of docs) {
 writeFileSync(root('site/index.html'), page('Discores', `<h1>Discores</h1>
 <p>A free disc golf score tracker: keep score offline, play with friends, and see your stats.</p>
 <ul>
+<li><a href="courses/index.html">Browse disc golf courses</a></li>
 <li><a href="privacy.html">Privacy Policy</a></li>
 <li><a href="terms.html">Terms of Service</a></li>
 <li><a href="delete-account.html">How to delete your account and data</a></li>

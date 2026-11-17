@@ -3,32 +3,73 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Discores | Discores</title>
+<title>Discores: free disc golf scorecard that works offline</title>
+<meta name="description" content="Discores is a free disc golf scorecard that works with no signal. Keep score, play with friends and see your stats. No ads, no tracking.">
+<link rel="canonical" href="https://bsav0016.github.io/Discores/">
+<link rel="icon" href="img/icon.png">
+<meta name="apple-itunes-app" content="app-id=6820334635">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Discores">
+<meta property="og:title" content="Discores: free disc golf scorecard that works offline">
+<meta property="og:description" content="Discores is a free disc golf scorecard that works with no signal. Keep score, play with friends and see your stats. No ads, no tracking.">
+<meta property="og:url" content="https://bsav0016.github.io/Discores/">
+<meta property="og:image" content="https://bsav0016.github.io/Discores/img/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"MobileApplication","name":"Discores","description":"Discores is a free disc golf scorecard that works with no signal. Keep score, play with friends and see your stats. No ads, no tracking.","applicationCategory":"SportsApplication","operatingSystem":"iOS, Android","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"url":"https://bsav0016.github.io/Discores/","author":{"@type":"Organization","name":"Savidge Apps"}}</script>
 <style>
-  :root { --bg:#f3f5ef; --card:#fff; --ink:#14201a; --muted:#667064; --brand:#125c36; --line:#dfe4da; }
-  @media (prefers-color-scheme: dark) { :root { --bg:#0f1712; --card:#16211a; --ink:#e8efe9; --muted:#9fb0a3; --brand:#6fcf97; --line:#26352b; } }
+  :root { --bg:#f3f5ef; --card:#fff; --ink:#14201a; --muted:#667064; --brand:#125c36; --brand-ink:#fff; --soft:#e3efe7; --line:#dfe4da; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f1712; --card:#16211a; --ink:#e8efe9; --muted:#9fb0a3; --brand:#6fcf97; --brand-ink:#0f1712; --soft:#1d2e23; --line:#26352b; } }
+  * { box-sizing:border-box; }
   body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
-  main { max-width:720px; margin:0 auto; padding:24px 16px 64px; }
+  main { max-width:720px; margin:0 auto; padding:24px 16px 64px; } main.wide { max-width:960px; }
   article { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:8px 24px 24px; }
   h1 { font-size:28px; margin:24px 0 8px; } h2 { font-size:20px; margin:28px 0 4px; }
   a { color:var(--brand); } ul { padding-left:22px; } .step { margin:6px 0; }
-  nav { display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px; font-weight:600; } footer { color:var(--muted); font-size:14px; margin-top:24px; }
+  nav { display:flex; gap:6px 18px; flex-wrap:wrap; margin-bottom:16px; font-weight:600; } nav a { text-decoration:none; }
+  footer { color:var(--muted); font-size:14px; margin-top:24px; } footer a { color:var(--muted); }
+  .hero { text-align:center; padding:24px 8px 8px; } .hero img { width:96px; height:96px; border-radius:22px; }
+  .hero h1 { font-size:clamp(30px,6vw,44px); line-height:1.15; margin:16px 0 8px; letter-spacing:-.5px; }
+  .lead { font-size:18px; color:var(--muted); max-width:560px; margin:0 auto 20px; }
+  .buttons { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  .btn { display:inline-block; background:var(--brand); color:var(--brand-ink); text-decoration:none; font-weight:700; padding:12px 22px; border-radius:12px; }
+  .btn.soft { background:var(--soft); color:var(--brand); }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:14px; margin:28px 0; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px 18px; }
+  .card h2 { margin:0 0 4px; font-size:18px; } .card p { margin:0; color:var(--muted); }
+  .shots { display:flex; gap:14px; overflow-x:auto; padding:6px 2px 14px; scroll-snap-type:x proximity; }
+  .shots figure { margin:0; flex:0 0 auto; scroll-snap-align:start; text-align:center; font-size:14px; color:var(--muted); }
+  .shots img { display:block; width:200px; height:auto; border-radius:18px; border:1px solid var(--line); margin-bottom:6px; }
+  .band { background:var(--soft); border-radius:16px; padding:20px 22px; text-align:center; margin:12px 0; }
+  .band h2 { margin:0 0 4px; }
 </style>
 </head>
 <body>
-<main>
-<nav><a href="index.html">Discores</a><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Service</a><a href="delete-account.html">Delete your account</a></nav>
-<article>
-<h1>Discores</h1>
-<p>A free disc golf score tracker: keep score offline, play with friends, and see your stats.</p>
-<ul>
-<li><a href="courses/index.html">Browse disc golf courses</a></li>
-<li><a href="privacy.html">Privacy Policy</a></li>
-<li><a href="terms.html">Terms of Service</a></li>
-<li><a href="delete-account.html">How to delete your account and data</a></li>
-</ul>
-</article>
-<footer>Discores is a free disc golf score tracker.</footer>
+<main class="wide">
+<nav><a href="index.html">Discores</a><a href="courses/index.html">Courses</a><a href="faq.html">FAQ</a><a href="support.html">Support</a><a href="press.html">Press</a><a href="privacy.html">Privacy</a></nav>
+<section class="hero">
+<img src="img/icon.png" alt="Discores icon" width="96" height="96">
+<h1>Disc golf scoring that works anywhere</h1>
+<p class="lead">A free scorecard for you and your group. Keep score with no signal, play with friends and see how you play every hole. No ads.</p>
+<div class="buttons"><a class="btn" href="https://apps.apple.com/us/app/discores-disc-golf-scorecard/id6820334635">Get it on the App Store</a><a class="btn" href="https://play.google.com/store/apps/details?id=com.discores.app">Get it on Google Play</a></div>
+</section>
+<section class="grid">
+<div class="card"><h2>Works with no signal</h2><p>Every score is saved on your phone first. Score the whole round in the woods and it syncs when you are back online.</p></div>
+<div class="card"><h2>Play with friends</h2><p>Add friends by code, QR code or link. Each friend confirms their own scores, so nobody ends up with a score they did not play.</p></div>
+<div class="card"><h2>Know your game</h2><p>Your best score at every course, how you do on each hole, and a birdie, par and bogey breakdown.</p></div>
+<div class="card"><h2>Private by design</h2><p>No ads and no tracking. We never sell your data, and you can score as a guest with no account.</p></div>
+</section>
+<section class="shots" aria-label="Screenshots">
+<figure><img src="img/scoring.png" alt="Scoring a round: tap to set each player's strokes on the hole" width="200" height="444" loading="lazy">Score a hole in a tap</figure>
+<figure><img src="img/courses.png" alt="Searching for a course by name" width="200" height="444" loading="lazy">Find your course</figure>
+<figure><img src="img/stats.png" alt="Stats: birdies, pars and bogeys, and the average on every hole" width="200" height="444" loading="lazy">See how you play</figure>
+<figure><img src="img/history.png" alt="Round history with scores against par" width="200" height="444" loading="lazy">Every round, saved</figure>
+</section>
+<section class="band">
+<h2>Find a course near you</h2>
+<p>More than 3,000 disc golf courses worldwide, by state and country.</p>
+<a class="btn" href="courses/index.html">Browse courses</a>
+</section>
+<footer>Discores is a free disc golf score tracker by Savidge Apps. <a href="terms.html">Terms</a> · <a href="delete-account.html">Delete your account</a> · <a href="mailto:savidgeapps@gmail.com">savidgeapps@gmail.com</a></footer>
 </main>
 </body>
 </html>

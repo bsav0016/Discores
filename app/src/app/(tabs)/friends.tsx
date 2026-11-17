@@ -6,6 +6,7 @@ import { Alert, ScrollView, Share, Text, View } from 'react-native';
 import { listFriends, type FriendRow } from '@/db/local';
 import { useAuth } from '@/lib/auth';
 import { inviteLink } from '@/lib/invite';
+import { inviteMessage } from '@/domain/share';
 import { Badge, Button, Card, colors, Field, LinkButton, s, SectionTitle } from '@/lib/ui';
 import {
   addFriend, listBlocked, myFriendCode, refreshFriends, removeFriend, respondToRequest, unblockUser, type BlockedPerson,
@@ -135,10 +136,7 @@ function FriendsList() {
           </View>
         )}
         <Button title="Share invite link" variant="soft" disabled={!code}
-          onPress={() => Share.share({
-            message: `Add me on Discores. Friend code: ${code}
-${inviteLink(code!)}`,
-          })}
+          onPress={() => Share.share({ message: inviteMessage(code, inviteLink(code!)) })}
           style={{ alignSelf: 'stretch' }} />
       </Card>
 

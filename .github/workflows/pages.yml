@@ -3,12 +3,22 @@ name: Publish site
 # Publishes site/ (privacy policy, terms and the account-deletion page the stores ask for) to GitHub Pages.
 # site/ is generated from docs/legal by app/scripts/build-site.mjs; CI already checks it is up to date.
 #
-# Runs when site/ changes on main, or by hand. It refuses to publish while any [PLACEHOLDER] text is left in the pages.
+# It also builds the public course pages (site/courses, sitemap.xml, robots.txt) from the live course list with
+# app/scripts/build-courses.js. Those files are made here and are not committed, so the list stays current as courses
+# are added and as players confirm pars (a confirmed course gets its own page). If the course list cannot be read, or
+# looks wrong, the build fails and the previous site stays up.
+#
+# Runs when site/ or the page builder changes on main, every Monday, or by hand. It refuses to publish while any
+# [PLACEHOLDER] text is left in the pages.
 on:
   push:
     branches: [main]
     paths:
       - site/**
+      - app/scripts/build-courses.js
+      - app/scripts/courseSite.js
+  schedule:
+    - cron: '17 6 * * 1'
   workflow_dispatch:
 
 permissions:
@@ -42,6 +52,15 @@ jobs:
             echo "::error::site/ still contains [PLACEHOLDER] text. Fill in docs/legal, run the two build scripts in app/scripts, and commit."
             exit 1
           fi
+
+      - name: Build the course pages
+        env:
+          # Optional repository variables (Settings > Secrets and variables > Actions > Variables). The pages add the
+          # store buttons once these are set.
+          APP_STORE_URL: ${{ vars.APP_STORE_URL }}
+          PLAY_STORE_URL: ${{ vars.PLAY_STORE_URL }}
+          SITE_URL: ${{ vars.SITE_URL }}
+        run: node app/scripts/build-courses.js site
 
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
 

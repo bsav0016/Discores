@@ -53,6 +53,16 @@ jobs:
             exit 1
           fi
 
+      # With a custom domain set (repository variables SITE_URL and CUSTOM_DOMAIN, see docs/CUSTOM_DOMAIN.md) the pages
+      # are rebuilt with that address in their canonical links and previews, so a domain change needs no code change.
+      - name: Build the pages for this address
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+          CUSTOM_DOMAIN: ${{ vars.CUSTOM_DOMAIN }}
+        run: |
+          node app/scripts/build-site.mjs
+          if [ -n "$CUSTOM_DOMAIN" ]; then echo "$CUSTOM_DOMAIN" > site/CNAME; fi
+
       - name: Build the course pages
         env:
           # Optional repository variables (Settings > Secrets and variables > Actions > Variables). The pages add the

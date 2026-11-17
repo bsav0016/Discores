@@ -1,0 +1,59 @@
+name: Growth report
+
+# Once a week, asks the database for a few aggregate counts (growth_report(), migration 0030) and posts them as a
+# comment on the "Weekly growth report" issue, which is assigned to the repository owner so GitHub emails it.
+# Nothing in the report identifies a person. It needs the repository secret GROWTH_REPORT_KEY (see
+# docs/GROWTH_REPORT.md); until that is set the workflow just says so and finishes.
+on:
+  schedule:
+    - cron: '23 14 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: growth-report
+  cancel-in-progress: false
+
+jobs:
+  report:
+    name: report
+    runs-on: ubuntu-24.04 # pinned: ubuntu-latest moves to Ubuntu 26 on 2026-10-19
+    timeout-minutes: 5
+    env:
+      GROWTH_REPORT_KEY: ${{ secrets.GROWTH_REPORT_KEY }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Is the report set up?
+        id: setup
+        run: |
+          if [ -z "$GROWTH_REPORT_KEY" ]; then
+            echo "::notice::GROWTH_REPORT_KEY is not set, so there is nothing to report yet. See docs/GROWTH_REPORT.md."
+            echo "ready=no" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=yes" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: steps.setup.outputs.ready == 'yes'
+        with:
+          persist-credentials: false
+
+      - name: Fetch the numbers
+        if: steps.setup.outputs.ready == 'yes'
+        run: node app/scripts/growth-report.js report.md
+
+      - name: Post to the Weekly growth report issue
+        if: steps.setup.outputs.ready == 'yes'
+        run: |
+          number=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search 'Weekly growth report in:title' \
+            --json number,title --jq '[.[] | select(.title == "Weekly growth report")][0].number // empty')
+          if [ -z "$number" ]; then
+            url=$(gh issue create --repo "$GITHUB_REPOSITORY" --title "Weekly growth report" \
+              --assignee "${GITHUB_REPOSITORY_OWNER}" \
+              --body "One comment a week with aggregate numbers from the database. Nothing here identifies a person. Set up and details: docs/GROWTH_REPORT.md. Close this issue to stop new reports being posted here (the next run opens a fresh one).")
+            number="${url##*/}"
+          fi
+          gh issue comment "$number" --repo "$GITHUB_REPOSITORY" --body-file report.md

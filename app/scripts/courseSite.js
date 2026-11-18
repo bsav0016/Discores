@@ -8,6 +8,8 @@
 //    pars that are not real. As players confirm pars in the app, those courses get their page on the next build.
 //  - sitemap.xml and robots.txt.
 
+const { tagStoreLink } = require('./growthLinks');
+
 const US_STATES = {
   AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas', CA: 'California', CO: 'Colorado', CT: 'Connecticut',
   DE: 'Delaware', DC: 'District of Columbia', FL: 'Florida', GA: 'Georgia', HI: 'Hawaii', ID: 'Idaho', IL: 'Illinois',
@@ -152,8 +154,10 @@ ${body}
 
 function cta(config) {
   const links = [];
-  if (config.appStoreUrl) links.push(`<a href="${esc(config.appStoreUrl)}">App Store</a>`);
-  if (config.playStoreUrl) links.push(`<a href="${esc(config.playStoreUrl)}">Google Play</a>`);
+  // One campaign for every course page: a page per region would be hundreds of campaigns, and the console only needs to
+  // know that the installs came from the course pages.
+  if (config.appStoreUrl) links.push(`<a href="${esc(tagStoreLink(config.appStoreUrl, 'web-courses'))}">App Store</a>`);
+  if (config.playStoreUrl) links.push(`<a href="${esc(tagStoreLink(config.playStoreUrl, 'web-courses'))}">Google Play</a>`);
   const where = links.length ? ` Get it on ${links.join(' or ')}.` : '';
   return `<div class="cta"><strong>Keep score with Discores.</strong> Free, no ads, works offline, and friends can score the round together.${where}</div>`;
 }

@@ -7,6 +7,7 @@
 // workflow builds with the repository variable of the same name, so a custom domain needs no code change.
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import growthLinks from './growthLinks.js';
 
 const root = (p) => fileURLToPath(new URL(`../../${p}`, import.meta.url));
 const SITE = (process.env.SITE_URL || 'https://bsav0016.github.io/Discores/').replace(/\/?$/, '/');
@@ -74,7 +75,16 @@ const NAV = [
   ['press.html', 'Press'], ['privacy.html', 'Privacy'],
 ];
 
-function page({ file, title, body, description = DEFAULT_DESCRIPTION, wide = false, jsonLd = null, fullTitle = null }) {
+// Every page's store buttons carry a campaign named after the page (web-home, web-faq, ...), so installs that came from
+// the site can be told apart in the store consoles. See docs/GROWTH_LINKS.md.
+function page(options) {
+  const campaign = `web-${options.file.replace(/\.html$/, '')}`;
+  return pageHtml(options)
+    .split(`"${APP_STORE}"`).join(`"${growthLinks.tagStoreLink(APP_STORE, campaign).replace(/&/g, '&amp;')}"`)
+    .split(`"${PLAY_STORE}"`).join(`"${growthLinks.tagStoreLink(PLAY_STORE, campaign).replace(/&/g, '&amp;')}"`);
+}
+
+function pageHtml({ file, title, body, description = DEFAULT_DESCRIPTION, wide = false, jsonLd = null, fullTitle = null }) {
   const heading = fullTitle || `${title} | Discores`;
   const url = `${SITE}${file === 'index.html' ? '' : file}`;
   const nav = NAV.map(([href, label]) => `<a href="${href}">${label}</a>`).join('');

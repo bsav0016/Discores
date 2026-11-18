@@ -26,13 +26,13 @@ node -e "const g=require('./app/scripts/growthLinks'); console.log(g.tagStoreLin
 
 Add the name to the table above so a campaign in a console can be traced back.
 
-## One value to set: the App Store provider token
+## The App Store provider token (already set)
 
 The App Store only reports a campaign link that also carries the account's provider token (`pt`). In App Store Connect,
 open the app, App Analytics, Campaigns, Create Campaign Link, and copy the number after `pt=` into
 `APP_STORE_PROVIDER_TOKEN` in `app/scripts/growthLinks.js`, then rebuild the site (`node app/scripts/build-site.mjs`).
 The token is public (it is in every campaign link) and is not a secret. It is the same for every app on the account.
-Until it is set the App Store links work but the App Store does not report their campaign. Google Play needs nothing.
+The provider token is set (122126127, 2026-11-18), so the App Store reports these campaigns in App Analytics. Google Play needs nothing.
 
 ## Reading the results
 

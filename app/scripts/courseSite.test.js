@@ -102,6 +102,7 @@ describe('buildCourseSite', () => {
     expect(file('courses/index.html')).not.toContain('App Store');
     const withLinks = buildCourseSite(courses, { ...config, appStoreUrl: 'https://apps.apple.com/app/id1' });
     expect(withLinks.files.find((f) => f.path === 'courses/index.html').content).toContain('https://apps.apple.com/app/id1');
+    expect(withLinks.files.find((f) => f.path === 'courses/index.html').content).toContain('ct=web-courses');
   });
 });
 

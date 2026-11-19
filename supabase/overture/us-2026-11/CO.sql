@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"9a8765b1-a3c8-42d5-8346-0a5270a92858","name":"Green Valley Ranch Disc Golf Course","area":"Denver, CO","lat":39.772858,"lng":-104.746201}]$ovt$::jsonb);

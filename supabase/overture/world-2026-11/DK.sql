@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"5b3397b2-d9c3-45fb-b0a2-c9c8375b98cb","name":"Disc Golf Park Vendia","area":"Hjørring, DK","lat":57.462784,"lng":10.008413},{"overture_id":"55698be7-29a6-4cd1-8934-14ab8262d07d","name":"Kibæk Discgolf","area":"Kibæk, DK","lat":56.037483,"lng":8.859759}]$ovt$::jsonb);

@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"f5c6d5f2-ff76-42dc-ae8c-2647960a1396","name":"Red River Disc Golf Course","area":"Taos County, NM","lat":36.693844,"lng":-105.408424}]$ovt$::jsonb);

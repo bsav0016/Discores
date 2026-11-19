@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"5067d9da-1fb0-46ea-888f-4794ad680d89","name":"Sportliget Disc Golf Pálya","area":"Budapest, HU","lat":47.465099,"lng":19.170006}]$ovt$::jsonb);

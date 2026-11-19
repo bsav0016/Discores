@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"750a142c-36cd-4338-9af8-aa31c3f1f67f","name":"DiscGolfPark Mertovy Sady","area":"Jindřichův Hradec, CZ","lat":49.146282,"lng":14.994777}]$ovt$::jsonb);

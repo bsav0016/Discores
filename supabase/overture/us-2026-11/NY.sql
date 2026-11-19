@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"fdd3c8a7-d9e5-4179-8504-e4da72712596","name":"Saratoga Spa Disc Golf Course","area":"Saratoga Springs, NY","lat":43.046551,"lng":-73.807861}]$ovt$::jsonb);

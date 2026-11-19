@@ -1,0 +1,1 @@
+select public.import_osm_courses($osmNL$[{"osm_id":"relation/14321799","name":"Gooi-Golf Route","area":"Apeldoorn, NL","lat":52.207683,"lng":6.009854,"holes":18},{"osm_id":"way/1308494778","name":"Disc Golf Course Heerenveen","area":"Heerenveen, NL","lat":52.968572,"lng":5.922939,"holes":18}]$osmNL$::jsonb);

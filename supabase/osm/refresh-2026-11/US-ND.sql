@@ -1,0 +1,1 @@
+select public.import_osm_courses($osmUSND$[{"osm_id":"node/7620687287","name":"Trollwood Disc Golf Course","area":"Fargo, ND","lat":46.926132,"lng":-96.780394,"holes":18},{"osm_id":"node/7934908410","name":"Iwen Park","area":"Fargo, ND","lat":46.803739,"lng":-96.803123,"holes":18}]$osmUSND$::jsonb);

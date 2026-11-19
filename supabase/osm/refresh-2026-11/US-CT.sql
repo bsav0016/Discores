@@ -1,0 +1,1 @@
+select public.import_osm_courses($osmUSCT$[{"osm_id":"way/870835645","name":"Killingworth Recreational Park Disc Golf","area":"Killingworth, CT","lat":41.406482,"lng":-72.53734,"holes":18},{"osm_id":"way/1274012431","name":"Clatter Valley Disc Golf","area":"New Milford, CT","lat":41.546029,"lng":-73.390699,"holes":18}]$osmUSCT$::jsonb);

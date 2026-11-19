@@ -1,0 +1,1 @@
+select public.import_osm_courses($osmUSHI$[{"osm_id":"way/968339207","name":"Old Airport Park Disc Golf Course","area":"Kailua, HI","lat":19.641092,"lng":-156.004455,"holes":18},{"osm_id":"way/1098413307","name":"Disc Golf","area":"HI","lat":21.367929,"lng":-157.711622,"holes":18}]$osmUSHI$::jsonb);

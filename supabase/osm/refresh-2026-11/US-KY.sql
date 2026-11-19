@@ -1,0 +1,1 @@
+select public.import_osm_courses($osmUSKY$[{"osm_id":"node/4514561362","name":"Disc Golf Course","area":"Bowling Green, KY","lat":36.996119,"lng":-86.416396,"holes":18},{"osm_id":"node/5782029828","name":"Disc Golf","area":"Brandenburg, KY","lat":37.996265,"lng":-86.159008,"holes":18}]$osmUSKY$::jsonb);

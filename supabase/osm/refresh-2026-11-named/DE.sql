@@ -1,0 +1,1 @@
+select public.import_osm_courses($osmnDE$[{"osm_id":"relation/19567579","name":"Stadtpark Worms Disc Golf Course","area":"Stadtgebiet Süd, DE","lat":49.620175,"lng":8.36907,"holes":18}]$osmnDE$::jsonb);

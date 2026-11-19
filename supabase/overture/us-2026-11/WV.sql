@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"b7e951d1-b333-4c3b-8eb3-35ab7a7c85db","name":"Cacapon Resort State Park Disc Golf Course","area":"Berkeley Springs, WV","lat":39.507057,"lng":-78.300911}]$ovt$::jsonb);

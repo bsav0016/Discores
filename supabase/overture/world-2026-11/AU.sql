@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"1a132816-2e0b-48b6-b1f1-6018e8287012","name":"Barwon Valley Disc Golf Course","area":"Geelong, AU-VIC","lat":-38.166164,"lng":144.342651},{"overture_id":"1b39bd82-f9c8-471e-9d43-52818d2843fd","name":"Jindabyne Disc Golf","area":"Jindabyne, AU-NSW","lat":-36.432732,"lng":148.608597}]$ovt$::jsonb);

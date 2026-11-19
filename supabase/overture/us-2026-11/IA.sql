@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"6b22b970-ec41-4251-8732-819d6b213cad","name":"Lewis Park Disc Golf Park","area":"Colfax, IA","lat":41.677139,"lng":-93.23127}]$ovt$::jsonb);

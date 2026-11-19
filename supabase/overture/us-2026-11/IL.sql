@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"677b50ca-346d-4758-8af0-44a59671b92c","name":"Community Park West Disc Golf Course","area":"Glenview, IL","lat":42.072636,"lng":-87.862083},{"overture_id":"ca5881ea-1764-4458-b930-2482bd3c1853","name":"Stateline Disc Golf Association","area":"Roscoe, IL","lat":42.391899,"lng":-88.98848}]$ovt$::jsonb);

@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"2ce4084f-16a2-4722-a5bc-42759beb0502","name":"Stumpy Creek Disc Golf Course","area":"Mooresville, NC","lat":35.628349,"lng":-80.897217}]$ovt$::jsonb);

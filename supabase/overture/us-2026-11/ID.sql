@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"224d21ff-1fb5-4502-b77c-8519b289c960","name":"Baldfoot Disc Golf Course","area":"Sandpoint, ID","lat":48.2873,"lng":-116.576324}]$ovt$::jsonb);

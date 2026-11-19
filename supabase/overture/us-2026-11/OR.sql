@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"31b49ada-ad6c-4dd1-be71-56fa87afd1e3","name":"Camp Serene Disc Golf Course","area":"Noti, OR","lat":44.142254,"lng":-123.433403},{"overture_id":"d90eab57-c882-4cef-85c3-a0bc45f7613b","name":"Stubb Steward Disc Golf 18","area":"Buxton, OR","lat":45.738598,"lng":-123.18895}]$ovt$::jsonb);

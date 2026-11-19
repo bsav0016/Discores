@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"6d26eb73-a347-4ffb-b554-b1086007c444","name":"Braine Disc Golf Club Asbl","area":"BRAINE-L'ALLEUD, BE","lat":50.699383,"lng":4.35082}]$ovt$::jsonb);

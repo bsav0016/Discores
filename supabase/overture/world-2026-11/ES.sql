@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"abd00162-fd3a-43b5-89f6-459cfbe1cde5","name":"Disc Golf Sanlúcar","area":"Sanlúcar De Barrameda, ES","lat":36.781765,"lng":-6.353835},{"overture_id":"8ab3885c-0657-412c-8aff-21ba25c4af2f","name":"Disc Golf Palau","area":"Palau-Solità I Plegamans, ES","lat":41.582424,"lng":2.17937}]$ovt$::jsonb);

@@ -1,0 +1,1 @@
+select public.import_overture_courses($fsqMH$[{"overture_id":"fsq:68cf7b74dc8f3b3c94384d81","name":"Kwajalein Disc Golf Course","area":"Kwajalein Atoll, MH","lat":8.729377,"lng":167.740111}]$fsqMH$::jsonb);

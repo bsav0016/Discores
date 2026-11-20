@@ -1,0 +1,1 @@
+select public.import_overture_courses($fsqUSIN$[{"overture_id":"fsq:6a70b543bcb51a4e8472e5ca","name":"Buffalo Trace Park Disc Golf Course","area":"Palmyra, IN","lat":38.410266,"lng":-86.104254}]$fsqUSIN$::jsonb);

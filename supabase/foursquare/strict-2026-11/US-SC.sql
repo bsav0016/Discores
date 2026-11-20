@@ -1,0 +1,1 @@
+select public.import_overture_courses($fsqUSSC$[{"overture_id":"fsq:6ac4168954179b53fa9ba691","name":"Winding Pines Disc Golf Course","area":"Coward, SC","lat":34.03004,"lng":-79.776951}]$fsqUSSC$::jsonb);

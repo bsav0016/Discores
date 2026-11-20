@@ -1,0 +1,1 @@
+select public.import_overture_courses($fsqUSMS$[{"overture_id":"fsq:695d91badadade33320c6922","name":"Music Bend Disc Golf Course","area":"Tupelo, MS","lat":34.269243,"lng":-88.681346},{"overture_id":"fsq:f9a7656b412d4754ed75f492","name":"Paul B Johnson Desert Fox Disc Golf Course","area":"Hattiesburg, MS","lat":31.13381,"lng":-89.241713}]$fsqUSMS$::jsonb);

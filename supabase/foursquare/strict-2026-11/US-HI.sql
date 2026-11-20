@@ -1,0 +1,1 @@
+select public.import_overture_courses($fsqUSHI$[{"overture_id":"fsq:661afadb83996a49e703a094","name":"Lavalinks Disc Golf Course","area":"Pahoa, HI","lat":19.512911,"lng":-155.106458}]$fsqUSHI$::jsonb);

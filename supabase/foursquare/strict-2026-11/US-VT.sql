@@ -1,0 +1,1 @@
+select public.import_overture_courses($fsqUSVT$[{"overture_id":"fsq:68efdb1e3c56e43e9f043f6a","name":"The Alchemist Disc Golf Course","area":"Stowe, VT","lat":44.475919,"lng":-72.715443}]$fsqUSVT$::jsonb);

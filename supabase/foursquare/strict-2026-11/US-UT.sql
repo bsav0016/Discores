@@ -1,0 +1,1 @@
+select public.import_overture_courses($fsqUSUT$[{"overture_id":"fsq:6a1e43c6f33d2d5807903d6e","name":"Springdale, UT Disc Golf Course","area":"Springdale, UT","lat":37.242926,"lng":-113.304365},{"overture_id":"fsq:69bf0605e38c116b5e9b6226","name":"Clinton City Disc Golf Course","area":"Clinton, UT","lat":41.146324,"lng":-112.06133}]$fsqUSUT$::jsonb);

@@ -1,0 +1,1 @@
+select public.import_overture_courses($fsqPT$[{"overture_id":"fsq:67068805c524ac706223a094","name":"Vale Juncal DGC","area":"São Teotónio, PT","lat":37.467392,"lng":-8.733039},{"overture_id":"fsq:6ab7df2221ef5110ccbaf332","name":"Ansião Lagoas Disc Golf Course","area":"Ansião, PT","lat":39.922907,"lng":-8.437984}]$fsqPT$::jsonb);

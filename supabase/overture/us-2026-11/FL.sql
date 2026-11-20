@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"f2da291c-001f-4ddd-8de3-7ceff4b58f79","name":"Stirling Disc Golf Park","area":"Dunedin, FL","lat":28.041988,"lng":-82.780571}]$ovt$::jsonb);

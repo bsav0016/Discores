@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"5635d9c6-3001-414b-a173-bb61d555a890","name":"Woodcock Creek Disc Golf Course","area":"Saegertown, PA","lat":41.697868,"lng":-80.105659}]$ovt$::jsonb);

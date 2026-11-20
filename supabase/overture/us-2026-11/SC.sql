@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"2e7a5b3b-79a5-4ad6-ba6b-c2d0cfd68a09","name":"Tyger River Discs Golf Course","area":"Duncan, SC","lat":34.868668,"lng":-82.100838}]$ovt$::jsonb);

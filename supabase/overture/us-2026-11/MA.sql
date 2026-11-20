@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"367ec6b5-c757-4076-8abd-e0f225c604eb","name":"Cold Spring Disc Golf Course","area":"Belchertown, MA","lat":42.290134,"lng":-72.397285}]$ovt$::jsonb);

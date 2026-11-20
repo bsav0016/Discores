@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"03f306de-fad0-4e96-8258-ee1aa2933519","name":"Varaždin - Drava Forester Disc Golf Course","area":"Varaždin, HR","lat":46.317272,"lng":16.3605}]$ovt$::jsonb);

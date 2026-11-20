@@ -1,0 +1,1 @@
+select public.import_osm_courses($osmnNZ$[{"osm_id":"node/9387451289","name":"Queenspark Reserve Disc Golf Course","area":"Christchurch, NZ","lat":-43.476457,"lng":172.695523,"holes":18},{"osm_id":"node/13032427974","name":"Alfred Cox Park Disc Golf Course","area":"Gisborne, NZ","lat":-38.666827,"lng":178.018156,"holes":18}]$osmnNZ$::jsonb);

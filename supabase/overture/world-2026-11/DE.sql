@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"7531b6b1-9e68-4744-9f3f-095c93e2474c","name":"Discgolfpark am Hangar 21","area":"Detmold, DE","lat":51.943233,"lng":8.901448},{"overture_id":"d33275df-5548-44d5-810e-9af84b197d7c","name":"Disc Golf am Obersee, Bielefeld","area":"Bielefeld, DE","lat":52.05904,"lng":8.55926}]$ovt$::jsonb);

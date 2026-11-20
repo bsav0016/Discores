@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"d3ea9cf1-1e4e-47c1-9514-d40de7c86fe5","name":"Warriors' Path State Park Disc Golf Course","area":"Kingsport, TN","lat":36.490456,"lng":-82.484329}]$ovt$::jsonb);

@@ -1,0 +1,1 @@
+select public.import_overture_courses($fsqUSOR$[{"overture_id":"fsq:685edacf2b0fb053ac18cdcf","name":"Eastern Oregon University Disc Golf Course","area":"La Grande, OR","lat":45.318292,"lng":-118.090963}]$fsqUSOR$::jsonb);

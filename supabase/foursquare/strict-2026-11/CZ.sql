@@ -1,0 +1,1 @@
+select public.import_overture_courses($fsqCZ$[{"overture_id":"fsq:64c65b25fdd06627207953fe","name":"DiscGolfPark GLP park Chrášťany","area":"Chrášťany, CZ","lat":50.050337,"lng":14.261004},{"overture_id":"fsq:66716347e374de1cc80b43f2","name":"DiscGolfPark U Čápa Příchovice","area":"Kořenov, CZ","lat":50.739559,"lng":15.345881}]$fsqCZ$::jsonb);

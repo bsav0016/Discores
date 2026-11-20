@@ -1,0 +1,1 @@
+select public.import_osm_courses($osmUSNE$[{"osm_id":"node/5765993681","name":"Skyview Park Disc Golf Course","area":"Norfolk, NE","lat":42.041901,"lng":-97.439738,"holes":18},{"osm_id":"node/5765993682","name":"River Run Disc Golf Course","area":"Norfolk, NE","lat":42.00411,"lng":-97.420597,"holes":18}]$osmUSNE$::jsonb);

@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"b28fc4e5-2283-4c45-a317-27001c76989d","name":"Lake Valley Disc Golf Course","area":"Cheras, MY","lat":3.045907,"lng":101.760551}]$ovt$::jsonb);

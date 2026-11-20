@@ -1,0 +1,1 @@
+select public.import_osm_courses($osmUSRI$[{"osm_id":"relation/11852436","name":"Disc Golf Course","area":"Charlestown, RI","lat":41.368732,"lng":-71.660247,"holes":18},{"osm_id":"node/6602591452","name":"Slater Park Disc Trail","area":"Pawtucket, RI","lat":41.870833,"lng":-71.349403,"holes":18}]$osmUSRI$::jsonb);

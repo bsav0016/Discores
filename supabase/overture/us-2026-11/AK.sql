@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"a746cc29-07cd-4461-ae85-ab4dd7ce8fd8","name":"Service Disc Golf Course","area":"Anchorage, AK","lat":61.138962,"lng":-149.781326}]$ovt$::jsonb);

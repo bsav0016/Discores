@@ -1,0 +1,1 @@
+select public.import_overture_courses($fsqUSAZ$[{"overture_id":"fsq:64af4fc37e65983886071056","name":"Little America Disc Golf Course","area":"Flagstaff, AZ","lat":35.189516,"lng":-111.61975}]$fsqUSAZ$::jsonb);

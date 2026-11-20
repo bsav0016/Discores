@@ -1,0 +1,1 @@
+select public.import_overture_courses($fsqSJ$[{"overture_id":"fsq:68c1a03263d0be01269c28a9","name":"The Northernmost Disc Golf Course","area":"Лонґйїр, SJ","lat":78.21424,"lng":15.618833}]$fsqSJ$::jsonb);

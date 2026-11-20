@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"36bb27db-4e42-41db-a71b-4e33df4886d1","name":"Jungle Life Disc Golf at Walker Ranch","area":"Dangriga, BZ","lat":17.101097,"lng":-88.308006}]$ovt$::jsonb);

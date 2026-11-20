@@ -1,12 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
-import { getSeatStatus, type SeatStatus } from '@/sync/social';
+import { Alert, Pressable, ScrollView, Share, Text, View } from 'react-native';
+import { getSeatStatus, myFriendCode, type SeatStatus } from '@/sync/social';
 import {
   deleteRound, finishRound, getRound, isLayoutVerified, setLiveScore, setRoundPars, setScore, type RoundDetail,
 } from '@/db/local';
 import { canEditSeat, isLiveRound, liveBanner } from '@/domain/liveRound';
+import { inviteMessage, roundShareMessage } from '@/domain/share';
+import { inviteLink } from '@/lib/invite';
 import { highestScoredHole } from '@/domain/pars';
 import {
   clampStrokes, formatRelative, isComplete, relativeToPar, totalStrokes,
@@ -82,6 +84,35 @@ export default function RoundScreen() {
     else await setScore(playerId, round!.id, hole, next, now);
     await reload();
     pushSoon();
+  }
+
+  // Sharing the sender's own result, and asking the people they played with to join. Only the sender's own score and
+  // course are in the message; nothing about the other players.
+  const mySeat = round.players.find((p) => p.user_id !== null && p.user_id === round.owner_id);
+  const myScored = mySeat ? Object.keys(mySeat.scores).length : 0;
+  const hasGuests = round.players.some((p) => p.user_id === null);
+
+  async function shareScore() {
+    if (!mySeat || myScored === 0) return;
+    try {
+      await Share.share({
+        message: roundShareMessage({
+          courseName: round!.course_name, total: totalStrokes(mySeat.scores),
+          relative: relativeToPar(round!.pars, mySeat.scores), holesPlayed: myScored, holeCount: round!.hole_count,
+        }),
+      });
+    } catch {
+      // The share sheet failing to open is not worth an error message.
+    }
+  }
+
+  async function inviteGroup() {
+    const code = guest ? null : await myFriendCode().catch(() => null);
+    try {
+      await Share.share({ message: inviteMessage(code, code ? inviteLink(code) : null) });
+    } catch {
+      // As above.
+    }
   }
 
   async function finish() {
@@ -231,6 +262,20 @@ export default function RoundScreen() {
               tone={!guest && round.dirty ? 'warn' : 'good'} />
           )}
         </View>
+      )}
+      {finished && (myScored > 0 || hasGuests) && (
+        <Card style={{ gap: 8 }}>
+          <Text style={s.label}>SHARE</Text>
+          {myScored > 0 && <Button title="Share my score" variant="soft" onPress={() => void shareScore()} />}
+          {hasGuests && (
+            <>
+              <Button title="Invite your group to Discores" variant="soft" onPress={() => void inviteGroup()} />
+              <Text style={[s.muted, { fontSize: 12 }]}>
+                Players you typed in by name can install Discores and keep their own rounds.
+              </Text>
+            </>
+          )}
+        </Card>
       )}
       {finished && hasConfirmSeats && seatStatus && (
         <Card style={{ gap: 6 }}>

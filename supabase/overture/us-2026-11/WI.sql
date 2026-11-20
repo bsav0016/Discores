@@ -1,0 +1,1 @@
+select public.import_overture_courses($ovt$[{"overture_id":"fc2e67a8-98d3-4d2c-b98f-6db7cf7011ef","name":"Pierce Park Disc Golf Course","area":"Appleton, WI","lat":44.298046,"lng":-88.428009}]$ovt$::jsonb);

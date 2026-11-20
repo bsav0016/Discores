@@ -10,6 +10,11 @@
 *.pem
 *.mobileprovision
 
+# course pages are built by the Publish site workflow, not committed
+site/courses/
+site/sitemap.xml
+site/robots.txt
+
 # dependencies and build output
 node_modules/
 .expo/

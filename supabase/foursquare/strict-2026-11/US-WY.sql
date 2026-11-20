@@ -1,0 +1,1 @@
+select public.import_overture_courses($fsqUSWY$[{"overture_id":"fsq:6886acd1e550c221dba09ad8","name":"Alpine Disc Golf Course","area":"Alpine, WY","lat":43.164311,"lng":-111.040345}]$fsqUSWY$::jsonb);

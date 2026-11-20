@@ -52,6 +52,7 @@
         }
       ],
       "expo-web-browser",
+  "./plugins/withOptionalHardware",
       [
         "expo-splash-screen",
         {

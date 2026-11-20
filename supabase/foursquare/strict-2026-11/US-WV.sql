@@ -1,0 +1,1 @@
+select public.import_overture_courses($fsqUSWV$[{"overture_id":"fsq:6a32d848c899021bc0909500","name":"Oglebay Disc Golf Course At The Ridge","area":"Wheeling, WV","lat":40.107936,"lng":-80.653309}]$fsqUSWV$::jsonb);

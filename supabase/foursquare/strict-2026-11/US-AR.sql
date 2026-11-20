@@ -1,0 +1,1 @@
+select public.import_overture_courses($fsqUSAR$[{"overture_id":"fsq:4dd86537e4cd37c893c4cad1","name":"Har-Ber Meadows Disc Golf Course","area":"Springdale, AR","lat":36.182353,"lng":-94.19949},{"overture_id":"fsq:4fa53278e4b0752c6931463c","name":"Alma Middle School Disc Golf Course","area":"Alma, AR","lat":35.489289,"lng":-94.197031}]$fsqUSAR$::jsonb);

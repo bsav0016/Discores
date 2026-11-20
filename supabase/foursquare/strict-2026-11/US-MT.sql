@@ -1,0 +1,1 @@
+select public.import_overture_courses($fsqUSMT$[{"overture_id":"fsq:66a90f003e3cf32e441e4acf","name":"Makoshika Disc Golf Course","area":"Glendive, MT","lat":47.081057,"lng":-104.69813},{"overture_id":"fsq:6a19f118454aa37a053dfba0","name":"Chico Hot Springs Disc Golf Course","area":"Pray, MT","lat":45.339881,"lng":-110.699051}]$fsqUSMT$::jsonb);

@@ -1,0 +1,1 @@
+select public.import_overture_courses($fsqUSCT$[{"overture_id":"fsq:685030c25f9d0649b5869565","name":"Preston Ridge Vineyard Disc Golf Course","area":"Preston Township, CT","lat":41.519691,"lng":-72.019448},{"overture_id":"fsq:67c47e5da3223d1f1905fb3d","name":"Norbrook Farm Disc Golf Course","area":"Norfolk, CT","lat":41.991255,"lng":-73.138589}]$fsqUSCT$::jsonb);

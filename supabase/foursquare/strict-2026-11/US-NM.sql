@@ -1,0 +1,1 @@
+select public.import_overture_courses($fsqUSNM$[{"overture_id":"fsq:65ef3c698657975d8ac66430","name":"Jaguar Ridge Disc Golf Park","area":"Santa Fe, NM","lat":35.617041,"lng":-106.064527},{"overture_id":"fsq:64b2bfa45a18910590da315f","name":"Cavalry Disc Golf Course","area":"Albuquerque, NM","lat":35.15834,"lng":-106.596659}]$fsqUSNM$::jsonb);

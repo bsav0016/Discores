@@ -1,0 +1,1 @@
+select public.import_overture_courses($fsqUSNE$[{"overture_id":"fsq:64a335e724d3590d5dd177ae","name":"Hanscom Disc Golf Park","area":"Omaha, NE","lat":41.242397,"lng":-95.9559},{"overture_id":"fsq:4fbac914e4b0bc54723e0cd2","name":"Oxbow Trail Disc Golf Course","area":"Ashland, NE","lat":41.040424,"lng":-96.36206}]$fsqUSNE$::jsonb);

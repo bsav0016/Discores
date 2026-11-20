@@ -1,0 +1,1 @@
+select public.import_overture_courses($fsqUSAK$[{"overture_id":"fsq:6a5da9593d670f6c0dca706a","name":"Seward Community Disc Golf Course","area":"Seward, AK","lat":60.131023,"lng":-149.441324}]$fsqUSAK$::jsonb);

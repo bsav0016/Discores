@@ -1,0 +1,1 @@
+select public.import_overture_courses($fsqAU$[{"overture_id":"fsq:6599ed4e9b26cd28be355426","name":"Freney St Disc Golf Course","area":"Rocklea, QLD","lat":-27.551889,"lng":153.016405},{"overture_id":"fsq:6844fa46f44f561eba9a7cd0","name":"Sylvia Gibbs Disc Golf Course","area":"Everton Hills, QLD","lat":-27.381693,"lng":152.977303}]$fsqAU$::jsonb);

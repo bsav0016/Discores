@@ -1,0 +1,1 @@
+select public.import_overture_courses($fsqSA$[{"overture_id":"fsq:6517b406d1966a53b7f9e52e","name":"Dhahran Sand & Oil Disc Golf Course","area":"الظهران, SA","lat":26.303219,"lng":50.122101}]$fsqSA$::jsonb);

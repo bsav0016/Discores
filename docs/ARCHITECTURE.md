@@ -86,13 +86,15 @@ Rules that keep this safe:
 
 Friends are found only by exact lookup (friend code, QR code, invite link, exact email if the person opted in, or `@username`), never by browsing. When a round with registered players finishes, each player gets a pending confirmation. The round only appears in their history after they confirm their own scores; declining unlinks them and leaves their name as plain text. Blocking and reporting are built in, with an admin review queue.
 
+A round can also be shared while it is being played. The owner's phone still scores everyone (`sync_round`, owner only). A registered friend with a seat can open the round on their own phone: `list_live_rounds()` returns the unfinished rounds you own or follow with every seat and score, and `sync_my_seat()` lets that friend write their own seat only, which also confirms it. The phone merges both ways with the per-hole newer-wins rule (`app/src/sync/live.ts`), and the owner can still enter any seat. The round screen refreshes every 30 seconds while open; there are no realtime subscriptions, so the tables stay closed to clients.
+
 ## Push notifications
 
 Friend requests, accepted requests and finished rounds write a row to `push_outbox` through Postgres triggers. A scheduler calls the `send-push` Edge Function once a minute, but only when something is waiting.
 
 ```mermaid
 flowchart LR
-  EV["Friend request,<br/>accepted request,<br/>finished round"] --> TRG["Postgres triggers"]
+  EV["Friend request,<br/>accepted request,<br/>round in progress,<br/>finished round"] --> TRG["Postgres triggers"]
   TRG --> OUT[("push_outbox")]
   CRON["pg_cron + pg_net<br/>(1 call/min, skipped when empty)"] --> SEND["send-push<br/>Edge Function"]
   OUT --> SEND

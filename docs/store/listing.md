@@ -30,8 +30,9 @@ SCORE A ROUND IN SECONDS
 
 PLAY WITH FRIENDS
 - Add friends with a friend code, a QR code, a share link, or an optional username.
-- Score a round for your whole group. Each friend gets to check their own scores and confirm them before the round
-  is added to their history, so nobody ends up with a score they didn't play.
+- Score a round for your whole group on one phone, or let friends open the round on their own phones and enter their
+  own scores while you play. Anyone you scored for checks their scores and confirms them before the round is added
+  to their history, so nobody ends up with a score they didn't play.
 
 YOUR ROUNDS FOLLOW YOU
 - Signed in, your rounds are saved to your account. Get a new phone or reinstall and they come back.
@@ -143,6 +144,7 @@ Friends tab with the QR code, and "Confirm scores".
 
 ## 1.1.0 release notes (draft, for both stores)
 
+- Score together: a friend in your round can open it on their own phone and enter their own scores while you play, and see everyone's scores update. Scoring everyone on one phone works exactly as before.
 - Get a notification when a friend sends you a friend request, accepts yours, or scores a round with you (optional: switch each kind on or off in Settings).
 - Courses: change the holes and pars of a round as you play. When other players agree with your pars, the course is confirmed for everyone. Courses with unconfirmed pars are labelled.
 - Adding a course is quicker: your search is filled in for you, and similar courses are shown first so the same course is not added twice.

@@ -4,7 +4,7 @@ the web pages match. HTML comments like this one are not shown to readers.
 -->
 # Privacy Policy
 
-Effective November 15, 2026
+Effective November 19, 2026
 
 Discores is a free disc golf score tracker run by Savidge Apps ("we", "us"). This policy explains what we collect, why, who can see it, and how to delete it. You can reach us at savidgeapps@gmail.com.
 

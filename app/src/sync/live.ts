@@ -20,7 +20,9 @@ export type LiveRemoteRound = {
   finished_at: string | null;
   is_owner: boolean;
   owner_name: string;
-  players: { id: string; position: number; is_me: boolean; name: string; scores: LiveRemoteScore[] }[];
+  players: {
+    id: string; position: number; is_me: boolean; user_id?: string | null; name: string; scores: LiveRemoteScore[];
+  }[];
 };
 
 /** What the phone holds for one round the signed-in user owns or follows. */

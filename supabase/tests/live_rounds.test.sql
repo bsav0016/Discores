@@ -73,7 +73,8 @@ begin
                          'friend is not the owner; owner named');
   perform pg_temp.assert((select bool_or((p ->> 'is_me')::boolean) from jsonb_array_elements(live -> 0 -> 'players') p),
                          'friend finds their own seat');
-  perform pg_temp.assert((live -> 0 -> 'players' -> 0 ->> 'user_id') is null, 'friend does not get account ids');
+  perform pg_temp.assert((live -> 0 -> 'players' -> 0 ->> 'user_id')::uuid = brian and (live -> 0 -> 'players' -> 1 ->> 'user_id')::uuid = john
+                         and (live -> 0 -> 'players' -> 2 ->> 'user_id') is null, 'friend gets the owner''s and their own ids, not the guest''s');
   perform pg_temp.assert((select confirmed_at is null from round_players where id = pj), 'seat not confirmed before the friend writes');
 
   -- John fixes his own hole 1 and adds hole 2.

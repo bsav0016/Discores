@@ -8,6 +8,10 @@ Free disc golf scorecard for iOS and Android. Keep score hole by hole on the cou
 
 Scoring a round, confirming a round a friend scored for you, and stats. More screenshots are in [docs/screenshots](docs/screenshots).
 
+Playing with your group: your record against a friend, the "Your group" section on Stats, and a course's best rounds among you and your friends (sample data).
+
+<p><img src="docs/screenshots/33-friend-together.png" alt="A friend's page: your record against them, the average gap, your best round and your last five rounds together" width="24%"> <img src="docs/screenshots/34-your-group.png" alt="Stats: the Your group section, with a record against each friend" width="24%"> <img src="docs/screenshots/35-group-best-rounds.png" alt="A course's stats card showing the best rounds among you and your friends" width="24%"></p>
+
 ## Why it exists
 
 Disc golf is played outdoors, often with weak or no signal, and a round usually has several people to keep score for. Discores records every hole on the device first and syncs when a connection returns, so a round is never lost on the course. Shared rounds only appear in a player's history after that player confirms their own scores, so each person's stats stay accurate.

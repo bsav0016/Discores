@@ -8,6 +8,10 @@ Free disc golf scorecard for iOS and Android. Keep score hole by hole on the cou
 
 Scoring a round, confirming a round a friend scored for you, and stats. More screenshots are in [docs/screenshots](docs/screenshots).
 
+Playing with your group: your record against a friend, the "Your group" section on Stats, and a course's best rounds among you and your friends (sample data).
+
+<p><img src="docs/screenshots/33-friend-together.png" alt="A friend's page: your record against them, the average gap, your best round and your last five rounds together" width="24%"> <img src="docs/screenshots/34-your-group.png" alt="Stats: the Your group section, with a record against each friend" width="24%"> <img src="docs/screenshots/35-group-best-rounds.png" alt="A course's stats card showing the best rounds among you and your friends" width="24%"></p>
+
 ## Why it exists
 
 Disc golf is played outdoors, often with weak or no signal, and a round usually has several people to keep score for. Discores records every hole on the device first and syncs when a connection returns, so a round is never lost on the course. Shared rounds only appear in a player's history after that player confirms their own scores, so each person's stats stay accurate.
@@ -16,16 +20,16 @@ Disc golf is played outdoors, often with weak or no signal, and a round usually 
 
 - **Scoring that works offline.** Rounds, players and scores are written to on-device SQLite first and synced when a connection returns.
 - **Your account keeps your rounds.** Signed in, a reinstall or a new phone restores your full history from the server (`pull_my_rounds`), and deleting a round deletes it on every device.
-- **Course search** across about 1,960 US courses imported from OpenStreetMap and Overture Maps data; users can add a course or report a problem with one.
+- **Course search** across more than 5,000 courses imported from OpenStreetMap, Overture Maps and Foursquare open data; users can add a course or report a problem with one.
 - **Friends and shared rounds.** Add friends by code, QR code, invite link, exact email (opt-in) or `@username`. A round can still be scored entirely on one phone. A registered friend in a round in progress can also open it on their own phone and enter their own scores (live rounds, below); otherwise, when a round with registered players finishes, each player confirms their own scores before it appears in their history.
-- **History and stats** per player.
+- **History and stats** per player, and **how you stack up against your friends**: a friend's page shows your record against them (wins, ties and losses by total strokes), the average gap, your best round and your last rounds together, Stats has a "Your group" section, and each course card lists your group's best rounds there. All of it is worked out on the phone from finished rounds already there.
 - **Sign in** with email, Apple or Google.
 - **Safety and privacy tools.** Report or block people, an admin review queue for reports and course problems, and in-app account deletion (including Sign in with Apple token revocation).
 
 ## Stack
 
 - **App:** Expo SDK 58, React Native 0.88, TypeScript, Expo Router, `expo-sqlite`
-- **Backend:** [Supabase](https://supabase.com) – Postgres (30 SQL migrations in `supabase/migrations`), Auth, and three Edge Functions (`apple-link`, `delete-account`, `send-push`)
+- **Backend:** [Supabase](https://supabase.com) – Postgres (31 SQL migrations in `supabase/migrations`), Auth, and three Edge Functions (`apple-link`, `delete-account`, `send-push`)
 - **Tests:** Jest (`jest-expo`)
 - **CI:** GitHub Actions – type check, tests, and a check that the generated legal text and web pages are up to date
 
@@ -69,6 +73,7 @@ The Jest suite covers scoring, stats, the sync engine, sign-in recovery and invi
 - **Round-level conflict rules.** Scores are last-write-wins per hole by `updated_at`. A finished round stays finished and the earliest `finished_at` wins (`least()` in `sync_round`, migration 0019, and the same rule on the phone), so a stale device can neither un-finish a round nor push its finish time later.
 - **Push notification groundwork (not sent yet).** Migration 0020 records phones (`push_tokens`, moved to whoever signed in last, 10 per account) and queues events in `push_outbox`: a friend request, an accepted request, and a finished round waiting for your answer. Triggers queue an event only if the person has a phone registered, has that category on (`notify_requests`, `notify_rounds`), has no block with the other person, and is under 10 messages an hour; each event is queued once per person. Both tables are closed to clients and the messages will carry display names only. The `send-push` Edge Function (`supabase/functions/send-push`) delivers the queue through Expo; it is tested with Deno in the `functions` CI job and is not scheduled yet, so nothing is sent. On the phone (`app/src/lib/push.ts`, rules in `pushRules.ts`), a signed-in person who has a friend or a round to confirm is asked once whether to turn notifications on; if they agree the phone registers its token, and sign-out or account deletion removes it. A tap opens Friends or the confirm screen; a notification that arrives with the app open just triggers a sync. Settings has a Notifications section: a switch each for friend requests and rounds to confirm (stored on the account, `get/set_notification_settings`), a button to ask while the system question is open, and a link to the phone's settings after a denial. Needs a new native build (`expo-notifications`). Nothing is switched on in the live project yet: [docs/PUSH_GO_LIVE.md](docs/PUSH_GO_LIVE.md) is the ordered checklist (apply 0020, extensions, secrets, deploy, device test, `supabase/go-live/push-schedule.sql`, release).
 - **Live rounds are additive and opt-in per seat.** Migration 0028 adds `list_live_rounds()` (unfinished rounds you own or have a seat in, plus ones finished within the last hour, with every seat and score) and `sync_my_seat()` (write scores to your own seat only, while the round is unfinished or within that hour; per-hole newer-wins; timestamps never later than the server's clock; writing confirms the seat). `sync_round` is unchanged and owner-only, so one-phone scoring and older apps keep working, and the owner can still enter any seat (the newer score per hole wins). Access needs an accepted friendship with the owner, so a block or a deleted round cuts it off. On the phone (`app/src/sync/live.ts`, unit tested) a followed round is a read-only copy (`live = 1`) where only your own seat can be written (`setLiveScore`); `planLive` merges what the server returns with the same newer-wins rule and never touches the sync flag, and the owner's phone merges friends' scores the same way before it pushes. The round screen refreshes every 30 s while open. Migration 0029 queues a `round_live` push when a friend is added to a round in progress; a friend who enters their own scores is not asked to confirm afterwards.
+- **Group records are computed on the phone, and a friend is matched by account id, never by name.** Migration 0031 makes `pull_shared_rounds()` and `list_live_rounds()` return a player's `user_id` only for you and your accepted friends; guests, strangers in the round and deleted accounts come back without one, and blocking or unfriending someone stops their id being returned. The phone keeps that id on the seat (`round_players.user_id`), and a pure module (`app/src/domain/together.ts`, unit tested) builds each friend's record and the per-course boards from finished rounds. A round counts toward a record only when both people scored every hole of the round's own pars, and the winner is the lower total strokes. Nothing new is stored or shared: those players are already in the round with you and see each other's scores.
 - **Public course pages are generated, not written.** The Publish site workflow (every Monday, and whenever the site or the builder changes) runs `app/scripts/build-courses.js`, which reads the public course list with the app's own anon key and writes a page per region (state, province or country) with its courses by city, plus `sitemap.xml` and `robots.txt`. A course gets its own page only once its pars are confirmed by players: until then a page would be a name and a placeholder hole count, which search engines ignore and which would show pars that are not real. Pages carry the OpenStreetMap, Overture and Foursquare credit. The files are not committed; a build that cannot read the list, or gets fewer than 500 courses, fails and leaves the published site as it was. Set the repository variables `APP_STORE_URL`, `PLAY_STORE_URL` (and `SITE_URL` for a custom domain) to put store buttons on the pages. The generator is pure and tested (`app/scripts/courseSite.test.js`).
 - **Confirm before sharing.** A round only shows up in another player's history after they confirm their own scores; declining unlinks them and leaves their name as plain text.
 - **Exact-match lookups only.** Friends can be found by code, email or username, but never browsed or searched by name; the three lookups share one rate limit, and a miss does not reveal whether an account exists.
@@ -77,7 +82,8 @@ The Jest suite covers scoring, stats, the sync engine, sign-in recovery and invi
 
 ## Limitations
 
-- US course coverage only, and thinner outside big cities.
+- Course coverage is strongest in the United States and thinner outside big cities.
+- Records against friends are built from the rounds on the phone, and the shared history the server returns is capped at the latest 200 rounds, so an old record can be incomplete. Players typed in by name, and people who are not your friends, are not compared.
 
 ## License
 

@@ -45,7 +45,7 @@ Anything that has rules goes through a Postgres function rather than a plain tab
 | Folder | Role |
 | --- | --- |
 | `app/` | Screens and navigation (Expo Router): scoring, new round, friends, history, settings, and the admin review queue. |
-| `domain/` | Pure functions for scoring, stats and par handling, unit tested with no I/O. |
+| `domain/` | Pure functions for scoring, stats, par handling and the group records (`together.ts`), unit tested with no I/O. |
 | `db/` | The on-device SQLite database. Numbered schema steps in `migrations.ts` run in a transaction and are recorded in `PRAGMA user_version`; a failing step is rolled back and reported. |
 | `sync/` | Everything that talks to the server: pushing dirty rounds (`engine.ts`), restoring and merging (`restore.ts`), friends (`social.ts`), courses and par suggestions (`courses.ts`, `suggestions.ts`), and admin tools (`admin.ts`). |
 | `lib/` | Auth session handling, the Supabase client, invites and deep links, push registration, and shared UI. |
@@ -87,6 +87,8 @@ Rules that keep this safe:
 Friends are found only by exact lookup (friend code, QR code, invite link, exact email if the person opted in, or `@username`), never by browsing. When a round with registered players finishes, each player gets a pending confirmation. The round only appears in their history after they confirm their own scores; declining unlinks them and leaves their name as plain text. Blocking and reporting are built in, with an admin review queue.
 
 A round can also be shared while it is being played. The owner's phone still scores everyone (`sync_round`, owner only). A registered friend with a seat can open the round on their own phone: `list_live_rounds()` returns the unfinished rounds you own or follow with every seat and score, and `sync_my_seat()` lets that friend write their own seat only, which also confirms it. The phone merges both ways with the per-hole newer-wins rule (`app/src/sync/live.ts`), and the owner can still enter any seat. The round screen refreshes every 30 seconds while open; there are no realtime subscriptions, so the tables stay closed to clients.
+
+Records against friends reuse the rounds already on the phone. `pull_shared_rounds()` and `list_live_rounds()` return a player's `user_id` for you and your accepted friends only (migration 0031), the phone stores it on the seat, and `listTogetherRounds()` hands finished rounds with every seat to `domain/together.ts`, which builds a record per friend and a best-rounds board per course layout. Matching is by account id, never by display name; a round is compared only when both people scored every hole of its own pars; the screens show only current friends. Nothing is sent to the server for this.
 
 ## Push notifications
 

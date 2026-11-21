@@ -4,7 +4,7 @@ the web pages match. HTML comments like this one are not shown to readers.
 -->
 # Privacy Policy
 
-Effective November 19, 2026
+Effective November 21, 2026
 
 Discores is a free disc golf score tracker run by Savidge Apps ("we", "us"). This policy explains what we collect, why, who can see it, and how to delete it. You can reach us at savidgeapps@gmail.com.
 
@@ -18,6 +18,7 @@ Discores is a free disc golf score tracker run by Savidge Apps ("we", "us"). Thi
 - When something goes wrong in the app, a short error report may be sent to us. It contains no name, email, account identifier or scores.
 - Other players never see your email, birth year or gender. Friends see your display name.
 - A friend in your round can open it on their own phone while it is being played, and then sees the round's scores as they are entered.
+- The app compares your scores with your friends' scores in rounds you have played together, on your phone. It uses the rounds the app already has and sends nothing extra.
 - When you are signed in, your rounds are saved to your account, so they come back if you reinstall the app or get a new phone.
 - You can delete a round, or your whole account and data, inside the app at any time.
 

@@ -142,6 +142,10 @@ Friends tab with the QR code, and "Confirm scores".
 - [ ] Production builds: `eas build --platform ios --profile production` and `--platform android --profile production`
       (Android produces the .aab file Google Play wants).
 
+## Next release notes (draft, for both stores)
+
+- Play with your group: a friend's page now shows your record against them, the average gap, your best round and your last rounds together. Stats has a new "Your group" section, and each course shows your group's best rounds. It uses rounds already on your phone; nothing new is shared.
+
 ## 1.1.0 release notes (draft, for both stores)
 
 - Score together: a friend in your round can open it on their own phone and enter their own scores while you play, and see everyone's scores update. Scoring everyone on one phone works exactly as before.

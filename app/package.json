@@ -38,6 +38,7 @@
     "jest": "~30.5.2",
     "jest-expo": "~58.0.12",
     "pngjs": "^7.0.0",
+    "react-test-renderer": "19.3.0",
     "typescript": "~6.0.3"
   },
   "scripts": {

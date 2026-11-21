@@ -1,13 +1,24 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, ScrollView, Text } from 'react-native';
 import { Button, Card, Chip, colors, Field, s, SectionTitle } from '@/lib/ui';
+import { listFriends } from '@/db/local';
+import { useTogether } from '@/lib/useTogether';
+import { TogetherCard } from '@/lib/TogetherViews';
 import { blockUser, removeFriend, REPORT_REASONS, reportUser, type ReportReason } from '@/sync/social';
 
 /** Actions for one person from the Friends tab: remove, report, block. */
 export default function Person() {
-  const { id, name, fid, kind } = useLocalSearchParams<{ id: string; name: string; fid?: string; kind?: string }>();
+  const { id, name, fid: fidParam, kind } = useLocalSearchParams<{ id: string; name: string; fid?: string; kind?: string }>();
   const router = useRouter();
+  const together = useTogether();
+  // Opened from Stats, the friendship id is not passed along; look it up so Remove works from here too.
+  const [fidFound, setFidFound] = useState<string | undefined>(undefined);
+  useEffect(() => {
+    if (fidParam || kind !== 'friend') return;
+    void listFriends().then((fs) => setFidFound(fs.find((f) => f.user_id === id)?.friendship_id));
+  }, [fidParam, kind, id]);
+  const fid = fidParam ?? fidFound;
   const [reason, setReason] = useState<ReportReason | null>(null);
   const [note, setNote] = useState('');
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);
@@ -57,7 +68,11 @@ export default function Person() {
         </Text>
       </Card>
 
-      {kind === 'friend' && <Button title="Remove friend" variant="ghost" onPress={remove} />}
+      {kind === 'friend' && together && (
+        <TogetherCard name={name} record={together.records.find((r) => r.userId === id)} />
+      )}
+
+      {kind === 'friend' && fid && <Button title="Remove friend" variant="ghost" onPress={remove} />}
 
       <SectionTitle>Report</SectionTitle>
       {reported ? (

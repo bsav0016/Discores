@@ -51,6 +51,8 @@ export type SharedRound = {
     id: string;
     position: number;
     is_me: boolean;
+    /** The player's account id: ours, or an accepted friend's. Absent for guests, strangers and old servers. */
+    user_id?: string | null;
     name: string;
     scores: { hole_number: number; strokes: number; updated_at: string }[];
   }[];
@@ -344,6 +346,60 @@ export async function listStatRounds(ownerId: string): Promise<StatRound[]> {
   }));
 }
 
+/** A finished round with every seat, for comparing the people who played it (see domain/together.ts). */
+export type TogetherRound = {
+  id: string;
+  layoutId: string;
+  courseName: string;
+  pars: number[];
+  startedAt: string;
+  players: {
+    /** The seat's account id; null for a guest, or a shared-round player who is not our friend. */
+    userId: string | null;
+    name: string;
+    scores: ScoreMap;
+  }[];
+};
+
+/**
+ * Finished rounds on this phone, own and shared, with every seat's scores. A shared round only knows the account id
+ * of ourselves and our friends (see migration 0031), so other players come back with userId null. Rounds we follow
+ * while they are played, and rounds waiting to be deleted, are left out.
+ */
+export async function listTogetherRounds(ownerId: string): Promise<TogetherRound[]> {
+  const db = await getDb();
+  const rounds = await db.getAllAsync<any>(
+    `SELECT * FROM rounds WHERE owner_id = ? AND finished_at IS NOT NULL AND pending_delete = 0 AND live = 0
+      ORDER BY started_at DESC`, ownerId);
+  const players = await db.getAllAsync<PlayerRow>(
+    `SELECT p.* FROM round_players p JOIN rounds r ON r.id = p.round_id
+      WHERE r.owner_id = ? AND r.finished_at IS NOT NULL AND r.pending_delete = 0 AND r.live = 0
+      ORDER BY p.position`, ownerId);
+  const scoreRows = await db.getAllAsync<{ round_player_id: string; hole_number: number; strokes: number }>(
+    `SELECT s.round_player_id, s.hole_number, s.strokes FROM scores s
+       JOIN round_players p ON p.id = s.round_player_id JOIN rounds r ON r.id = p.round_id
+      WHERE r.owner_id = ? AND r.finished_at IS NOT NULL AND r.pending_delete = 0 AND r.live = 0`, ownerId);
+  const scoresOf = new Map<string, ScoreMap>();
+  for (const s of scoreRows) {
+    const m = scoresOf.get(s.round_player_id) ?? {};
+    m[s.hole_number] = s.strokes;
+    scoresOf.set(s.round_player_id, m);
+  }
+  const byRound = new Map<string, TogetherRound['players']>();
+  for (const p of players) {
+    const list = byRound.get(p.round_id) ?? [];
+    list.push({
+      userId: p.user_id, name: p.user_id === ownerId ? 'You' : (p.guest_name ?? p.name ?? 'Player'),
+      scores: scoresOf.get(p.id) ?? {},
+    });
+    byRound.set(p.round_id, list);
+  }
+  return rounds.map((r) => ({
+    id: r.id, layoutId: r.layout_id, courseName: r.course_name, pars: JSON.parse(r.pars), startedAt: r.started_at,
+    players: byRound.get(r.id) ?? [],
+  }));
+}
+
 export async function getRound(roundId: string): Promise<RoundDetail | null> {
   const db = await getDb();
   const r = await db.getFirstAsync<any>('SELECT * FROM rounds WHERE id = ?', roundId);
@@ -492,11 +548,11 @@ export async function applyLive(myId: string, actions: LiveAction[]) {
 
 async function insertLivePlayer(
   db: SQLite.SQLiteDatabase, roundId: string, myId: string,
-  p: { id: string; position: number; is_me: boolean; name: string },
+  p: { id: string; position: number; is_me: boolean; user_id?: string | null; name: string },
 ) {
   await db.runAsync(
     'INSERT OR IGNORE INTO round_players (id, round_id, user_id, guest_name, name, position) VALUES (?,?,?,?,?,?)',
-    p.id, roundId, p.is_me ? myId : null, null, p.name, p.position,
+    p.id, roundId, p.is_me ? myId : (p.user_id ?? null), null, p.name, p.position,
   );
 }
 
@@ -625,7 +681,7 @@ export async function replaceSharedRounds(myId: string, rounds: SharedRound[]) {
       for (const p of r.players) {
         await db.runAsync(
           'INSERT OR IGNORE INTO round_players (id, round_id, user_id, guest_name, name, position) VALUES (?,?,?,?,?,?)',
-          p.id, r.id, p.is_me ? myId : null, null, p.name, p.position,
+          p.id, r.id, p.is_me ? myId : (p.user_id ?? null), null, p.name, p.position,
         );
         for (const s of p.scores) {
           await db.runAsync(

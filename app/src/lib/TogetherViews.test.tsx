@@ -42,6 +42,7 @@ describe('TogetherCard', () => {
     expect(all).toContain('Best 4 ahead at Maple Hill');
     expect(all).toContain('Oak Park');
     expect(all).toContain('45–44');
+    expect(all).toContain("Strokes, yours then Fay's.");
   });
 
   it('explains when nothing is comparable yet', () => {

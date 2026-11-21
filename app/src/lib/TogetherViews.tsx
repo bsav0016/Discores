@@ -42,6 +42,7 @@ export function TogetherCard({ name, record }: { name: string; record: FriendRec
           </View>
           <Text style={[s.muted, { fontSize: 12 }]}>Record is your wins, ties and losses, by total strokes. Fewer strokes wins.</Text>
           <Text style={s.label}>LAST {last.length} ROUND{last.length === 1 ? '' : 'S'}</Text>
+          <Text style={[s.muted, { fontSize: 12 }]}>Strokes, yours then {name}'s.</Text>
           {last.map((r) => (
             <View key={r.roundId} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <Text style={[s.body, { flex: 1 }]} numberOfLines={1}>{r.courseName}</Text>

@@ -6,7 +6,10 @@ import { listStatRounds } from '@/db/local';
 import { formatRelative } from '@/domain/scoring';
 import { computeStats, type CourseStats, type Outcomes, type StatRound } from '@/domain/stats';
 import { useAuth } from '@/lib/auth';
+import { CourseBoardView, GroupSection } from '@/lib/TogetherViews';
 import { Badge, Card, colors, radius, s, SectionTitle } from '@/lib/ui';
+import { useTogether } from '@/lib/useTogether';
+import type { CourseBoard } from '@/domain/together';
 
 const OUTCOME_KEYS: (keyof Outcomes)[] = ['eagle', 'birdie', 'par', 'bogey', 'double'];
 const OUTCOME_COLORS: Record<keyof Outcomes, string> = {
@@ -23,6 +26,7 @@ export default function Stats() {
   const { ownerId, syncTick } = useAuth();
   const [rounds, setRounds] = useState<StatRound[] | null>(null);
   const [open, setOpen] = useState<string | null>(null);
+  const together = useTogether();
 
   useFocusEffect(
     useCallback(() => {
@@ -80,8 +84,11 @@ export default function Stats() {
       <SectionTitle>Courses</SectionTitle>
       {stats.courses.map((c) => (
         <CourseCard key={c.layoutId} c={c} open={open === c.layoutId}
+          board={together?.boards.find((b) => b.layoutId === c.layoutId)}
           onPress={() => setOpen(open === c.layoutId ? null : c.layoutId)} />
       ))}
+
+      {together && <GroupSection records={together.records} />}
     </ScrollView>
   );
 }
@@ -96,7 +103,7 @@ function Tile({ label, value, note, color }: { label: string; value: string; not
   );
 }
 
-function CourseCard({ c, open, onPress }: { c: CourseStats; open: boolean; onPress: () => void }) {
+function CourseCard({ c, open, board, onPress }: { c: CourseStats; open: boolean; board?: CourseBoard; onPress: () => void }) {
   const recent = c.rounds.slice(-10);
   const scale = Math.max(3, ...recent.map((r) => Math.abs(r.relative)));
   return (
@@ -149,6 +156,7 @@ function CourseCard({ c, open, onPress }: { c: CourseStats; open: boolean; onPre
             ))}
           </View>
           <Text style={[s.muted, { fontSize: 12 }]}>Red holes cost you the most strokes.</Text>
+          {board && <CourseBoardView board={board} />}
         </View>
       )}
     </Card>
